@@ -327,6 +327,130 @@ export const apiClient = {
     },
   },
 
+  portfolio: {
+    list() {
+      return request<{
+        projects: Array<{
+          id: string
+          key: string
+          name: string
+          client: string
+          clientSector: string
+          source: string
+          health: 'green' | 'yellow' | 'red'
+          healthScore: number
+          sprintNum: number
+          sprintDay: number
+          sprintLength: number
+          sprintCompleted: number
+          sprintTotalPoints: number
+          burndown: { ideal: number[]; actual: number[] }
+          velocityPoints: number
+          velocitySpark: number[]
+          velocityTrend: 'up' | 'down' | 'stable'
+          consumedPct: number
+          team: Array<{ name: string; avatar: string; color?: string }>
+          prsOpen: number
+          prsStale: number
+          onTimeProb: number
+          lastSync: string
+        }>
+        kpis: {
+          totalProjects: number
+          activeBudget: number
+          avgBurn: number
+          openPRs: number
+          avgMargin: number
+          avgHealth: number
+          burnTimeline: Array<{ spent: number; budget: number }>
+        }
+      }>('/portfolio')
+    },
+  },
+
+  financial: {
+    summary() {
+      return request<{
+        totalRevenue: number
+        totalConsumed: number
+        totalBilled: number
+        overdue: number
+        burnByProject: Array<{
+          projectName: string
+          consumed: number
+          budget: number
+          health: 'green' | 'yellow' | 'red'
+        }>
+        projects: Array<{
+          id: string
+          name: string
+          client: string
+          budget: number
+          consumed: number
+          billed: number
+          margin: number
+          health: 'green' | 'yellow' | 'red'
+          currency: string
+        }>
+      }>('/financial/summary')
+    },
+  },
+
+  allSprints: {
+    list() {
+      return request<Array<{
+        id: string
+        name: string
+        state: string
+        startDate: string | null
+        endDate: string | null
+        totalPoints: number
+        completedPoints: number
+        project: { id: string; name: string; key: string | null }
+        totalCards: number
+        completedCards: number
+        remainingCards: number
+        completionPercentage: number
+        backendPoints: number
+        frontendPoints: number
+        burndown: Array<{
+          date: string
+          baselinePoints: number
+          actualPoints: number
+          completedPoints: number
+        }>
+        issuesByStatus: {
+          todo: number
+          inProgress: number
+          test: number
+          uat: number
+          done: number
+          cancelled: number
+        }
+      }>>('/sprints')
+    },
+  },
+
+  forecasts: {
+    listAll() {
+      return request<Array<{
+        projectId: string
+        projectName: string
+        projectKey: string | null
+        deadline: string | null
+        startDate: string | null
+        forecast: {
+          id: string
+          onTimeProbability: number
+          predictedEndDate: string | null
+          confidence: string
+          reasoning: string
+          createdAt: string
+        } | null
+      }>>('/forecasts')
+    },
+  },
+
   gp: {
     portfolios() {
       return request<GPPortfolio[]>('/gp/portfolios')

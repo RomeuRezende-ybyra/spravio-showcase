@@ -1,12 +1,25 @@
 'use client'
 
-import { useState, useMemo } from 'react'
-import { LayoutGrid, LayoutList, FolderOpen } from 'lucide-react'
+import { useState, useMemo, useEffect } from 'react'
+import { LayoutGrid, LayoutList, FolderOpen, Loader2 } from 'lucide-react'
 import { Topbar } from '@/components/layout/topbar'
 import { PortfolioKPIs } from '@/components/portfolio/portfolio-kpis'
 import { PortfolioFilters } from '@/components/portfolio/portfolio-filters'
 import { PortfolioTable } from '@/components/portfolio/portfolio-table'
 import { PortfolioCards } from '@/components/portfolio/portfolio-cards'
+
+interface PortfolioData {
+  projects: any[]
+  kpis: {
+    totalProjects: number
+    activeBudget: number
+    avgBurn: number
+    openPRs: number
+    avgMargin: number
+    avgHealth: number
+    burnTimeline: Array<{ spent: number; budget: number }>
+  }
+}
 
 export default function PortfolioPage() {
   const [filter, setFilter] = useState('all')
@@ -14,9 +27,36 @@ export default function PortfolioPage() {
   const [sortKey, setSortKey] = useState('healthScore')
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('asc')
   const [view, setView] = useState<'table' | 'cards'>('table')
+  const [data, setData] = useState<PortfolioData | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  // TODO: Replace with real API call
-  const allProjects: any[] = []
+  useEffect(() => {
+    async function fetchPortfolio() {
+      try {
+        const res = await fetch('/api/portfolio')
+        const json = await res.json()
+        if (json.success) {
+          setData(json.data)
+        }
+      } catch (err) {
+        console.error('Failed to fetch portfolio:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPortfolio()
+  }, [])
+
+  const allProjects = data?.projects ?? []
+  const kpis = data?.kpis ?? {
+    totalProjects: 0,
+    activeBudget: 0,
+    avgBurn: 0,
+    openPRs: 0,
+    avgMargin: 0,
+    avgHealth: 0,
+    burnTimeline: [],
+  }
 
   // Filter and search
   const filteredProjects = useMemo(() => {
@@ -51,21 +91,11 @@ export default function PortfolioPage() {
     return result
   }, [allProjects, filter, search, sortKey, sortDir])
 
-  const kpis = {
-    totalProjects: 0,
-    activeBudget: 0,
-    avgBurn: 0,
-    openPRs: 0,
-    avgMargin: 0,
-    avgHealth: 0,
-    burnTimeline: [],
-  }
-
   const chips = [
-    { id: 'all', label: 'All', count: 0 },
-    { id: 'ontrack', label: 'On Track', count: 0, color: 'green' as const },
-    { id: 'risk', label: 'At Risk', count: 0, color: 'yellow' as const },
-    { id: 'critical', label: 'Critical', count: 0, color: 'red' as const },
+    { id: 'all', label: 'All', count: allProjects.length },
+    { id: 'ontrack', label: 'On Track', count: allProjects.filter((p) => p.health === 'green').length, color: 'green' as const },
+    { id: 'risk', label: 'At Risk', count: allProjects.filter((p) => p.health === 'yellow').length, color: 'yellow' as const },
+    { id: 'critical', label: 'Critical', count: allProjects.filter((p) => p.health === 'red').length, color: 'red' as const },
   ]
 
   const handleSort = (key: string) => {
@@ -131,7 +161,12 @@ export default function PortfolioPage() {
           </div>
 
           {/* Projects View */}
-          {allProjects.length === 0 ? (
+          {loading ? (
+            <div className="bg-bg-el border border-rule rounded-sv py-16 text-center">
+              <Loader2 className="h-8 w-8 text-ink-3 mx-auto mb-3 animate-spin" />
+              <p className="text-sm text-ink-2">Loading portfolio...</p>
+            </div>
+          ) : allProjects.length === 0 ? (
             <div className="bg-bg-el border border-rule rounded-sv py-16 text-center">
               <FolderOpen className="h-12 w-12 text-ink-3 mx-auto mb-3" />
               <p className="text-sm text-ink-2 mb-1">No projects in portfolio</p>

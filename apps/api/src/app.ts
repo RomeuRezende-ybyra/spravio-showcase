@@ -25,6 +25,8 @@ import teamsConfigRoutes from './modules/teams-config/route.js'
 import tempoConfigRoutes from './modules/tempo-config/route.js'
 import clockifyConfigRoutes from './modules/clockify-config/route.js'
 import forecastRoutes from './modules/forecast/route.js'
+import portfolioRoutes from './modules/portfolio/route.js'
+import financialRoutes from './modules/financial/route.js'
 import organizationRoutes from './modules/organizations/route.js'
 import githubRoutes from './modules/github/route.js'
 import userRoutes from './modules/users/route.js'
@@ -108,6 +110,8 @@ export function buildApp() {
   app.register(tempoConfigRoutes)
   app.register(clockifyConfigRoutes)
   app.register(forecastRoutes)
+  app.register(portfolioRoutes)
+  app.register(financialRoutes)
   app.register(notificationsRoutes)
   app.register(securityRoutes)
   app.register(webhooksRoutes)
