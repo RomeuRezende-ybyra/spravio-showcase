@@ -10,7 +10,10 @@
 ![Redis](https://img.shields.io/badge/Redis-7-DC382D?logo=redis&logoColor=white)
 ![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)
 
-**🔗 Live demo:** `<ADD-YOUR-DEMO-URL-HERE>`
+**🔗 Live demo:** https://www.spravio.io
+
+> **Demo access:** demo@spravio.io / spravio123456!
+> Sample data only — explore freely.
 
 ---
 
