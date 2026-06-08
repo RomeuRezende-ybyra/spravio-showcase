@@ -6,13 +6,14 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('🌱 Starting seed...')
 
-  // Block execution outside local development
+  // Block execution outside local development (bypass with FORCE_SEED=true)
   const dbUrl = process.env.DATABASE_URL ?? ''
   const isLocal = /localhost|127\.0\.0\.1/.test(dbUrl)
 
-  if (process.env.NODE_ENV === 'production' || !isLocal) {
+  if ((process.env.NODE_ENV === 'production' || !isLocal) && process.env.FORCE_SEED !== 'true') {
     console.log('⚠️  Seed blocked — only runs against localhost databases')
     console.log(`   DATABASE_URL host: ${dbUrl.replace(/\/\/.*@/, '//***@')}`)
+    console.log('   To bypass, set FORCE_SEED=true')
     return
   }
 
@@ -42,7 +43,16 @@ async function main() {
   // Create Users
   console.log('👥 Creating users...')
   const passwordHash = await bcrypt.hash('password123', 10)
-  
+  const demoPasswordHash = await bcrypt.hash('spravio123456!', 10)
+
+  const demoOwner = await prisma.user.create({
+    data: {
+      email: 'demo@spravio.io',
+      name: 'Demo Admin',
+      passwordHash: demoPasswordHash,
+    },
+  })
+
   const owner = await prisma.user.create({
     data: {
       email: 'owner@demo.com',
@@ -79,6 +89,7 @@ async function main() {
   console.log('🔗 Linking users to organization...')
   await prisma.organizationUser.createMany({
     data: [
+      { userId: demoOwner.id, organizationId: org.id, role: 'OWNER' },
       { userId: owner.id, organizationId: org.id, role: 'OWNER' },
       { userId: pm1.id, organizationId: org.id, role: 'PROJECT_MANAGER' },
       { userId: pm2.id, organizationId: org.id, role: 'PROJECT_MANAGER' },
@@ -212,6 +223,7 @@ async function main() {
   console.log('✅ Seed completed successfully!')
   console.log('')
   console.log('📋 Demo Users:')
+  console.log('  Demo:    demo@spravio.io / spravio123456!')
   console.log('  Owner:   owner@demo.com / password123')
   console.log('  PM 1:    pm1@demo.com / password123')
   console.log('  PM 2:    pm2@demo.com / password123')
