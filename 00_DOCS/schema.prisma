@@ -1,0 +1,287 @@
+// TrackingProject - Prisma Schema
+// Run: pnpm db:generate && pnpm db:migrate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── MULTI-TENANT ────────────────────────────────────────────────────────────
+
+model Organization {
+  id        String    @id @default(cuid())
+  name      String
+  slug      String    @unique
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  users     OrganizationUser[]
+  projects  Project[]
+  settings  OrganizationSettings?
+}
+
+model OrganizationUser {
+  id             String       @id @default(cuid())
+  role           OrgRole      @default(MEMBER)
+  createdAt      DateTime     @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model OrganizationSettings {
+  id             String       @id @default(cuid())
+  jiraBaseUrl    String?
+  jiraEmail      String?
+  jiraApiToken   String?      // encrypted at rest
+  jiraCloudId    String?
+  githubOrg      String?
+  githubToken    String?      // encrypted at rest
+
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  organizations OrganizationUser[]
+  accounts      Account[]
+  sessions      Session[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  expires      DateTime
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── PROJECTS ────────────────────────────────────────────────────────────────
+
+model Project {
+  id              String    @id @default(cuid())
+  name            String
+  jiraProjectKey  String
+  jiraBoardId     Int?
+  githubRepo      String?   // format: "owner/repo"
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastSyncAt      DateTime?
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  sprints         Sprint[]
+  developers      ProjectDeveloper[]
+  epics           Epic[]
+  syncLogs        SyncLog[]
+
+  @@unique([organizationId, jiraProjectKey])
+}
+
+// ─── SPRINTS ─────────────────────────────────────────────────────────────────
+
+model Sprint {
+  id             String      @id @default(cuid())
+  jiraSprintId   Int         @unique
+  name           String
+  state          SprintState @default(ACTIVE)
+  startDate      DateTime?
+  endDate        DateTime?
+  completeDate   DateTime?
+  totalPoints    Int         @default(0)
+  completedPoints Int        @default(0)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+
+  projectId      String
+  project        Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  issues         Issue[]
+  burndownPoints BurndownPoint[]
+}
+
+model BurndownPoint {
+  id           String   @id @default(cuid())
+  date         DateTime @db.Date
+  baselinePoints Int
+  actualPoints   Int
+  completedPoints Int
+
+  sprintId     String
+  sprint       Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintId, date])
+}
+
+// ─── DEVELOPERS ──────────────────────────────────────────────────────────────
+
+model Developer {
+  id              String  @id @default(cuid())
+  jiraAccountId   String  @unique
+  githubLogin     String? @unique
+  name            String
+  email           String?
+  avatarUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projects        ProjectDeveloper[]
+  issues          Issue[]
+}
+
+model ProjectDeveloper {
+  id           String    @id @default(cuid())
+  rating       Float     @default(0)
+  deliveryRate Float     @default(0)   // percentage: 0–100
+  returnRate   Float     @default(0)   // percentage: 0–100
+  backendPoints Int      @default(0)
+  frontendPoints Int     @default(0)
+  updatedAt    DateTime  @updatedAt
+
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  developerId  String
+  developer    Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, developerId])
+}
+
+// ─── ISSUES (CARDS) ──────────────────────────────────────────────────────────
+
+model Issue {
+  id            String      @id @default(cuid())
+  jiraIssueId   String      @unique
+  jiraIssueKey  String      // e.g. "PROJ-123"
+  title         String
+  points        Int         @default(0)
+  issueType     IssueType   @default(BACKEND)
+  status        IssueStatus @default(TODO)
+  wasReturned   Boolean     @default(false) // went back from Done
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  resolvedAt    DateTime?
+
+  sprintId      String?
+  sprint        Sprint?     @relation(fields: [sprintId], references: [id])
+
+  developerId   String?
+  developer     Developer?  @relation(fields: [developerId], references: [id])
+
+  epicId        String?
+  epic          Epic?       @relation(fields: [epicId], references: [id])
+}
+
+// ─── EPICS ───────────────────────────────────────────────────────────────────
+
+model Epic {
+  id           String  @id @default(cuid())
+  jiraEpicId   String  @unique
+  jiraEpicKey  String
+  name         String
+  color        String?
+  createdAt    DateTime @default(now())
+
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  issues       Issue[]
+}
+
+// ─── SYNC LOGS ───────────────────────────────────────────────────────────────
+
+model SyncLog {
+  id          String     @id @default(cuid())
+  type        SyncType
+  status      SyncStatus @default(RUNNING)
+  startedAt   DateTime   @default(now())
+  finishedAt  DateTime?
+  durationMs  Int?
+  errorMsg    String?
+  itemsSynced Int        @default(0)
+
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum OrgRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum SprintState {
+  FUTURE
+  ACTIVE
+  CLOSED
+}
+
+enum IssueType {
+  BACKEND
+  FRONTEND
+  DESIGN
+  DEVOPS
+}
+
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  TEST
+  UAT
+  DONE
+  CANCELLED
+}
+
+enum SyncType {
+  FULL
+  SPRINT
+  INCREMENTAL
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}

@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<style data-omelette-injected>html,body{background:transparent}</style><script data-omelette-injected>(()=>{var $=["https://claude.ai","https://preview.claude.ai","https://eap-omelette.claude.ai"];var F=30000;var A=3000;document.addEventListener("DOMContentLoaded",()=>{const Q="transform-react-jsx-source";document.querySelectorAll('script[type="text/babel"],script[type="text/jsx"]').forEach((J,V)=>{const X=J.getAttribute("data-plugins")||"";if(X.indexOf(Q)<0){J.setAttribute("data-plugins",X?`${X},${Q}`:Q)}if(!J.hasAttribute("data-filename")){J.setAttribute("data-filename",J.getAttribute("src")||`inline-${V}`)}})});var W=window.parent;if(W&&W!==window){const Q=(z,k)=>{try{W.postMessage({__omelette_log:true,type:z,data:k},"*")}catch{}};["log","warn","error"].forEach((z)=>{const k=console[z];console[z]=(...C)=>{const D=C.map((w)=>{try{return typeof w==="object"?JSON.stringify(w):String(w)}catch{try{return String(w)}catch{return"[unstringifiable]"}}}).join(" ");Q(z,D);k.apply(console,C)}});window.addEventListener("error",(z)=>{const k=z.target;if(k&&k!==window&&k.tagName){const C=k.src||k.href||"";Q("resource_error",`${k.tagName} failed to load: ${C}`)}else{Q("error",`${z.message||"Unknown error"} at ${z.filename||"?"}:${z.lineno||0}:${z.colno||0}`)}},true);window.addEventListener("unhandledrejection",(z)=>{const k=z.reason;const C=k instanceof Error?`${k.message} ${k.stack}`:String(k);Q("error",`Unhandled rejection: ${C}`)});const J=()=>{try{W.postMessage({type:"omelette:height",height:document.documentElement.scrollHeight},"*")}catch{}};if(document.readyState==="complete")J();else window.addEventListener("load",J);if(window.ResizeObserver)new ResizeObserver(J).observe(document.documentElement);const V={};let X=0;window.claude={complete(z){return new Promise((k,C)=>{if(!$.length){C(new Error("claude.complete: no parent origin"));return}const D=`c${++X}`;const w=()=>setTimeout(()=>{delete V[D];C(new Error(`claude.complete: no data for ${F/1000}s`))},F);const K=w();V[D]={resolve:k,reject:C,text:"",t:K,arm:w};try{for(const Z of $){W.postMessage({__om_api:true,id:D,body:z},Z)}}catch(Z){clearTimeout(K);delete V[D];C(Z)}})}};const Y={};let h=0;window.omelette={writeFile:(z,k)=>new Promise((C,D)=>{if(!$.length){C();return}const w=`f${++h}`;const K=setTimeout(()=>{delete Y[w];C()},A);Y[w]={resolve:C,reject:D,t:K};try{for(const Z of $){W.postMessage({__om_file:true,id:w,op:"write",path:z,content:k},Z)}}catch{clearTimeout(K);delete Y[w];C()}})};const b=(z)=>{try{return JSON.stringify(z)}catch{return JSON.stringify(String(z))}};window.addEventListener("message",(z)=>{if($.indexOf(z.origin)<0)return;if(z.source!==W)return;const k=z.data;if(!k)return;if(k.__om_file_r){const w=Y[k.id];if(!w)return;clearTimeout(w.t);delete Y[k.id];if(k.ok)w.resolve();else w.reject(new Error(k.error||"write failed"));return}if(k.__om_api_r){const w=V[k.id];if(!w)return;if(k.error!=null){clearTimeout(w.t);delete V[k.id];w.reject(new Error(k.error));return}if(k.chunk!=null){clearTimeout(w.t);w.t=w.arm();w.text+=k.chunk;return}if(k.done){clearTimeout(w.t);delete V[k.id];w.resolve(k.text!=null?k.text:w.text);return}return}if(!k.__om_eval)return;const C=k;const D=(w)=>{z.source.postMessage({...w,__om_eval_r:1,id:C.id},z.origin)};try{const w=(0,eval)(C.code);if(w&&typeof w.then==="function"){w.then((K)=>D({ok:1,v:b(K)}),(K)=>D({ok:0,e:String(K)}))}else{D({ok:1,v:b(w)})}}catch(w){D({ok:0,e:String(w)})}})}})();
+</script>
+
+<meta charset="UTF-8">
+<title>Spravio — Handoff unificado</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="handoff/handoff.css">
+
+<template id="__bundler_thumbnail">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<rect width="400" height="400" fill="#faf5ea"/>
+<g transform="translate(120 120)">
+<rect width="160" height="160" rx="32" fill="#c8874a"/>
+<path d="M54 100 Q54 120 74 120 L94 120 Q114 120 114 100 Q114 84 94 84 L74 84 Q54 84 54 64 Q54 44 74 44 L94 44 Q114 44 114 64"
+stroke="#faf5ea" stroke-width="12" fill="none" stroke-linecap="round"/>
+</g>
+</svg>
+</template>
+
+</head>
+<body>
+
+<div class="hd-shell">
+
+<!-- ═════════════════════════════════════════════════════════════════
+     SIDEBAR — table of contents
+     ═════════════════════════════════════════════════════════════════ -->
+<aside class="hd-sidebar">
+  <div class="hd-sb-brand">
+    <div class="hd-sb-mark"><em>S</em></div>
+    <div>
+      <div class="hd-sb-title">Spravio</div>
+      <div class="hd-sb-sub">Handoff · v1.0</div>
+    </div>
+  </div>
+
+  <div class="hd-sb-section">
+    <div class="hd-sb-label">Overview</div>
+    <a class="hd-sb-link" href="#executive"><span class="hd-sb-num">00</span> Executive</a>
+    <a class="hd-sb-link" href="#sitemap"><span class="hd-sb-num">01</span> Sitemap</a>
+    <a class="hd-sb-link" href="#stack"><span class="hd-sb-num">02</span> Stack recomendada</a>
+  </div>
+
+  <div class="hd-sb-section">
+    <div class="hd-sb-label">Design system</div>
+    <a class="hd-sb-link" href="#tokens"><span class="hd-sb-num">03</span> Tokens</a>
+    <a class="hd-sb-link" href="#components"><span class="hd-sb-num">04</span> Componentes</a>
+  </div>
+
+  <div class="hd-sb-section">
+    <div class="hd-sb-label">Telas internas</div>
+    <a class="hd-sb-link" href="#screen-projects"><span class="hd-sb-num">05</span> Projects (lista)</a>
+    <a class="hd-sb-link" href="#screen-project-detail"><span class="hd-sb-num">06</span> Project detail</a>
+    <a class="hd-sb-link" href="#screen-portfolio"><span class="hd-sb-num">07</span> Portfolio</a>
+    <a class="hd-sb-link" href="#screen-forecast"><span class="hd-sb-num">08</span> Forecast</a>
+    <a class="hd-sb-link" href="#screen-financial"><span class="hd-sb-num">09</span> Financial</a>
+    <a class="hd-sb-link" href="#screen-sprints"><span class="hd-sb-num">10</span> Sprints</a>
+    <a class="hd-sb-link" href="#screen-prs"><span class="hd-sb-num">11</span> Pull Requests</a>
+    <a class="hd-sb-link" href="#screen-integrations"><span class="hd-sb-num">12</span> Integrations</a>
+    <a class="hd-sb-link" href="#screen-settings"><span class="hd-sb-num">13</span> Settings</a>
+    <a class="hd-sb-link" href="#screen-email"><span class="hd-sb-num">14</span> Email kit</a>
+  </div>
+
+  <div class="hd-sb-section">
+    <div class="hd-sb-label">Delivery</div>
+    <a class="hd-sb-link" href="#changelog"><span class="hd-sb-num">15</span> Changelog</a>
+    <a class="hd-sb-link" href="#downloads"><span class="hd-sb-num">16</span> Downloads</a>
+  </div>
+</aside>
+
+<!-- ═════════════════════════════════════════════════════════════════
+     MAIN
+     ═════════════════════════════════════════════════════════════════ -->
+<main class="hd-main">
+
+<!-- ──────────────────────────────────────────────────────────────────
+     00 · EXECUTIVE SUMMARY
+     ────────────────────────────────────────────────────────────────── -->
+<section id="executive" class="hd-section">
+  <div class="hd-eb">Handoff 01 · Executive</div>
+  <h1 class="hd-h1">Spravio — operação de agência de dev em um só lugar.</h1>
+  <p class="hd-lede">
+    Este é o pacote de handoff consolidado das <strong>telas internas</strong> do produto:
+    gestão de portfólio, projetos, sprints, PRs, forecast, financeiro, integrações, settings e email kit transacional.
+    Alvo: um engenheiro (ou time) implementando o produto de ponta a ponta com <strong>Claude Code CLI</strong>.
+    Os mockups deste pacote já estão em React+CSS vanilla — basta portar para Next.js + Tailwind/CSS modules.
+  </p>
+
+  <div class="hd-kpi-strip">
+    <div class="hd-kpi">
+      <div class="hd-kpi-lbl">Telas mapeadas</div>
+      <div class="hd-kpi-val">11</div>
+      <div class="hd-kpi-sub">internas · exclui mobile e landing</div>
+    </div>
+    <div class="hd-kpi">
+      <div class="hd-kpi-lbl">Status global</div>
+      <div class="hd-kpi-val">9/11</div>
+      <div class="hd-kpi-sub">done · 2 em revisão</div>
+    </div>
+    <div class="hd-kpi">
+      <div class="hd-kpi-lbl">Componentes compartilhados</div>
+      <div class="hd-kpi-val">18</div>
+      <div class="hd-kpi-sub">shell + primitives + viz</div>
+    </div>
+    <div class="hd-kpi">
+      <div class="hd-kpi-lbl">Endpoints estimados</div>
+      <div class="hd-kpi-val">~64</div>
+      <div class="hd-kpi-sub">REST · coberto pelos specs</div>
+    </div>
+  </div>
+
+  <h2 class="hd-h2">O que este handoff entrega</h2>
+  <ul class="hd-bullets">
+    <li><strong>Design tokens</strong> exatos (oklch + hex), prontos pra colar em <code>tokens.css</code> ou <code>tailwind.config.ts</code>.</li>
+    <li><strong>Mockups HTML/React</strong> navegáveis de cada tela, com dados fake BR-realistas (<code>spravio_portfolio/data.js</code>).</li>
+    <li><strong>Specs por tela</strong> — endpoints, shapes, estados, edge cases, interações-chave.</li>
+    <li><strong>Componentes compartilhados</strong> documentados com path, props e variantes.</li>
+    <li><strong>Sitemap</strong> visual conectando as telas via navegação real da app.</li>
+    <li><strong>Zip com todos os HTMLs</strong> ao final, pronto pra importar num sandbox.</li>
+  </ul>
+
+  <h2 class="hd-h2">Out of scope neste pacote</h2>
+  <ul class="hd-bullets">
+    <li>Landing page (<a href="Spravio Landing.html">Spravio Landing.html</a>) e seu handoff próprio em <code>design_handoff_spravio_landing/</code>.</li>
+    <li>App mobile (<a href="Spravio Mobile Screens.html">Spravio Mobile Screens.html</a>) — tem sitemap próprio.</li>
+    <li>Tela de auth (<a href="Spravio Auth Screens.html">Spravio Auth Screens.html</a>) — referência visual, specs não entram aqui.</li>
+    <li>Backend data model final — este doc descreve <em>shapes da UI</em>; o dev deve derivar o schema Postgres/Prisma a partir disso.</li>
+  </ul>
+
+  <h2 class="hd-h2">Next steps sugeridos</h2>
+  <ol style="padding-left:22px;color:var(--ink-2);font-size:14px;line-height:1.7">
+    <li><strong>Semana 1:</strong> scaffolding (Next.js app router + auth + shell + tokens). Porta <code>shell.css</code> + <code>shell_app.jsx</code>.</li>
+    <li><strong>Semana 2–3:</strong> Projects list + Project detail (as duas telas mais densas). Usar fixtures do <code>data.js</code> como seed.</li>
+    <li><strong>Semana 4:</strong> Portfolio + Forecast (só quando Projects já tem dados reais pra agregar).</li>
+    <li><strong>Semana 5:</strong> Sprints, PRs, Financial (dependem de integrações — começar com mocks).</li>
+    <li><strong>Semana 6:</strong> Integrations + Settings (CRUD puro).</li>
+    <li><strong>Semana 7:</strong> Email kit (MJML ou React Email, templates prontos).</li>
+  </ol>
+
+  <div class="hd-callout">
+    <strong>Nota pro Claude Code:</strong> este handoff referencia os arquivos HTML no mesmo projeto.
+    Abra cada link de <em>Preview</em> lado-a-lado com seu editor. Os mockups são a fonte da verdade visual; este doc é a fonte da verdade de <em>comportamento + dados</em>.
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     01 · SITEMAP
+     ────────────────────────────────────────────────────────────────── -->
+<section id="sitemap" class="hd-section">
+  <div class="hd-eb">Handoff 02 · Sitemap</div>
+  <h2 class="hd-h1" style="font-size:32px">Como as telas se conectam.</h2>
+  <p class="hd-lede">Sidebar fixa + topbar compartilhada + conteúdo principal. Todas as rotas sob <code>/app</code> exigem auth.</p>
+
+  <div class="hd-sitemap">
+    <svg viewBox="0 0 1200 620" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+          <path d="M0,0 L8,4 L0,8 Z" fill="oklch(0.58 0.015 45)"/>
+        </marker>
+        <style>
+          .smn-box { fill: #ffffff; stroke: oklch(0.82 0.02 55); stroke-width: 1; }
+          .smn-box-primary { fill: oklch(0.92 0.06 28); stroke: oklch(0.58 0.14 28); stroke-width: 1.5; }
+          .smn-box-external { fill: oklch(0.97 0.008 72); stroke: oklch(0.82 0.02 55); stroke-width: 1; stroke-dasharray: 4,3; }
+          .smn-label { font-family: 'Inter', sans-serif; font-size: 13px; fill: oklch(0.22 0.02 40); font-weight: 500; }
+          .smn-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: oklch(0.58 0.015 45); letter-spacing: 0.08em; text-transform: uppercase; }
+          .smn-group { font-family: 'JetBrains Mono', monospace; font-size: 10px; fill: oklch(0.58 0.015 45); letter-spacing: 0.12em; text-transform: uppercase; font-weight: 500; }
+          .smn-edge { stroke: oklch(0.58 0.015 45); stroke-width: 1.2; fill: none; }
+          .smn-edge-lateral { stroke: oklch(0.82 0.02 55); stroke-width: 1; fill: none; stroke-dasharray: 3,3; }
+        </style>
+      </defs>
+
+      <!-- Auth layer -->
+      <text x="20" y="30" class="smn-group">01 · Auth</text>
+      <rect x="20" y="44" width="180" height="52" rx="8" class="smn-box-external"/>
+      <text x="110" y="68" text-anchor="middle" class="smn-label">/login · /signup</text>
+      <text x="110" y="84" text-anchor="middle" class="smn-sub">Spravio Auth Screens</text>
+
+      <path class="smn-edge" marker-end="url(#arr)" d="M200 70 L260 70"/>
+
+      <!-- Shell / entrypoint -->
+      <text x="280" y="30" class="smn-group">02 · App shell (/app/*)</text>
+      <rect x="280" y="44" width="200" height="52" rx="8" class="smn-box-primary"/>
+      <text x="380" y="68" text-anchor="middle" class="smn-label">Sidebar + Topbar</text>
+      <text x="380" y="84" text-anchor="middle" class="smn-sub">shell_app.jsx · sv-shell</text>
+
+      <!-- Fan-out arrows -->
+      <path class="smn-edge" marker-end="url(#arr)" d="M480 70 L540 70"/>
+
+      <!-- Column A · Ops -->
+      <text x="560" y="30" class="smn-group">03 · Delivery ops</text>
+
+      <rect x="560" y="44" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="660" y="68" text-anchor="middle" class="smn-label">Projects (lista)</text>
+      <text x="660" y="84" text-anchor="middle" class="smn-sub">/app/projects</text>
+
+      <rect x="560" y="112" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="660" y="136" text-anchor="middle" class="smn-label">Project detail</text>
+      <text x="660" y="152" text-anchor="middle" class="smn-sub">/app/projects/[key]</text>
+
+      <rect x="560" y="180" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="660" y="204" text-anchor="middle" class="smn-label">Sprints</text>
+      <text x="660" y="220" text-anchor="middle" class="smn-sub">/app/sprints</text>
+
+      <rect x="560" y="248" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="660" y="272" text-anchor="middle" class="smn-label">Pull Requests</text>
+      <text x="660" y="288" text-anchor="middle" class="smn-sub">/app/prs</text>
+
+      <!-- Column B · Leadership -->
+      <text x="800" y="30" class="smn-group">04 · Leadership</text>
+
+      <rect x="800" y="44" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="900" y="68" text-anchor="middle" class="smn-label">Portfolio</text>
+      <text x="900" y="84" text-anchor="middle" class="smn-sub">/app/portfolio</text>
+
+      <rect x="800" y="112" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="900" y="136" text-anchor="middle" class="smn-label">Forecast</text>
+      <text x="900" y="152" text-anchor="middle" class="smn-sub">/app/forecast</text>
+
+      <rect x="800" y="180" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="900" y="204" text-anchor="middle" class="smn-label">Financial</text>
+      <text x="900" y="220" text-anchor="middle" class="smn-sub">/app/financial</text>
+
+      <!-- Column C · Admin -->
+      <text x="560" y="336" class="smn-group">05 · Admin</text>
+
+      <rect x="560" y="350" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="660" y="374" text-anchor="middle" class="smn-label">Integrations</text>
+      <text x="660" y="390" text-anchor="middle" class="smn-sub">/app/integrations</text>
+
+      <rect x="800" y="350" width="200" height="52" rx="8" class="smn-box"/>
+      <text x="900" y="374" text-anchor="middle" class="smn-label">Settings</text>
+      <text x="900" y="390" text-anchor="middle" class="smn-sub">/app/settings</text>
+
+      <!-- Transactional -->
+      <text x="1020" y="336" class="smn-group">06 · Out-of-app</text>
+      <rect x="1020" y="350" width="160" height="52" rx="8" class="smn-box-external"/>
+      <text x="1100" y="374" text-anchor="middle" class="smn-label">Email kit</text>
+      <text x="1100" y="390" text-anchor="middle" class="smn-sub">transactional · 9 temp.</text>
+
+      <!-- Fan-out from shell -->
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L560 70"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L560 138"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L560 206"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L560 274"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L800 70"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L800 138"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L800 206"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L560 376"/>
+      <path class="smn-edge" marker-end="url(#arr)" d="M540 70 L800 376"/>
+
+      <!-- Lateral edges (contextual nav) -->
+      <path class="smn-edge-lateral" d="M760 138 Q780 138 800 138"/>
+      <path class="smn-edge-lateral" d="M760 70 Q780 70 760 138"/>
+      <path class="smn-edge-lateral" d="M1000 206 Q1020 206 1020 376"/>
+
+      <!-- Legend -->
+      <g transform="translate(20 450)">
+        <text class="smn-group" y="0">Legend</text>
+        <rect x="0" y="14" width="28" height="18" rx="4" class="smn-box-primary"/>
+        <text x="36" y="27" class="smn-label" style="font-size:11px">entrypoint</text>
+        <rect x="140" y="14" width="28" height="18" rx="4" class="smn-box"/>
+        <text x="176" y="27" class="smn-label" style="font-size:11px">interna (app)</text>
+        <rect x="300" y="14" width="28" height="18" rx="4" class="smn-box-external"/>
+        <text x="336" y="27" class="smn-label" style="font-size:11px">externa (auth / email)</text>
+        <line x1="460" y1="23" x2="500" y2="23" class="smn-edge"/>
+        <text x="508" y="27" class="smn-label" style="font-size:11px">nav primária (sidebar)</text>
+        <line x1="700" y1="23" x2="740" y2="23" class="smn-edge-lateral"/>
+        <text x="748" y="27" class="smn-label" style="font-size:11px">nav contextual (links)</text>
+      </g>
+    </svg>
+  </div>
+
+  <h3 class="hd-h3">Regras de navegação</h3>
+  <ul class="hd-bullets">
+    <li>Sidebar é <strong>persistente</strong>: largura fixa 224px, colapsável em <code>xl &lt; 1280px</code>.</li>
+    <li>Topbar tem <strong>Command palette</strong> (<code>⌘K</code>) que faz fuzzy-search em projetos, devs, PRs, clientes.</li>
+    <li>Botão <strong>"Novo projeto"</strong> no topbar abre modal stepper de 4 steps — disponível em qualquer rota.</li>
+    <li>Project detail tem 9 abas com <code>?tab=</code> na URL: <code>overview, sprints, backlog, team, finance, prs, docs, risks, activity</code>.</li>
+    <li>Email kit <strong>não é rota</strong> da app; são templates renderizados server-side (React Email / MJML) e enviados via provider.</li>
+  </ul>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     02 · STACK
+     ────────────────────────────────────────────────────────────────── -->
+<section id="stack" class="hd-section">
+  <div class="hd-eb">Handoff 03 · Stack</div>
+  <h2 class="hd-h1" style="font-size:32px">Stack recomendada.</h2>
+  <p class="hd-lede">Recomendações — não obrigatórias. O design não depende de framework, mas essas escolhas reduzem atrito.</p>
+
+  <div class="hd-3col">
+    <div class="hd-card">
+      <div class="hd-kicker">Frontend</div>
+      <ul class="hd-bullets" style="margin-top:0">
+        <li><strong>Next.js 15</strong> (app router)</li>
+        <li><strong>React 19</strong></li>
+        <li><strong>Tailwind v4</strong> OU CSS modules + tokens</li>
+        <li><strong>TypeScript</strong> strict</li>
+        <li><strong>Recharts</strong> ou D3 puro (heatmaps)</li>
+      </ul>
+    </div>
+    <div class="hd-card">
+      <div class="hd-kicker">Backend</div>
+      <ul class="hd-bullets" style="margin-top:0">
+        <li><strong>Node</strong> (Next API routes) ou <strong>Hono</strong></li>
+        <li><strong>Postgres</strong> + <strong>Prisma</strong></li>
+        <li><strong>tRPC</strong> ou REST + Zod</li>
+        <li><strong>Auth.js</strong> (Google, email+senha)</li>
+        <li><strong>S3-compat</strong> pra anexos</li>
+      </ul>
+    </div>
+    <div class="hd-card">
+      <div class="hd-kicker">Integrações</div>
+      <ul class="hd-bullets" style="margin-top:0">
+        <li><strong>GitHub</strong> App (PRs, webhooks)</li>
+        <li><strong>Linear / Jira</strong> webhooks</li>
+        <li><strong>Stripe</strong> + nota fiscal BR (eNotas)</li>
+        <li><strong>Resend</strong> ou <strong>AWS SES</strong></li>
+        <li><strong>Slack</strong> webhooks (alertas)</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 class="hd-h3">Estrutura de pastas sugerida</h3>
+<pre><span class="c">// Next.js app router</span>
+<span class="n">app/</span>
+  <span class="n">(auth)/</span>               <span class="c">// login, signup, reset</span>
+  <span class="n">app/</span>                  <span class="c">// tudo logado</span>
+    <span class="n">layout.tsx</span>          <span class="c">// Shell (sidebar + topbar)</span>
+    <span class="n">projects/</span>
+      <span class="n">page.tsx</span>           <span class="c">// 05 · Projects list</span>
+      <span class="n">[key]/page.tsx</span>     <span class="c">// 06 · Project detail</span>
+    <span class="n">portfolio/page.tsx</span>
+    <span class="n">forecast/page.tsx</span>
+    <span class="n">financial/page.tsx</span>
+    <span class="n">sprints/page.tsx</span>
+    <span class="n">prs/page.tsx</span>
+    <span class="n">integrations/page.tsx</span>
+    <span class="n">settings/page.tsx</span>
+<span class="n">components/</span>
+  <span class="n">shell/</span>               <span class="c">// Sidebar, Topbar, CommandPalette</span>
+  <span class="n">primitives/</span>          <span class="c">// Chip, Card, KPI, Table, Tabs, Stepper</span>
+  <span class="n">viz/</span>                 <span class="c">// Sparkline, Heatmap, StackedBar, GanttRow</span>
+  <span class="n">forms/</span>               <span class="c">// NewProjectModal, filters</span>
+<span class="n">lib/</span>
+  <span class="n">tokens.css</span>           <span class="c">// Port de spravio_portfolio/shell.css</span>
+  <span class="n">data/</span>                <span class="c">// Seed fixtures (de data.js)</span>
+  <span class="n">api/</span>                 <span class="c">// Zod schemas + handlers</span></pre>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     03 · DESIGN TOKENS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="tokens" class="hd-section">
+  <div class="hd-eb">Handoff 04 · Tokens</div>
+  <h2 class="hd-h1" style="font-size:32px">Design tokens.</h2>
+  <p class="hd-lede">
+    Copiados de <code>spravio_portfolio/shell.css</code>. <strong>Tema dark é o default do app</strong>;
+    light usa os mesmos nomes com valores diferentes. Todos os valores em <code>oklch</code> — suportado por todos os browsers modernos, com fallback hex quando necessário.
+  </p>
+
+  <h3 class="hd-h3">Cores — surfaces &amp; ink (tema dark)</h3>
+  <table class="hd-table">
+    <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.145 0.01 55)"></span><code>--bg</code></td><td><code>oklch(0.145 0.01 55)</code></td><td>Background principal</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.175 0.012 55)"></span><code>--bg-el</code></td><td><code>oklch(0.175 0.012 55)</code></td><td>Sidebar, cards elevados</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.20 0.014 55)"></span><code>--bg-el-2</code></td><td><code>oklch(0.20 0.014 55)</code></td><td>Hover em nav items, panels secundários</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.235 0.016 55)"></span><code>--bg-el-3</code></td><td><code>oklch(0.235 0.016 55)</code></td><td>Chips neutros, kbd</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.96 0.008 75)"></span><code>--ink</code></td><td><code>oklch(0.96 0.008 75)</code></td><td>Texto primário</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.78 0.012 70)"></span><code>--ink-2</code></td><td><code>oklch(0.78 0.012 70)</code></td><td>Texto secundário</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.58 0.018 60)"></span><code>--ink-3</code></td><td><code>oklch(0.58 0.018 60)</code></td><td>Labels, hints, meta</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.28 0.016 55)"></span><code>--rule</code></td><td><code>oklch(0.28 0.016 55)</code></td><td>Bordas sutis</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.36 0.02 55)"></span><code>--rule-2</code></td><td><code>oklch(0.36 0.02 55)</code></td><td>Bordas fortes (hover)</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="hd-h3">Cores — accent &amp; semantic</h3>
+  <table class="hd-table">
+    <thead><tr><th>Token</th><th>Valor</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.64 0.16 28)"></span><code>--accent</code></td><td><code>oklch(0.64 0.16 28)</code></td><td>Terracota — CTAs primários, links, highlights</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.36 0.10 28)"></span><code>--accent-soft</code></td><td><code>oklch(0.36 0.10 28)</code></td><td>Chip accent, bg de selected state</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.76 0.15 28)"></span><code>--accent-deep</code></td><td><code>oklch(0.76 0.15 28)</code></td><td>Hover em accent, underlines</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.68 0.14 145)"></span><code>--good</code></td><td><code>oklch(0.68 0.14 145)</code></td><td>Sage — health verde, PRs aprovadas, on-track</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.76 0.15 75)"></span><code>--warn</code></td><td><code>oklch(0.76 0.15 75)</code></td><td>Mostarda — at risk, warning</td></tr>
+      <tr><td><span class="hd-swatch" style="background:oklch(0.66 0.18 25)"></span><code>--bad</code></td><td><code>oklch(0.66 0.18 25)</code></td><td>Vermelho — blocker, over budget, failed</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="hd-h3">Type scale</h3>
+  <div class="hd-card">
+    <div class="hd-type">
+      <div class="hd-type-spec">Fraunces · 44/1.05 · -0.02em · display</div>
+      <div style="font-family:var(--font-display);font-size:44px;line-height:1.05;letter-spacing:-0.02em">Spravio handoff — as coisas do dia-a-dia.</div>
+    </div>
+    <div class="hd-type">
+      <div class="hd-type-spec">Fraunces · 28/1.15 · -0.015em · h2</div>
+      <div style="font-family:var(--font-display);font-size:28px;line-height:1.15;letter-spacing:-0.015em">Section heading.</div>
+    </div>
+    <div class="hd-type">
+      <div class="hd-type-spec">Inter 600 · 15/1.4 · h3</div>
+      <div style="font-family:var(--font-body);font-size:15px;font-weight:600">Subtítulo de card</div>
+    </div>
+    <div class="hd-type">
+      <div class="hd-type-spec">Inter 400 · 13/1.45 · body default (--font-size)</div>
+      <div style="font-size:13px;line-height:1.45">Texto corrido do app. Denso — cabe muita informação sem ficar cansativo.</div>
+    </div>
+    <div class="hd-type">
+      <div class="hd-type-spec">Inter 500 · 11/1.3 · label (--font-size-sm)</div>
+      <div style="font-size:11px;font-weight:500">Label de coluna · secondary nav · meta</div>
+    </div>
+    <div class="hd-type">
+      <div class="hd-type-spec">JetBrains Mono · 10/1.2 · 0.12em · uppercase · eyebrow (--font-size-xs)</div>
+      <div style="font-family:var(--font-mono);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-3)">Eyebrow · token · kbd · meta mono</div>
+    </div>
+  </div>
+
+  <h3 class="hd-h3">Density modes</h3>
+  <p class="hd-p">Três modos via <code>html[data-density="..."]</code>. Usuário alterna em Settings.</p>
+  <table class="hd-table">
+    <thead><tr><th>Modo</th><th>--row-h</th><th>--font-size</th><th>--density-scale</th></tr></thead>
+    <tbody>
+      <tr><td><code>default</code></td><td><code>36px</code></td><td><code>13px</code></td><td><code>1</code></td></tr>
+      <tr><td><code>high</code></td><td><code>32px</code></td><td><code>12px</code></td><td><code>0.9</code></td></tr>
+      <tr><td><code>low</code></td><td><code>44px</code></td><td><code>14px</code></td><td><code>1.1</code></td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="hd-h3">Spacing — ad-hoc (sem scale fechado)</h3>
+  <p class="hd-p">O app não usa scale rígida tipo 4/8/12. Valores vêm de unidades naturais de texto + componente. Principais:</p>
+  <div class="hd-card">
+    <div class="hd-spacing-row"><span class="token">4px</span><div class="hd-spacing-bar" style="width:4px"></div><span>gap entre chip icon e text · micro-padding vertical</span></div>
+    <div class="hd-spacing-row"><span class="token">6px</span><div class="hd-spacing-bar" style="width:6px"></div><span>padding vertical de nav item · border-radius pequeno</span></div>
+    <div class="hd-spacing-row"><span class="token">8px</span><div class="hd-spacing-bar" style="width:8px"></div><span>padding horizontal de sidebar nav · gap base</span></div>
+    <div class="hd-spacing-row"><span class="token">10px</span><div class="hd-spacing-bar" style="width:10px"></div><span>gap entre ícone e label em nav item</span></div>
+    <div class="hd-spacing-row"><span class="token">12px</span><div class="hd-spacing-bar" style="width:12px"></div><span>padding top de sidebar nav</span></div>
+    <div class="hd-spacing-row"><span class="token">14px</span><div class="hd-spacing-bar" style="width:14px"></div><span>padding interno de sb-head</span></div>
+    <div class="hd-spacing-row"><span class="token">16px</span><div class="hd-spacing-bar" style="width:16px"></div><span>margin entre cards · section gap base</span></div>
+    <div class="hd-spacing-row"><span class="token">20px</span><div class="hd-spacing-bar" style="width:20px"></div><span>padding card base</span></div>
+    <div class="hd-spacing-row"><span class="token">24px</span><div class="hd-spacing-bar" style="width:24px"></div><span>padding card grande · gap entre seções</span></div>
+    <div class="hd-spacing-row"><span class="token">32px</span><div class="hd-spacing-bar" style="width:32px"></div><span>padding seção main · gap entre blocos de página</span></div>
+    <div class="hd-spacing-row"><span class="token">48px</span><div class="hd-spacing-bar" style="width:48px"></div><span>padding horizontal hero/header</span></div>
+  </div>
+
+  <h3 class="hd-h3">Radius</h3>
+  <table class="hd-table">
+    <thead><tr><th>Valor</th><th>Uso</th></tr></thead>
+    <tbody>
+      <tr><td><code>3px</code></td><td>kbd, chip interno, swatch</td></tr>
+      <tr><td><code>5px</code></td><td>project item na sidebar, chips pequenos</td></tr>
+      <tr><td><code>6px</code></td><td>nav item, botão default, input</td></tr>
+      <tr><td><code>8px</code></td><td>card pequeno, endpoint box</td></tr>
+      <tr><td><code>10px</code></td><td>card padrão, modal interno</td></tr>
+      <tr><td><code>12px</code></td><td>card grande, KPI strip, modal wrapper</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="hd-h3">Shadow</h3>
+<pre><span class="c">/* dark */</span>
+<span class="k">--shadow</span>: <span class="s">0 1px 0 oklch(0.3 0.02 55 / .6), 0 20px 48px -24px oklch(0 0 0 / .5)</span>;
+<span class="k">--shadow-sm</span>: <span class="s">0 1px 2px oklch(0 0 0 / .3)</span>;
+
+<span class="c">/* light */</span>
+<span class="k">--shadow</span>: <span class="s">0 1px 0 oklch(0.9 0.02 60 / .6), 0 12px 32px -16px oklch(0.22 0.05 40 / .18)</span>;
+<span class="k">--shadow-sm</span>: <span class="s">0 1px 2px oklch(0.2 0 0 / .06)</span>;</pre>
+
+  <h3 class="hd-h3">Fontes (Google Fonts)</h3>
+<pre><span class="k">&lt;link</span> <span class="n">href</span>=<span class="s">"https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..500;1,9..144,300..500&amp;family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap"</span> <span class="k">rel</span>=<span class="s">"stylesheet"</span><span class="k">&gt;</span></pre>
+
+  <div class="hd-callout">
+    <strong>Port para Tailwind:</strong> declare os tokens em <code>@theme</code> (Tailwind v4) ou em <code>theme.extend.colors</code> (v3).
+    <em>Não</em> converta os oklch pra hex — perde gamut e consistência de dark/light.
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     04 · SHARED COMPONENTS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="components" class="hd-section">
+  <div class="hd-eb">Handoff 05 · Components</div>
+  <h2 class="hd-h1" style="font-size:32px">Componentes compartilhados.</h2>
+  <p class="hd-lede">18 primitivos que aparecem em ≥2 telas. Path aponta pra impl atual nos mockups — porta com os mesmos nomes pra facilitar grep.</p>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Shell&gt;</span>
+      <span class="hd-comp-path">spravio_portfolio/shell_app.jsx</span>
+    </div>
+    <p class="hd-p">Wrapper de toda rota logada. Grid sidebar (224px) + main. Props: <code>active</code>, <code>title</code>, <code>children</code>.</p>
+    <p class="hd-p"><strong>Contém:</strong> <code>&lt;Sidebar&gt;</code>, <code>&lt;Topbar&gt;</code>, <code>&lt;CommandPalette&gt;</code>, <code>&lt;NewProjectModal&gt;</code>.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Sidebar&gt;</span>
+      <span class="hd-comp-path">shell_app.jsx · .sv-sidebar</span>
+    </div>
+    <p class="hd-p">Nav primária. Seções: Nav global (Projects, Portfolio, Forecast, Financial, Sprints, PRs) · Admin (Integrations, Settings) · Lista de projetos recentes (com health dot) · User card no rodapé.</p>
+    <div class="hd-kicker">Variants</div>
+    <ul class="hd-bullets">
+      <li><code>[data-collapsed="true"]</code> — largura 56px, só ícones (trigger: resize &lt;1280px).</li>
+      <li>Nav item <code>.on</code> → accent bg + accent ícone.</li>
+      <li>Nav item <code>.locked</code> → opacity 0.35, não clicável (features de plan superior).</li>
+    </ul>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Topbar&gt;</span>
+      <span class="hd-comp-path">shell_app.jsx · .sv-topbar</span>
+    </div>
+    <p class="hd-p">Barra superior da área principal. Altura 48px. Esquerda: título da tela + breadcrumb opcional. Centro: command palette trigger. Direita: botão "Novo projeto" (primary), notifications, avatar.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;CommandPalette&gt;</span>
+      <span class="hd-comp-path">shell_app.jsx · modal</span>
+    </div>
+    <p class="hd-p">Disparado por <code>⌘K</code>. Fuzzy-search em: projetos (nome + key), devs (nome + role), PRs (título + repo), clientes. Resultados categorizados, keyboard-first.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;NewProjectModal&gt;</span>
+      <span class="hd-comp-path">spravio_portfolio/new_project_modal.jsx</span>
+    </div>
+    <p class="hd-p">Stepper 4 steps: <strong>1)</strong> Identidade (nome, key auto, cliente, descrição, tags) · <strong>2)</strong> Contrato (tipo: fixo/T&amp;M/retainer, budget, horas, datas) · <strong>3)</strong> Time (PM, chips de devs, alocações %) · <strong>4)</strong> Review.</p>
+    <div class="hd-kicker">Props</div>
+    <table class="hd-table">
+      <thead><tr><th>Prop</th><th>Tipo</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>open</code></td><td><code>boolean</code></td><td><code>false</code></td></tr>
+        <tr><td><code>onClose</code></td><td><code>() =&gt; void</code></td><td>—</td></tr>
+        <tr><td><code>onCreate</code></td><td><code>(Project) =&gt; Promise</code></td><td>—</td></tr>
+        <tr><td><code>data</code></td><td><code>{ projects, clients, devs }</code></td><td>—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;KPI&gt; / &lt;KPIStrip&gt;</span>
+      <span class="hd-comp-path">shared.jsx</span>
+    </div>
+    <p class="hd-p">Card métrica. Label uppercase mono · valor grande Fraunces · sub opcional · delta colorizado.</p>
+    <div class="hd-kicker">Variantes de delta</div>
+    <p><span class="hd-chip good">+12%</span> <span class="hd-chip warn">-3%</span> <span class="hd-chip bad">over</span> <span class="hd-chip neutral">—</span></p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Chip&gt;</span>
+      <span class="hd-comp-path">shared.jsx</span>
+    </div>
+    <p class="hd-p">Status ou tag pequena. Mono 10.5px uppercase, radius 4px, padding 3×9.</p>
+    <p><span class="hd-chip good">on track</span><span class="hd-chip warn">at risk</span><span class="hd-chip bad">blocker</span><span class="hd-chip neutral">draft</span><span class="hd-chip accent">new</span></p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;HealthDot&gt;</span>
+      <span class="hd-comp-path">shared.jsx · .sv-prj-dot</span>
+    </div>
+    <p class="hd-p">Bolinha 6×6 com cor semântica. Derivada de <code>healthScore</code>: ≥75 green, ≥45 yellow, &lt;45 red.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Avatar&gt; / &lt;AvatarStack&gt;</span>
+      <span class="hd-comp-path">shared.jsx</span>
+    </div>
+    <p class="hd-p">Iniciais 2 chars, background <code>color</code> do dev. Stack sobrepõe com -6px, max 4 visíveis + "+N".</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;DataTable&gt;</span>
+      <span class="hd-comp-path">page_projects.jsx</span>
+    </div>
+    <p class="hd-p">Tabela densa. Row-h = <code>var(--row-h)</code>. Header sticky. Sort per column. Hover = bg-el-2.</p>
+    <div class="hd-kicker">Colunas comuns</div>
+    <ul class="hd-bullets">
+      <li>Key (mono, 32px) · Health dot · Nome · Cliente · PM (avatar+nome) · Time (stack) · Budget (bar) · Datas · Status (chip)</li>
+    </ul>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Tabs&gt;</span>
+      <span class="hd-comp-path">page_project_detail.jsx</span>
+    </div>
+    <p class="hd-p">Underline tabs. Active: border-bottom 2px accent + ink. 9 tabs em project detail.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Sparkline&gt;</span>
+      <span class="hd-comp-path">charts.jsx</span>
+    </div>
+    <p class="hd-p">Line chart inline SVG. Largura fluida, altura 24px. Usa <code>--accent</code> stroke.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Heatmap&gt;</span>
+      <span class="hd-comp-path">charts.jsx</span>
+    </div>
+    <p class="hd-p">Grid de células coloridas. Intensidade = mix entre <code>--cream-3</code> (vazio) e <code>--accent</code> (cheio). Usado em Forecast (capacity) e Portfolio (activity).</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;StackedBar&gt;</span>
+      <span class="hd-comp-path">charts.jsx</span>
+    </div>
+    <p class="hd-p">Barras empilhadas com segmento sólido (contratado) + tracejado (pipeline). Forecast + Financial.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;BudgetBar&gt;</span>
+      <span class="hd-comp-path">shared.jsx</span>
+    </div>
+    <p class="hd-p">Barra horizontal de consumo. Cor muda em breakpoints: &lt;70% good, 70–90% warn, &gt;90% bad. Label mostra <code>R$Xk / R$Yk</code>.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;FilterBar&gt;</span>
+      <span class="hd-comp-path">page_projects.jsx, page_prs.jsx</span>
+    </div>
+    <p class="hd-p">Linha de filtros: search input · chip filters (status, PM, cliente) · view toggle (table / cards) · density.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;EmptyState&gt;</span>
+      <span class="hd-comp-path">shared.jsx</span>
+    </div>
+    <p class="hd-p">Ilustração SVG simples (linha) + headline + CTA. Usado em Projects sem itens, Forecast sem data, etc.</p>
+  </div>
+
+  <div class="hd-comp">
+    <div class="hd-comp-hdr">
+      <span class="hd-comp-name">&lt;Toast&gt;</span>
+      <span class="hd-comp-path">(não implementado nos mockups, proposto)</span>
+    </div>
+    <p class="hd-p">Aparece no canto inferior-direito. 4 variants (info/success/warn/error). Auto-dismiss 5s, hover pausa. Usar após ações: criar projeto, salvar settings, conectar integração.</p>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     05 · PROJECTS (list)
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-projects" class="hd-section">
+  <div class="hd-eb">Screen 05</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">05 ·</span>
+      <span class="hd-screen-title">Projects (lista)</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Projects.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Hub operacional. Tabela densa de projetos ativos. É a tela mais usada — abre por default após login.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/projects</code></span></li>
+        <li><span class="k">Access</span><span class="v">Todos (PM vê tudo, Dev só os próprios)</span></li>
+        <li><span class="k">Mock file</span><span class="v"><code>spravio_portfolio/page_projects.jsx</code></span></li>
+        <li><span class="k">Fixture</span><span class="v"><code>data.js</code> preset <code>medium</code> (11 projetos)</span></li>
+      </ul>
+
+      <div class="hd-screen-grid">
+        <div>
+          <h3 class="hd-h3">Dados consumidos</h3>
+          <div class="hd-endpoints">
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects<span class="d">?status=&amp;pm=&amp;client=&amp;q=</span></span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/clients</span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/users<span class="d">?role=pm</span></span></div>
+            <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/projects</span></div>
+          </div>
+
+          <h3 class="hd-h3">Shape (Project)</h3>
+<pre><span class="k">type</span> <span class="n">Project</span> = {
+  <span class="n">id</span>: <span class="n">string</span>,
+  <span class="n">key</span>: <span class="n">string</span>,          <span class="c">// ex: "VIV-2024"</span>
+  <span class="n">name</span>: <span class="n">string</span>,
+  <span class="n">client</span>: { <span class="n">id</span>, <span class="n">name</span>, <span class="n">sector</span> },
+  <span class="n">status</span>: <span class="s">"discovery"|"active"|"paused"|"done"</span>,
+  <span class="n">health</span>: <span class="s">"green"|"yellow"|"red"</span>,
+  <span class="n">healthScore</span>: <span class="n">number</span>, <span class="c">// 0-100</span>
+  <span class="n">pm</span>: <span class="n">User</span>,
+  <span class="n">team</span>: <span class="n">User[]</span>,
+  <span class="n">contractType</span>: <span class="s">"fixed"|"tm"|"retainer"</span>,
+  <span class="n">budget</span>: <span class="n">number</span>,     <span class="c">// R$</span>
+  <span class="n">budgetConsumedPct</span>: <span class="n">number</span>,
+  <span class="n">hoursEst</span>: <span class="n">number</span>,
+  <span class="n">hoursLogged</span>: <span class="n">number</span>,
+  <span class="n">startDate</span>: <span class="n">Date</span>,
+  <span class="n">deadline</span>: <span class="n">Date</span>,
+  <span class="n">sprints</span>: <span class="n">Sprint[]</span>,
+  <span class="n">tags</span>: <span class="n">string[]</span>,
+}</pre>
+        </div>
+        <div>
+          <h3 class="hd-h3">Interações</h3>
+          <ul class="hd-bullets">
+            <li>Click numa row → navega pra <code>/app/projects/[key]?tab=overview</code>.</li>
+            <li>Click na chave (mono) → copia pra clipboard + toast.</li>
+            <li>Hover no BudgetBar → tooltip com <em>R$ consumido / R$ total · X% das horas</em>.</li>
+            <li>Filtros são <strong>URL state</strong> (<code>?status=active&amp;pm=renata</code>), compartilháveis.</li>
+            <li>Botão "Novo projeto" no topbar abre o <code>&lt;NewProjectModal&gt;</code>.</li>
+            <li>View toggle: tabela (default) ↔ cards (variation_b.jsx).</li>
+          </ul>
+
+          <h3 class="hd-h3">Estados &amp; edge cases</h3>
+          <ul class="hd-bullets">
+            <li><strong>Empty</strong>: nenhum projeto → CTA "Criar primeiro projeto" (hero).</li>
+            <li><strong>No results</strong>: filtros ativos, 0 rows → "Nenhum projeto corresponde. <em>Limpar filtros</em>".</li>
+            <li><strong>Loading</strong>: skeleton rows (6 linhas, shimmer).</li>
+            <li><strong>Error</strong>: banner topo "Falha ao carregar — <em>tentar novamente</em>".</li>
+            <li><strong>Row sem PM</strong>: mostrar "— sem PM —" em <code>--ink-3</code>.</li>
+            <li><strong>Budget &gt;100%</strong>: bar em <code>--bad</code> + chip "over" na coluna status.</li>
+            <li><strong>Deadline passado &amp; status != done</strong>: data em <code>--bad</code> + tooltip "Atrasado X dias".</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="hd-h3">Componentes usados</h3>
+      <p>
+        <span class="hd-tag">Shell</span><span class="hd-tag">DataTable</span><span class="hd-tag">HealthDot</span>
+        <span class="hd-tag">Chip</span><span class="hd-tag">AvatarStack</span><span class="hd-tag">BudgetBar</span>
+        <span class="hd-tag">FilterBar</span><span class="hd-tag">NewProjectModal</span><span class="hd-tag">EmptyState</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     06 · PROJECT DETAIL
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-project-detail" class="hd-section">
+  <div class="hd-eb">Screen 06</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">06 ·</span>
+      <span class="hd-screen-title">Project detail</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Project Detail.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Tela mais rica. 9 abas, cada uma um sub-view. Header persistente com nome, health, meta.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/projects/[key]?tab=...</code></span></li>
+        <li><span class="k">Mock file</span><span class="v"><code>page_project_detail.jsx</code></span></li>
+        <li><span class="k">Tabs</span><span class="v">overview · sprints · backlog · team · finance · prs · docs · risks · activity</span></li>
+      </ul>
+
+      <h3 class="hd-h3">Endpoints por aba</h3>
+      <div class="hd-endpoints">
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/sprints</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/backlog</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/team</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/finance</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/prs</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/docs</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/risks</span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/projects/<span class="d">[key]</span>/activity</span></div>
+        <div class="hd-endpoint"><span class="hd-method patch">PATCH</span><span class="hd-path">/api/projects/<span class="d">[key]</span></span></div>
+      </div>
+
+      <h3 class="hd-h3">Resumo por aba</h3>
+      <table class="hd-table">
+        <thead><tr><th>Aba</th><th>Conteúdo principal</th><th>Edge cases</th></tr></thead>
+        <tbody>
+          <tr><td>overview</td><td>KPIs (health, burn rate, velocity), sparkline de hours/sprint, lista de próximos milestones</td><td>Sem sprints: "Comece criando o primeiro sprint"</td></tr>
+          <tr><td>sprints</td><td>Lista cronológica com burndown + done/total points</td><td>Sprint ativa = highlight accent</td></tr>
+          <tr><td>backlog</td><td>Tabela de tickets agrupados por epic</td><td>Ticket órfão (sem epic) = seção "Sem epic"</td></tr>
+          <tr><td>team</td><td>Cards de devs com % alocação, rate, horas logadas</td><td>Over-alloc &gt;100%: warn + alerta no topo</td></tr>
+          <tr><td>finance</td><td>Budget vs spend, forecast to completion, invoices</td><td>Contrato T&amp;M: esconde budget total</td></tr>
+          <tr><td>prs</td><td>PRs do repo linkado, filtros por autor/label/status</td><td>Sem repo: CTA "Conectar GitHub"</td></tr>
+          <tr><td>docs</td><td>Lista de docs (Notion/Confluence/Google Drive linked)</td><td>Sem integração: empty state</td></tr>
+          <tr><td>risks</td><td>Lista de riscos + mitigação, score I×P</td><td>Sem riscos: "Nenhum risco registrado"</td></tr>
+          <tr><td>activity</td><td>Timeline de eventos (commit, comment, status change)</td><td>Paginação infinite scroll, 30 por batch</td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="hd-h3">Componentes usados</h3>
+      <p>
+        <span class="hd-tag">Shell</span><span class="hd-tag">Tabs</span><span class="hd-tag">KPIStrip</span>
+        <span class="hd-tag">Sparkline</span><span class="hd-tag">StackedBar</span><span class="hd-tag">DataTable</span>
+        <span class="hd-tag">Avatar</span><span class="hd-tag">Chip</span><span class="hd-tag">BudgetBar</span>
+      </p>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     07 · PORTFOLIO
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-portfolio" class="hd-section">
+  <div class="hd-eb">Screen 07</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">07 ·</span>
+      <span class="hd-screen-title">Portfolio</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Portfolio.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Visão agregada pra liderança. Tudo que está rolando, em uma tela. Foco: <em>saúde do portfólio</em>.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/portfolio</code></span></li>
+        <li><span class="k">Access</span><span class="v">PM, diretor, admin</span></li>
+        <li><span class="k">Mock file</span><span class="v"><code>variation_a.jsx</code>, <code>variation_b.jsx</code></span></li>
+      </ul>
+
+      <div class="hd-screen-grid">
+        <div>
+          <h3 class="hd-h3">Dados</h3>
+          <div class="hd-endpoints">
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/portfolio/summary</span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/portfolio/health</span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/portfolio/activity<span class="d">?weeks=12</span></span></div>
+          </div>
+          <h3 class="hd-h3">Blocos</h3>
+          <ul class="hd-bullets">
+            <li>KPIs: projetos ativos, horas/semana, MRR consultivo, health médio</li>
+            <li>Heatmap de atividade (projetos × semanas)</li>
+            <li>Distribuição por cliente/setor (donut ou stacked)</li>
+            <li>Top risks agregados</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="hd-h3">Edge cases</h3>
+          <ul class="hd-bullets">
+            <li>Portfolio vazio: CTA pra criar projeto (mesma tela do 05).</li>
+            <li>1 projeto só: esconde comparações e mostra direto o detail.</li>
+            <li>Dados &gt;3 meses velhos: badge "Dados desatualizados".</li>
+          </ul>
+          <h3 class="hd-h3">Componentes</h3>
+          <p>
+            <span class="hd-tag">KPIStrip</span><span class="hd-tag">Heatmap</span>
+            <span class="hd-tag">Sparkline</span><span class="hd-tag">HealthDot</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     08 · FORECAST
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-forecast" class="hd-section">
+  <div class="hd-eb">Screen 08</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">08 ·</span>
+      <span class="hd-screen-title">Forecast</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Forecast.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Projeção de receita &amp; capacidade. Filtros de horizonte (3/6/12m) × cenário (pessimista/base/otimista).</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/forecast</code></span></li>
+        <li><span class="k">Mock</span><span class="v"><code>page_forecast.jsx</code></span></li>
+      </ul>
+
+      <h3 class="hd-h3">Blocos</h3>
+      <ul class="hd-bullets">
+        <li><strong>4 KPIs:</strong> contratado, pipeline ponderado, forecast, meta trimestre</li>
+        <li><strong>Chart principal:</strong> barras empilhadas (contratado sólido + pipeline tracejado) + linha forecast</li>
+        <li><strong>Breakdown mensal:</strong> tabela com Δ vs contratado</li>
+        <li><strong>Capacity heatmap:</strong> dev × 8 semanas, 5 níveis</li>
+        <li><strong>Risk pipeline:</strong> probabilidade de entrega por projeto</li>
+        <li><strong>Scenario assumptions:</strong> close rate, churn, novos deals, expansão</li>
+      </ul>
+
+      <h3 class="hd-h3">Endpoints</h3>
+      <div class="hd-endpoints">
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/forecast<span class="d">?horizon=6m&amp;scenario=base</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/forecast/capacity<span class="d">?weeks=8</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/forecast/pipeline</span></div>
+      </div>
+
+      <h3 class="hd-h3">Edge cases</h3>
+      <ul class="hd-bullets">
+        <li>Pipeline vazio: KPI pipeline mostra "—", chart esconde overlay tracejado.</li>
+        <li>Meta não definida: esconde KPI "Meta", mostra CTA "Definir meta em Settings".</li>
+        <li>Capacity sem alocação: heatmap todo em <code>--rule</code> (vazio).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     09 · FINANCIAL
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-financial" class="hd-section">
+  <div class="hd-eb">Screen 09</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">09 ·</span>
+      <span class="hd-screen-title">Financial</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Financial.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">MRR, receita reconhecida, invoices, margem. Visão de CFO.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/financial</code></span></li>
+        <li><span class="k">Access</span><span class="v">Apenas role <code>finance</code> ou <code>admin</code></span></li>
+      </ul>
+
+      <div class="hd-screen-grid">
+        <div>
+          <h3 class="hd-h3">Blocos</h3>
+          <ul class="hd-bullets">
+            <li>MRR + ARR + receita YTD + margem bruta</li>
+            <li>Chart: receita reconhecida × custo direto × margem (últimos 12m)</li>
+            <li>Invoices table: cliente, valor, emissão, vencimento, status</li>
+            <li>Aging report: 0-30 / 31-60 / 61-90 / 90+</li>
+            <li>Custo por tipo (dev, infra, terceiros)</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="hd-h3">Endpoints</h3>
+          <div class="hd-endpoints">
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/finance/summary</span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/finance/invoices<span class="d">?status=open</span></span></div>
+            <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/finance/costs</span></div>
+            <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/finance/invoices</span></div>
+            <div class="hd-endpoint"><span class="hd-method patch">PATCH</span><span class="hd-path">/api/finance/invoices/<span class="d">[id]</span></span></div>
+          </div>
+          <h3 class="hd-h3">Edge cases</h3>
+          <ul class="hd-bullets">
+            <li>Invoice atrasada &gt;90d: row em <code>--bad</code> + ícone de alerta.</li>
+            <li>Sem integração com NF: esconde coluna "NF-e" + banner "Conectar eNotas".</li>
+            <li>Margem negativa: KPI vermelho + tooltip "Custo &gt; receita".</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     10 · SPRINTS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-sprints" class="hd-section">
+  <div class="hd-eb">Screen 10</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">10 ·</span>
+      <span class="hd-screen-title">Sprints</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Sprints.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Visão cross-projeto dos sprints ativos. Burndown, velocity, blockers.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/sprints</code></span></li>
+        <li><span class="k">Mock</span><span class="v"><code>page_sprints.jsx</code></span></li>
+      </ul>
+
+      <h3 class="hd-h3">Dados &amp; blocos</h3>
+      <div class="hd-endpoints">
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/sprints<span class="d">?active=true</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/sprints/<span class="d">[id]</span>/burndown</span></div>
+        <div class="hd-endpoint"><span class="hd-method patch">PATCH</span><span class="hd-path">/api/sprints/<span class="d">[id]</span></span></div>
+      </div>
+      <ul class="hd-bullets">
+        <li>Cards de sprint: projeto, dates, burndown mini, points (done/total), blockers count</li>
+        <li>Filtros: projeto, PM, status (planned/active/done)</li>
+        <li>Click no card → abre sprint board (kanban) num drawer lateral</li>
+      </ul>
+      <h3 class="hd-h3">Edge cases</h3>
+      <ul class="hd-bullets">
+        <li>Sprint sem tickets: card em opacity 0.6 + badge "vazio".</li>
+        <li>Sprint atrasada (deadline passou, não done): highlight <code>--bad</code>.</li>
+        <li>Velocity instável (Δ &gt;30% entre últimas 3): warn no card.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     11 · PULL REQUESTS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-prs" class="hd-section">
+  <div class="hd-eb">Screen 11</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">11 ·</span>
+      <span class="hd-screen-title">Pull Requests</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio PRs.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">PRs abertas em todos os repos conectados. Prioriza o que está bloqueado.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/prs</code></span></li>
+        <li><span class="k">Dep.</span><span class="v">GitHub App instalado no org</span></li>
+      </ul>
+
+      <h3 class="hd-h3">Endpoints</h3>
+      <div class="hd-endpoints">
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/prs<span class="d">?status=open&amp;repo=&amp;author=</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/prs/<span class="d">[id]</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/prs/<span class="d">[id]</span>/remind</span></div>
+        <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/webhooks/github</span></div>
+      </div>
+
+      <h3 class="hd-h3">PR shape</h3>
+<pre><span class="k">type</span> <span class="n">PR</span> = {
+  <span class="n">id</span>, <span class="n">number</span>: <span class="n">int</span>, <span class="n">title</span>,
+  <span class="n">repo</span>: { <span class="n">name</span>, <span class="n">projectKey</span> },
+  <span class="n">author</span>: <span class="n">User</span>,
+  <span class="n">reviewers</span>: <span class="n">User[]</span>,
+  <span class="n">status</span>: <span class="s">"open"|"merged"|"closed"|"draft"</span>,
+  <span class="n">reviewState</span>: <span class="s">"pending"|"approved"|"changes_requested"</span>,
+  <span class="n">ci</span>: <span class="s">"pass"|"fail"|"running"</span>,
+  <span class="n">additions</span>: <span class="n">int</span>, <span class="n">deletions</span>: <span class="n">int</span>,
+  <span class="n">staleDays</span>: <span class="n">int</span>,
+  <span class="n">createdAt</span>, <span class="n">updatedAt</span>,
+}</pre>
+
+      <h3 class="hd-h3">Edge cases</h3>
+      <ul class="hd-bullets">
+        <li>Sem GitHub conectado: empty state com CTA "Conectar GitHub App".</li>
+        <li>PR <code>staleDays &gt; 3</code>: badge "stale" + botão "Lembrar reviewer".</li>
+        <li>CI failing: ícone vermelho + tooltip com último job.</li>
+        <li>Draft: opacity 0.6 e chip "draft".</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     12 · INTEGRATIONS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-integrations" class="hd-section">
+  <div class="hd-eb">Screen 12</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">12 ·</span>
+      <span class="hd-screen-title">Integrations</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Integrations.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Marketplace de integrações. Cada card = um provider. Conectar via OAuth ou token.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/integrations</code></span></li>
+      </ul>
+
+      <h3 class="hd-h3">Providers</h3>
+      <div class="hd-3col">
+        <div class="hd-card">
+          <div class="hd-kicker">Code</div>
+          <ul class="hd-bullets" style="margin-top:0">
+            <li>GitHub</li><li>GitLab</li><li>Bitbucket</li>
+          </ul>
+        </div>
+        <div class="hd-card">
+          <div class="hd-kicker">PM / Docs</div>
+          <ul class="hd-bullets" style="margin-top:0">
+            <li>Linear</li><li>Jira</li><li>Notion</li><li>Google Drive</li>
+          </ul>
+        </div>
+        <div class="hd-card">
+          <div class="hd-kicker">Finance / Comms</div>
+          <ul class="hd-bullets" style="margin-top:0">
+            <li>Stripe</li><li>eNotas</li><li>Slack</li><li>Resend</li>
+          </ul>
+        </div>
+      </div>
+
+      <h3 class="hd-h3">Endpoints</h3>
+      <div class="hd-endpoints">
+        <div class="hd-endpoint"><span class="hd-method get">GET</span><span class="hd-path">/api/integrations</span></div>
+        <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/integrations/<span class="d">[provider]</span>/connect</span></div>
+        <div class="hd-endpoint"><span class="hd-method delete">DEL</span><span class="hd-path">/api/integrations/<span class="d">[provider]</span></span></div>
+        <div class="hd-endpoint"><span class="hd-method post">POST</span><span class="hd-path">/api/integrations/<span class="d">[provider]</span>/sync</span></div>
+      </div>
+
+      <h3 class="hd-h3">Estados por card</h3>
+      <ul class="hd-bullets">
+        <li><strong>Disponível</strong>: botão "Conectar" (accent outline).</li>
+        <li><strong>Conectado</strong>: chip green "conectado · Xh atrás" + botão "Sincronizar".</li>
+        <li><strong>Erro</strong>: chip red + CTA "Reconectar" + motivo no tooltip.</li>
+        <li><strong>Beta</strong>: tag accent "beta", pode ter lista de espera.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     13 · SETTINGS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-settings" class="hd-section">
+  <div class="hd-eb">Screen 13</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">13 ·</span>
+      <span class="hd-screen-title">Settings</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Settings.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">Configurações de org + usuário, agrupadas em seções verticais.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Route</span><span class="v"><code>/app/settings</code></span></li>
+      </ul>
+
+      <h3 class="hd-h3">Seções</h3>
+      <table class="hd-table">
+        <thead><tr><th>Seção</th><th>O que tem</th><th>Endpoints</th></tr></thead>
+        <tbody>
+          <tr><td>Workspace</td><td>Nome, logo, timezone, moeda</td><td><code>PATCH /api/workspace</code></td></tr>
+          <tr><td>Perfil</td><td>Nome, email, avatar, senha</td><td><code>PATCH /api/me</code></td></tr>
+          <tr><td>Time</td><td>Lista de usuários, convidar, remover, roles</td><td><code>GET/POST/DEL /api/users</code></td></tr>
+          <tr><td>Metas</td><td>Meta trimestre R$, horas/dev/semana, hit ratio alvo</td><td><code>PATCH /api/workspace/goals</code></td></tr>
+          <tr><td>Billing</td><td>Plano, método de pagamento, invoices Spravio</td><td><code>GET /api/billing</code></td></tr>
+          <tr><td>Aparência</td><td>Tema (dark/light/auto), densidade, accent hue</td><td>localStorage + <code>PATCH /api/me/prefs</code></td></tr>
+          <tr><td>API keys</td><td>Listar, criar, revogar</td><td><code>GET/POST/DEL /api/me/tokens</code></td></tr>
+          <tr><td>Danger</td><td>Exportar dados, apagar workspace</td><td><code>POST /api/workspace/export</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="hd-h3">Edge cases</h3>
+      <ul class="hd-bullets">
+        <li>Sem permissão admin: seções Workspace/Billing/Danger ficam hidden.</li>
+        <li>Último admin não consegue se remover: toast "Precisa de ao menos 1 admin".</li>
+        <li>Tema auto: respeita <code>prefers-color-scheme</code>.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     14 · EMAIL KIT
+     ────────────────────────────────────────────────────────────────── -->
+<section id="screen-email" class="hd-section">
+  <div class="hd-eb">Screen 14</div>
+  <div class="hd-screen">
+    <div class="hd-screen-hdr">
+      <span class="hd-screen-num">14 ·</span>
+      <span class="hd-screen-title">Email kit (transacional)</span>
+      <span class="hd-screen-status done">Done</span>
+      <a class="hd-screen-link" href="Spravio Email Kit.html" target="_blank">Preview ↗</a>
+    </div>
+    <div class="hd-screen-body">
+      <p class="hd-p">9 templates transacionais prontos. Não são rotas — são templates server-side enviados via Resend/SES.</p>
+
+      <ul class="hd-meta-list">
+        <li><span class="k">Impl sugerida</span><span class="v">React Email (mantém JSX + tokens) ou MJML</span></li>
+        <li><span class="k">Handoff detalhado</span><span class="v"><code>design_handoff_email_kit/README.md</code></span></li>
+      </ul>
+
+      <h3 class="hd-h3">Templates</h3>
+      <table class="hd-table">
+        <thead><tr><th>Nome</th><th>Gatilho</th><th>Payload</th></tr></thead>
+        <tbody>
+          <tr><td>welcome</td><td>Após signup confirmado</td><td><code>{ user, workspace }</code></td></tr>
+          <tr><td>verify_email</td><td>Signup ou trocar email</td><td><code>{ code, expiresAt }</code></td></tr>
+          <tr><td>reset_password</td><td>Forgot password</td><td><code>{ resetUrl, expiresAt }</code></td></tr>
+          <tr><td>invite_teammate</td><td>Admin convida</td><td><code>{ inviter, workspace, joinUrl }</code></td></tr>
+          <tr><td>weekly_digest</td><td>Seg 09h</td><td><code>{ kpis, topRisks, upcomingDeadlines }</code></td></tr>
+          <tr><td>invoice_issued</td><td>Invoice criada</td><td><code>{ invoice, project, dueDate }</code></td></tr>
+          <tr><td>invoice_paid</td><td>Stripe webhook</td><td><code>{ invoice, receiptUrl }</code></td></tr>
+          <tr><td>pr_stale</td><td>PR &gt;3d sem review</td><td><code>{ pr, project, reviewers }</code></td></tr>
+          <tr><td>alert_budget</td><td>Budget &gt;90%</td><td><code>{ project, consumed, total }</code></td></tr>
+        </tbody>
+      </table>
+
+      <h3 class="hd-h3">Tokens adaptados pra email</h3>
+      <ul class="hd-bullets">
+        <li>Evita <code>oklch</code> (clients inconsistentes) → usa hex equivalente.</li>
+        <li>Sem CSS grid / flex em alguns targets → layout com <code>&lt;table&gt;</code>.</li>
+        <li>Fonte: system fallback (<code>-apple-system, Segoe UI, sans-serif</code>) + Fraunces opcional via link-tag (ignorado por clients antigos).</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     15 · CHANGELOG
+     ────────────────────────────────────────────────────────────────── -->
+<section id="changelog" class="hd-section">
+  <div class="hd-eb">Handoff 06 · Changelog</div>
+  <h2 class="hd-h1" style="font-size:32px">Status de cada tela.</h2>
+
+  <table class="hd-table">
+    <thead><tr><th>Tela</th><th>Status</th><th>Última rev.</th><th>Notas abertas</th></tr></thead>
+    <tbody>
+      <tr><td>Projects (lista)</td><td><span class="hd-chip good">done</span></td><td>v1.3</td><td>—</td></tr>
+      <tr><td>Project detail</td><td><span class="hd-chip good">done</span></td><td>v1.2</td><td>9 abas validadas</td></tr>
+      <tr><td>Portfolio</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>2 variações (A tabular, B cards)</td></tr>
+      <tr><td>Forecast</td><td><span class="hd-chip good">done</span></td><td>v1.1</td><td>—</td></tr>
+      <tr><td>Financial</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>Integração NF-e fica pós-v1</td></tr>
+      <tr><td>Sprints</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>Kanban drawer = WIP backend</td></tr>
+      <tr><td>Pull Requests</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>Requer GitHub App config</td></tr>
+      <tr><td>Integrations</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>eNotas e Resend em beta</td></tr>
+      <tr><td>Settings</td><td><span class="hd-chip good">done</span></td><td>v1.1</td><td>—</td></tr>
+      <tr><td>Email kit</td><td><span class="hd-chip good">done</span></td><td>v1.0</td><td>Port pra React Email pendente</td></tr>
+      <tr><td>NewProjectModal</td><td><span class="hd-chip good">done</span></td><td>v1.2</td><td>Step 3 corrigido (PMs + devs reais)</td></tr>
+      <tr><td>Notifications center</td><td><span class="hd-chip warn">proposed</span></td><td>—</td><td>Fora de escopo desta rodada</td></tr>
+      <tr><td>Time-tracking</td><td><span class="hd-chip warn">proposed</span></td><td>—</td><td>Depende de decisão de produto</td></tr>
+    </tbody>
+  </table>
+</section>
+
+
+<!-- ──────────────────────────────────────────────────────────────────
+     16 · DOWNLOADS
+     ────────────────────────────────────────────────────────────────── -->
+<section id="downloads" class="hd-section">
+  <div class="hd-eb">Handoff 07 · Downloads</div>
+  <h2 class="hd-h1" style="font-size:32px">Ship it.</h2>
+  <p class="hd-lede">Tudo o que você precisa pra começar, num lugar só.</p>
+
+  <div>
+    <a class="hd-download" href="#" id="hd-zip-btn">
+      <span class="ico" id="hd-zip-ico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+      </span>
+      <span class="txt">
+        <span id="hd-zip-label">Pacote completo (zip)</span>
+        <span class="sub" id="hd-zip-sub">todas as telas internas · 11 HTMLs</span>
+      </span>
+    </a>
+
+    <a class="hd-download" href="Spravio Projects.html" target="_blank">
+      <span class="ico">→</span>
+      <span class="txt">Abrir Projects<span class="sub">o entrypoint do app</span></span>
+    </a>
+
+    <a class="hd-download" href="Spravio Handoff.html" onclick="window.print();return false;">
+      <span class="ico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>
+        </svg>
+      </span>
+      <span class="txt">Salvar este doc em PDF<span class="sub">Cmd+P → Save as PDF</span></span>
+    </a>
+  </div>
+
+  <h3 class="hd-h3">Arquivos referenciados</h3>
+  <table class="hd-table">
+    <thead><tr><th>Arquivo</th><th>Conteúdo</th></tr></thead>
+    <tbody>
+      <tr><td><code>Spravio Projects.html</code></td><td>Tela 05 + shell completa</td></tr>
+      <tr><td><code>Spravio Project Detail.html</code></td><td>Tela 06 (9 abas)</td></tr>
+      <tr><td><code>Spravio Portfolio.html</code></td><td>Tela 07 (2 variações)</td></tr>
+      <tr><td><code>Spravio Forecast.html</code></td><td>Tela 08</td></tr>
+      <tr><td><code>Spravio Financial.html</code></td><td>Tela 09</td></tr>
+      <tr><td><code>Spravio Sprints.html</code></td><td>Tela 10</td></tr>
+      <tr><td><code>Spravio PRs.html</code></td><td>Tela 11</td></tr>
+      <tr><td><code>Spravio Integrations.html</code></td><td>Tela 12</td></tr>
+      <tr><td><code>Spravio Settings.html</code></td><td>Tela 13</td></tr>
+      <tr><td><code>Spravio Email Kit.html</code></td><td>Tela 14 + 9 templates</td></tr>
+      <tr><td><code>spravio_portfolio/*</code></td><td>Source JSX + CSS + data fixtures</td></tr>
+    </tbody>
+  </table>
+
+  <div class="hd-callout">
+    <strong>Pro tip:</strong> rode <code>claude "leia Spravio Handoff.html e me dê um plano de implementação por semana"</code> pra começar.
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+// Highlight active section in sidebar
+const links = document.querySelectorAll('.hd-sb-link');
+const sections = [...document.querySelectorAll('section.hd-section')];
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      const id = e.target.id;
+      links.forEach(l => l.classList.toggle('on', l.getAttribute('href') === '#' + id));
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => io.observe(s));
+
+// Client-side zip builder — fetches each HTML and packs as STORED zip
+const ZIP_FILES = [
+  'Spravio Projects.html','Spravio Project Detail.html','Spravio Portfolio.html',
+  'Spravio Forecast.html','Spravio Financial.html','Spravio Sprints.html',
+  'Spravio PRs.html','Spravio Integrations.html','Spravio Settings.html',
+  'Spravio Email Kit.html','Spravio Handoff.html',
+];
+const crcT = new Uint32Array(256);
+for (let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=(c&1)?0xEDB88320^(c>>>1):(c>>>1);crcT[n]=c;}
+const crc32=b=>{let c=0xFFFFFFFF;for(let i=0;i<b.length;i++)c=crcT[(c^b[i])&0xFF]^(c>>>8);return (c^0xFFFFFFFF)>>>0;};
+
+document.getElementById('hd-zip-btn').addEventListener('click', async (ev) => {
+  ev.preventDefault();
+  const lbl = document.getElementById('hd-zip-label');
+  const sub = document.getElementById('hd-zip-sub');
+  const prev = { lbl: lbl.textContent, sub: sub.textContent };
+  lbl.textContent = 'Empacotando…';
+  sub.textContent = '0 / ' + ZIP_FILES.length;
+
+  const te = new TextEncoder();
+  const chunks = [], centralHeaders = []; let offset = 0;
+  let done = 0;
+  for (const path of ZIP_FILES) {
+    try {
+      const res = await fetch(encodeURI(path));
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const content = await res.text();
+      const data = te.encode(content), nameBuf = te.encode(path);
+      const crc = crc32(data), size = data.length;
+      const lh = new Uint8Array(30 + nameBuf.length), dv = new DataView(lh.buffer);
+      dv.setUint32(0, 0x04034b50, true); dv.setUint16(4, 20, true); dv.setUint16(6, 0, true);
+      dv.setUint16(8, 0, true); dv.setUint16(10, 0, true); dv.setUint16(12, 0x21, true);
+      dv.setUint32(14, crc, true); dv.setUint32(18, size, true); dv.setUint32(22, size, true);
+      dv.setUint16(26, nameBuf.length, true); dv.setUint16(28, 0, true); lh.set(nameBuf, 30);
+      chunks.push(lh); chunks.push(data);
+      const ch = new Uint8Array(46 + nameBuf.length), cdv = new DataView(ch.buffer);
+      cdv.setUint32(0, 0x02014b50, true); cdv.setUint16(4, 20, true); cdv.setUint16(6, 20, true);
+      cdv.setUint16(8, 0, true); cdv.setUint16(10, 0, true); cdv.setUint16(12, 0, true);
+      cdv.setUint16(14, 0x21, true); cdv.setUint32(16, crc, true); cdv.setUint32(20, size, true);
+      cdv.setUint32(24, size, true); cdv.setUint16(28, nameBuf.length, true); cdv.setUint16(30, 0, true);
+      cdv.setUint16(32, 0, true); cdv.setUint16(34, 0, true); cdv.setUint16(36, 0, true);
+      cdv.setUint32(38, 0, true); cdv.setUint32(42, offset, true); ch.set(nameBuf, 46);
+      centralHeaders.push(ch); offset += lh.length + data.length;
+    } catch (e) {
+      console.warn('skip', path, e);
+    }
+    done++;
+    sub.textContent = done + ' / ' + ZIP_FILES.length;
+  }
+  const cdStart = offset;
+  for (const ch of centralHeaders) { chunks.push(ch); offset += ch.length; }
+  const cdSize = offset - cdStart;
+  const eocd = new Uint8Array(22), edv = new DataView(eocd.buffer);
+  edv.setUint32(0, 0x06054b50, true); edv.setUint16(4, 0, true); edv.setUint16(6, 0, true);
+  edv.setUint16(8, centralHeaders.length, true); edv.setUint16(10, centralHeaders.length, true);
+  edv.setUint32(12, cdSize, true); edv.setUint32(16, cdStart, true); edv.setUint16(20, 0, true);
+  chunks.push(eocd);
+
+  const blob = new Blob(chunks, { type: 'application/zip' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'spravio-handoff.zip';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
+
+  lbl.textContent = '✓ Baixado';
+  sub.textContent = (blob.size / 1024).toFixed(0) + ' KB · ' + centralHeaders.length + ' arquivos';
+  setTimeout(() => { lbl.textContent = prev.lbl; sub.textContent = prev.sub; }, 3500);
+});
+</script>
+
+</body>
+</html>
+

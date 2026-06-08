@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="pt-BR" data-theme="dark" data-density="high" data-role="OWNER" data-data-preset="medium" data-chart-style="gradient">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=1440,initial-scale=1" />
+<title>Spravio — Settings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="spravio_portfolio/shell.css">
+<link rel="stylesheet" href="spravio_portfolio/pages.css">
+<script src="spravio_portfolio/shell_boot.js"></script>
+<script>
+  // Preload tweaks para evitar flash
+  try {
+    const s = JSON.parse(localStorage.getItem("spravio_portfolio_tweaks") || "{}");
+    const html = document.documentElement;
+    if (s.theme) html.setAttribute("data-theme", s.theme);
+    if (s.density) html.setAttribute("data-density", s.density);
+    if (s.role) html.setAttribute("data-role", s.role);
+    if (s.dataPreset) html.setAttribute("data-data-preset", s.dataPreset);
+  } catch (e) {}
+</script>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script src="spravio_portfolio/data.js"></script>
+<script src="spravio_portfolio/data_enrich.js"></script>
+
+<script type="text/babel" src="spravio_portfolio/charts.jsx"></script>
+<script type="text/babel" src="spravio_portfolio/shared.jsx"></script>
+<script type="text/babel" src="spravio_portfolio/shell_app.jsx"></script>
+<script type="text/babel" src="spravio_portfolio/page_settings.jsx"></script>
+</body>
+</html>

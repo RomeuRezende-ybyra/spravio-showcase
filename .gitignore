@@ -1,0 +1,55 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Environment — NEVER commit real .env files
+.env
+.env.local
+.env.*.local
+.env.production
+.env.development
+.env.staging
+
+# Claude local settings (may contain tokens)
+.claude/settings.local.json
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+logs/
+
+# Docker volumes
+postgres_data/
+redis_data/
+
+# Coverage
+coverage/
+
+# Misc
+*.tsbuildinfo
+
+# Backups
+backups/
+
+# Archives & scripts (cleanup artifacts)
+*.tar.gz
+
+# Security scanning
+gitleaks-report.json
+gitleaks.exe

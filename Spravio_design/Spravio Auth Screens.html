@@ -1,0 +1,1196 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Spravio — Auth (Login, Cadastro, Recuperação)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* =========================================================
+   Design system (copiado da landing)
+   ========================================================= */
+:root {
+  --cream: oklch(0.975 0.012 75);
+  --cream-2: oklch(0.955 0.018 72);
+  --cream-3: oklch(0.93 0.022 70);
+  --paper: oklch(0.99 0.008 80);
+  --ink: oklch(0.22 0.02 40);
+  --ink-2: oklch(0.36 0.02 40);
+  --ink-3: oklch(0.56 0.015 45);
+  --rule: oklch(0.88 0.015 60);
+  --rule-2: oklch(0.82 0.02 55);
+  --accent: oklch(0.62 0.14 35);
+  --accent-soft: oklch(0.92 0.06 35);
+  --accent-deep: oklch(0.42 0.12 35);
+  --good: oklch(0.58 0.12 145);
+  --warn: oklch(0.72 0.15 75);
+  --bad:  oklch(0.58 0.18 25);
+  --shadow: 0 1px 0 oklch(0.9 0.02 60 / .6), 0 12px 32px -16px oklch(0.22 0.05 40 / .18);
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { background: var(--cream); color: var(--ink); }
+body {
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+/* =========================================================
+   Screen showcase chrome (container das 4 telas)
+   ========================================================= */
+.showcase-hdr {
+  padding: 48px 48px 32px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--cream);
+  position: relative;
+}
+.showcase-hdr .eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px; font-weight: 500;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.showcase-hdr .eyebrow::before {
+  content: ""; width: 22px; height: 1px; background: var(--ink-3);
+}
+.showcase-hdr h1 {
+  font-family: var(--font-display);
+  font-weight: 300; font-size: clamp(38px, 4.5vw, 56px);
+  letter-spacing: -0.025em; line-height: 1.02;
+  margin: 14px 0 0;
+  max-width: calc(100% - 360px);
+}
+.showcase-hdr h1 em {
+  font-style: italic; color: var(--accent-deep);
+}
+.showcase-hdr .lede {
+  margin-top: 16px; color: var(--ink-2);
+  font-size: 16px; line-height: 1.55; max-width: 640px;
+}
+.showcase-stamp {
+  position: absolute; top: 48px; right: 48px;
+  font-family: var(--font-mono);
+  font-size: 10px; color: var(--ink-3);
+  letter-spacing: 0.06em; text-align: right; line-height: 1.8;
+}
+.showcase-stamp strong { color: var(--ink); font-weight: 500; }
+
+/* Nav pills */
+.screen-nav {
+  display: flex; gap: 6px; padding: 24px 48px 0;
+  background: var(--cream); position: sticky; top: 0; z-index: 20;
+  border-bottom: 1px solid var(--rule); padding-bottom: 24px;
+}
+.screen-nav button {
+  font-family: var(--font-mono);
+  font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 8px 14px; border: 1px solid var(--rule-2);
+  background: transparent; color: var(--ink-2); border-radius: 100px;
+  cursor: pointer; font-weight: 500; transition: all .15s;
+}
+.screen-nav button:hover { background: var(--cream-2); color: var(--ink); }
+.screen-nav button.active {
+  background: var(--ink); color: var(--cream);
+  border-color: var(--ink);
+}
+.screen-nav .sep { width: 1px; background: var(--rule); margin: 4px 6px; }
+
+/* Screen frame */
+.screen-frame {
+  padding: 48px;
+  display: none;
+}
+.screen-frame.active { display: block; }
+.screen-label {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.14em; text-transform: uppercase;
+  margin-bottom: 12px; display: flex; align-items: baseline; gap: 12px;
+}
+.screen-label strong { color: var(--ink); }
+.screen-label .flow {
+  padding: 2px 8px; border-radius: 4px; background: var(--cream-3);
+  font-size: 9px; letter-spacing: 0.12em;
+}
+
+/* Browser chrome (mock) */
+.browser {
+  max-width: 1280px; margin: 0 auto;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 30px 60px -20px rgba(0,0,0,0.15);
+}
+.browser-bar {
+  background: var(--cream-2);
+  padding: 12px 18px; display: flex; align-items: center; gap: 14px;
+  border-bottom: 1px solid var(--rule);
+}
+.browser-dots { display: flex; gap: 6px; }
+.browser-dots span { width: 11px; height: 11px; border-radius: 100px; background: var(--rule-2); }
+.browser-url {
+  flex: 1; padding: 6px 14px;
+  background: var(--paper); border-radius: 100px;
+  border: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 12px;
+  color: var(--ink-3); letter-spacing: 0.02em;
+  display: flex; align-items: center; gap: 8px;
+}
+.browser-url .lock { color: var(--good); }
+.browser-url strong { color: var(--ink); font-weight: 500; }
+
+/* =========================================================
+   Auth page layout (split)
+   ========================================================= */
+.auth-page {
+  display: grid;
+  grid-template-columns: 1fr 560px;
+  min-height: 720px;
+  background: var(--paper);
+}
+
+/* -------- LEFT: brand side -------- */
+.brand-side {
+  background: var(--ink);
+  color: var(--cream);
+  padding: 40px 48px;
+  display: flex; flex-direction: column;
+  position: relative; overflow: hidden;
+}
+.brand-side::before {
+  content: "";
+  position: absolute; top: -40%; right: -30%;
+  width: 600px; height: 600px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent) 30%, transparent), transparent 65%);
+  pointer-events: none;
+}
+.brand-side::after {
+  content: "";
+  position: absolute; bottom: -20%; left: -15%;
+  width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in oklab, var(--accent-deep) 24%, transparent), transparent 70%);
+  pointer-events: none;
+}
+.brand-logo {
+  display: inline-flex; align-items: center; gap: 10px;
+  position: relative; z-index: 2;
+}
+.brand-logo-mark {
+  width: 38px; height: 38px; border-radius: 10px;
+  background: var(--cream); color: var(--ink);
+  display: grid; place-items: center;
+  font-family: var(--font-display); font-style: italic;
+  font-weight: 400; font-size: 22px;
+}
+.brand-logo-name {
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 22px; letter-spacing: -0.015em; color: var(--cream);
+}
+
+.brand-content {
+  margin-top: auto; margin-bottom: auto;
+  position: relative; z-index: 2;
+  max-width: 440px;
+}
+.brand-eyebrow {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--cream) 60%, transparent);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.brand-eyebrow::before {
+  content: ""; width: 22px; height: 1px;
+  background: color-mix(in oklab, var(--cream) 60%, transparent);
+}
+.brand-title {
+  font-family: var(--font-display); font-weight: 300;
+  font-size: 48px; letter-spacing: -0.025em; line-height: 1.03;
+  margin: 20px 0 0; color: var(--cream);
+}
+.brand-title em {
+  font-style: italic; color: var(--accent);
+}
+.brand-sub {
+  margin-top: 22px; font-size: 15px; line-height: 1.6;
+  color: color-mix(in oklab, var(--cream) 80%, transparent);
+}
+
+.brand-testimonial {
+  margin-top: 40px;
+  padding: 20px 22px;
+  border-left: 2px solid var(--accent);
+  background: color-mix(in oklab, var(--cream) 6%, transparent);
+  border-radius: 0 12px 12px 0;
+}
+.brand-testimonial p {
+  font-family: var(--font-display); font-weight: 300;
+  font-style: italic; font-size: 17px; line-height: 1.45;
+  margin: 0; color: var(--cream);
+}
+.brand-testimonial-meta {
+  display: flex; align-items: center; gap: 10px;
+  margin-top: 14px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--cream) 55%, transparent);
+}
+.brand-testimonial-avatar {
+  width: 26px; height: 26px; border-radius: 100px;
+  background: var(--accent); color: var(--ink);
+  display: grid; place-items: center;
+  font-family: var(--font-body); font-weight: 600; font-size: 10px;
+}
+
+.brand-footer {
+  margin-top: auto; position: relative; z-index: 2;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.1em; color: color-mix(in oklab, var(--cream) 45%, transparent);
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.brand-footer a {
+  color: color-mix(in oklab, var(--cream) 70%, transparent);
+  text-decoration: none; margin-left: 20px;
+}
+.brand-footer a:hover { color: var(--cream); }
+
+/* -------- RIGHT: form side -------- */
+.form-side {
+  padding: 56px 64px;
+  display: flex; flex-direction: column;
+  background: var(--paper);
+}
+.form-side-hdr {
+  display: flex; justify-content: flex-end; align-items: center;
+  gap: 12px;
+  font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: 0.08em;
+}
+.form-side-hdr a {
+  color: var(--accent-deep); text-decoration: none;
+  font-weight: 500; font-family: var(--font-body);
+  letter-spacing: 0; font-size: 13px;
+}
+.form-side-hdr a:hover { text-decoration: underline; }
+
+.form-main {
+  margin: auto 0; max-width: 400px; width: 100%;
+}
+.form-eyebrow {
+  font-family: var(--font-mono); font-size: 11px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--accent-deep); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.form-eyebrow::before {
+  content: ""; width: 22px; height: 1px; background: var(--accent);
+}
+.form-title {
+  font-family: var(--font-display); font-weight: 300;
+  font-size: 42px; letter-spacing: -0.025em; line-height: 1.05;
+  margin: 16px 0 0;
+}
+.form-title em { font-style: italic; color: var(--accent-deep); }
+.form-sub {
+  margin-top: 14px; color: var(--ink-2);
+  font-size: 15px; line-height: 1.55;
+}
+
+/* SSO block */
+.sso-block {
+  margin-top: 32px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.sso-btn {
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 12px 18px;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 12px;
+  font-family: var(--font-body); font-size: 14px; font-weight: 500;
+  color: var(--ink); cursor: pointer;
+  transition: all .15s;
+}
+.sso-btn:hover {
+  background: var(--cream-2);
+  border-color: var(--ink-3);
+}
+.sso-btn svg { flex-shrink: 0; }
+
+.divider {
+  display: flex; align-items: center; gap: 14px;
+  margin: 22px 0;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.divider::before, .divider::after {
+  content: ""; flex: 1; height: 1px; background: var(--rule);
+}
+
+/* Form fields */
+.form-grid {
+  display: flex; flex-direction: column; gap: 16px;
+}
+.field {
+  display: flex; flex-direction: column; gap: 6px;
+}
+.field-label {
+  font-family: var(--font-body); font-size: 12px;
+  font-weight: 500; color: var(--ink-2);
+  letter-spacing: 0.01em;
+  display: flex; justify-content: space-between; align-items: baseline;
+}
+.field-label a {
+  font-size: 12px; color: var(--accent-deep);
+  text-decoration: none; font-weight: 500;
+}
+.field-label a:hover { text-decoration: underline; }
+
+.input {
+  padding: 13px 14px;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 10px;
+  font-family: var(--font-body); font-size: 14px;
+  color: var(--ink);
+  transition: all .12s;
+  width: 100%;
+}
+.input::placeholder { color: var(--ink-3); }
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.input.has-icon { padding-left: 42px; }
+.field-wrap { position: relative; }
+.field-wrap .icn {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-3); pointer-events: none;
+}
+.field-wrap .trail-btn {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: transparent; border: 0; color: var(--ink-3);
+  cursor: pointer; padding: 4px;
+}
+.field-wrap .trail-btn:hover { color: var(--ink); }
+
+/* Checkbox */
+.checkbox {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 13px; color: var(--ink-2); cursor: pointer;
+  user-select: none;
+}
+.checkbox input {
+  appearance: none;
+  width: 18px; height: 18px; border-radius: 5px;
+  border: 1px solid var(--rule-2);
+  background: var(--paper);
+  cursor: pointer; position: relative;
+  transition: all .1s;
+}
+.checkbox input:checked {
+  background: var(--ink); border-color: var(--ink);
+}
+.checkbox input:checked::after {
+  content: ""; position: absolute;
+  left: 5px; top: 2px; width: 5px; height: 9px;
+  border: solid var(--cream);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* Primary CTA */
+.cta-primary {
+  padding: 14px 20px;
+  background: var(--ink); color: var(--cream);
+  border: 0; border-radius: 12px;
+  font-family: var(--font-body); font-size: 15px; font-weight: 600;
+  cursor: pointer; width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all .15s;
+  letter-spacing: 0.01em;
+}
+.cta-primary:hover {
+  background: color-mix(in oklab, var(--ink) 90%, var(--accent));
+  transform: translateY(-1px);
+}
+.cta-primary .arr {
+  transition: transform .15s;
+}
+.cta-primary:hover .arr { transform: translateX(3px); }
+
+.form-foot {
+  margin-top: 28px; text-align: center;
+  font-size: 13px; color: var(--ink-2);
+}
+.form-foot a {
+  color: var(--accent-deep);
+  text-decoration: none; font-weight: 500;
+  margin-left: 4px;
+}
+.form-foot a:hover { text-decoration: underline; }
+
+/* Legal micro */
+.legal-micro {
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.06em;
+  line-height: 1.6; margin-top: 20px; text-align: center;
+}
+.legal-micro a {
+  color: var(--ink-2); text-decoration: underline;
+  text-decoration-color: var(--rule-2);
+  text-underline-offset: 2px;
+}
+
+/* ---------- Password strength ---------- */
+.pw-strength {
+  margin-top: 8px;
+  display: flex; gap: 4px;
+}
+.pw-strength-bar {
+  flex: 1; height: 3px; border-radius: 100px;
+  background: var(--rule);
+  transition: background .15s;
+}
+.pw-strength.on-weak .pw-strength-bar:nth-child(1) { background: var(--bad); }
+.pw-strength.on-med .pw-strength-bar:nth-child(-n+2) { background: var(--warn); }
+.pw-strength.on-strong .pw-strength-bar { background: var(--good); }
+
+.pw-hints {
+  margin-top: 10px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  font-family: var(--font-mono); font-size: 10px;
+  letter-spacing: 0.04em; color: var(--ink-3);
+}
+.pw-hints span {
+  display: flex; align-items: center; gap: 6px;
+}
+.pw-hints span::before {
+  content: "○"; font-size: 10px;
+}
+.pw-hints span.ok { color: var(--good); }
+.pw-hints span.ok::before { content: "●"; }
+
+/* ---------- Code input (reset step 2) ---------- */
+.code-input {
+  display: flex; gap: 10px; justify-content: center;
+  margin: 32px 0 16px;
+}
+.code-input input {
+  width: 52px; height: 60px;
+  text-align: center;
+  font-family: var(--font-display); font-weight: 400;
+  font-size: 26px;
+  background: var(--paper);
+  border: 1px solid var(--rule-2);
+  border-radius: 12px;
+  color: var(--ink);
+  transition: all .15s;
+}
+.code-input input:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 20%, transparent);
+}
+.code-input input.filled {
+  background: var(--cream-2);
+  border-color: var(--ink-3);
+}
+
+.code-resend {
+  text-align: center; margin-top: 18px;
+  font-size: 13px; color: var(--ink-2);
+}
+.code-resend strong { color: var(--ink); font-weight: 500; font-family: var(--font-mono); font-size: 12px; }
+.code-resend a {
+  color: var(--accent-deep); text-decoration: none; font-weight: 500;
+}
+.code-resend a:hover { text-decoration: underline; }
+
+/* ---------- Success state (forgot sent) ---------- */
+.success-icon {
+  width: 64px; height: 64px; border-radius: 100px;
+  background: color-mix(in oklab, var(--good) 14%, transparent);
+  color: var(--good);
+  display: grid; place-items: center;
+  margin-bottom: 24px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 900px) {
+  .showcase-hdr h1 { max-width: 100%; }
+  .auth-page { grid-template-columns: 1fr; }
+  .brand-side { min-height: 320px; padding: 32px; }
+  .form-side { padding: 40px 28px; }
+  .showcase-hdr, .screen-frame { padding-left: 24px; padding-right: 24px; }
+  .screen-nav { padding-left: 24px; padding-right: 24px; overflow-x: auto; }
+  .brand-title { font-size: 36px; }
+  .form-title { font-size: 32px; }
+  .showcase-stamp { display: none; }
+}
+
+footer.showcase-foot {
+  padding: 40px 48px;
+  font-family: var(--font-mono); font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.08em;
+  text-align: center; border-top: 1px solid var(--rule);
+  margin-top: 32px;
+}
+</style>
+</head>
+<body>
+
+<!-- ========== Showcase header ========== -->
+<header class="showcase-hdr">
+  <span class="eyebrow">Spravio · auth flow</span>
+  <div class="showcase-stamp">
+    <strong>v0.1 · AUTH SCREENS</strong><br>
+    20 ABR 2026<br>
+    PLATAFORMA · DESKTOP WEB<br>
+    4 TELAS · LOGIN / CADASTRO / FORGOT / RESET
+  </div>
+  <h1>Autenticação, <em>com personalidade.</em></h1>
+  <p class="lede">Redesign completo do fluxo de auth do Spravio — login, cadastro, recuperação e reset — usando o mesmo design system warm editorial da landing. Clique nas abas pra navegar entre as telas.</p>
+</header>
+
+<!-- ========== Tab nav ========== -->
+<nav class="screen-nav">
+  <button class="active" data-screen="login">01 · Login</button>
+  <button data-screen="signup">02 · Cadastro</button>
+  <div class="sep"></div>
+  <button data-screen="forgot">03 · Esqueci senha</button>
+  <button data-screen="forgot-sent">04 · Email enviado</button>
+  <button data-screen="reset">05 · Nova senha</button>
+</nav>
+
+<!-- ============================================================
+     SCREEN 01 · LOGIN
+============================================================ -->
+<section class="screen-frame active" data-screen-label="01-login" id="screen-login">
+  <div class="screen-label"><strong>01 · Login</strong> <span class="flow">ENTRY POINT</span> Retornando ao Spravio</div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">
+        <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span><strong>spravio.io</strong>/login</span>
+      </div>
+    </div>
+
+    <div class="auth-page">
+      <!-- Brand side -->
+      <aside class="brand-side">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">s</div>
+          <span class="brand-logo-name">Spravio</span>
+        </div>
+
+        <div class="brand-content">
+          <span class="brand-eyebrow">Project intelligence</span>
+          <h2 class="brand-title">Seus sprints, <em>honestos.</em></h2>
+          <p class="brand-sub">Um único lugar para ver o que o time realmente entregou — entre Jira, GitHub e Azure DevOps. Menos cerimônia, mais verdade.</p>
+
+          <div class="brand-testimonial">
+            <p>"Antes do Spravio eu abria 4 abas pra entender um sprint. Agora abro uma."</p>
+            <div class="brand-testimonial-meta">
+              <div class="brand-testimonial-avatar">MS</div>
+              <span>Maria Schmidt · PM · Studio Lapa</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-footer">
+          <span>© SPRAVIO 2026</span>
+          <span><a href="#">Status</a><a href="#">Docs</a><a href="#">Privacidade</a></span>
+        </div>
+      </aside>
+
+      <!-- Form side -->
+      <div class="form-side">
+        <div class="form-side-hdr">
+          <span>Novo por aqui?</span>
+          <a href="#" data-goto="signup">Criar conta →</a>
+        </div>
+
+        <div class="form-main">
+          <span class="form-eyebrow">Entrar</span>
+          <h2 class="form-title">Bem-vindo <em>de volta.</em></h2>
+          <p class="form-sub">Entre com a conta que você usa no trabalho. Suporte a SSO corporativo (SAML) no plano Studio.</p>
+
+          <div class="sso-block">
+            <button class="sso-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"/></svg>
+              Continuar com Google
+            </button>
+            <button class="sso-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#1a140c"><path d="M12 .3C5.4.3 0 5.7 0 12.3c0 5.3 3.4 9.8 8.2 11.4.6.1.8-.3.8-.6v-2.2c-3.3.7-4-1.4-4-1.4-.5-1.4-1.3-1.7-1.3-1.7-1.1-.8.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1.1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.8-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 016 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.2c0 .3.2.7.8.6 4.8-1.6 8.2-6.1 8.2-11.4C24 5.7 18.6.3 12 .3z"/></svg>
+              Continuar com GitHub
+            </button>
+          </div>
+
+          <div class="divider">Ou use seu email</div>
+
+          <form class="form-grid" onsubmit="event.preventDefault()">
+            <div class="field">
+              <label class="field-label" for="li-email">Email do trabalho</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                <input class="input has-icon" id="li-email" type="email" placeholder="voce@empresa.com" autocomplete="email" value="maria@studiolapa.co"/>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="li-pw">
+                Senha
+                <a href="#" data-goto="forgot">Esqueci minha senha</a>
+              </label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                <input class="input has-icon" id="li-pw" type="password" placeholder="••••••••" autocomplete="current-password" value="secret123"/>
+                <button type="button" class="trail-btn" onclick="togglePw('li-pw', this)" aria-label="Mostrar senha">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <label class="checkbox" style="margin-top: 4px">
+              <input type="checkbox" checked/>
+              Manter conectado por 14 dias
+            </label>
+
+            <button class="cta-primary" type="submit" style="margin-top: 8px">
+              Entrar
+              <span class="arr">→</span>
+            </button>
+          </form>
+
+          <div class="form-foot">
+            Sua empresa usa SSO? <a href="#">Entrar com SAML</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 02 · SIGNUP
+============================================================ -->
+<section class="screen-frame" data-screen-label="02-signup" id="screen-signup">
+  <div class="screen-label"><strong>02 · Cadastro</strong> <span class="flow">ACQUISITION</span> Criar conta + org</div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">
+        <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span><strong>spravio.io</strong>/signup</span>
+      </div>
+    </div>
+
+    <div class="auth-page">
+      <aside class="brand-side">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">s</div>
+          <span class="brand-logo-name">Spravio</span>
+        </div>
+
+        <div class="brand-content">
+          <span class="brand-eyebrow">14 dias de trial</span>
+          <h2 class="brand-title">Comece <em>em 2 minutos.</em></h2>
+          <p class="brand-sub">Sem cartão de crédito. Conecte Jira ou GitHub e veja seus sprints honestos na primeira sessão.</p>
+
+          <div style="margin-top: 36px; display: flex; flex-direction: column; gap: 14px;">
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div style="width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; flex-shrink: 0;">01</div>
+              <div>
+                <div style="font-weight: 500; color: var(--cream); font-size: 14px;">Conecte suas ferramentas</div>
+                <div style="font-size: 13px; color: color-mix(in oklab, var(--cream) 65%, transparent); margin-top: 2px;">Jira, GitHub, Azure DevOps — one-click OAuth</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div style="width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; flex-shrink: 0;">02</div>
+              <div>
+                <div style="font-weight: 500; color: var(--cream); font-size: 14px;">Convide seu time</div>
+                <div style="font-size: 13px; color: color-mix(in oklab, var(--cream) 65%, transparent); margin-top: 2px;">Até 3 pessoas grátis. Roles por projeto.</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start;">
+              <div style="width: 24px; height: 24px; border-radius: 6px; background: var(--accent); color: var(--ink); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 600; flex-shrink: 0;">03</div>
+              <div>
+                <div style="font-weight: 500; color: var(--cream); font-size: 14px;">Veja a verdade</div>
+                <div style="font-size: 13px; color: color-mix(in oklab, var(--cream) 65%, transparent); margin-top: 2px;">Dashboards, forecast IA e alertas em &lt; 30s</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-footer">
+          <span>© SPRAVIO 2026</span>
+          <span><a href="#">Termos</a><a href="#">Privacidade</a></span>
+        </div>
+      </aside>
+
+      <div class="form-side">
+        <div class="form-side-hdr">
+          <span>Já tem conta?</span>
+          <a href="#" data-goto="login">Entrar →</a>
+        </div>
+
+        <div class="form-main">
+          <span class="form-eyebrow">Criar conta · Trial 14 dias</span>
+          <h2 class="form-title">Vamos <em>começar.</em></h2>
+          <p class="form-sub">Sem cartão, sem enrolação. Você pode convidar seu time depois.</p>
+
+          <div class="sso-block" style="margin-top: 24px">
+            <button class="sso-btn">
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81z"/></svg>
+              Cadastrar com Google
+            </button>
+          </div>
+
+          <div class="divider">Ou com email</div>
+
+          <form class="form-grid" onsubmit="event.preventDefault()">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <div class="field">
+                <label class="field-label" for="su-name">Seu nome</label>
+                <input class="input" id="su-name" type="text" placeholder="Maria Schmidt" autocomplete="name" value="Maria Schmidt"/>
+              </div>
+              <div class="field">
+                <label class="field-label" for="su-org">Empresa / agência</label>
+                <input class="input" id="su-org" type="text" placeholder="Studio Lapa" value="Studio Lapa"/>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="su-email">Email do trabalho</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                <input class="input has-icon" id="su-email" type="email" placeholder="voce@empresa.com" value="maria@studiolapa.co"/>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="su-pw">Senha</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                <input class="input has-icon" id="su-pw" type="password" placeholder="Mínimo 8 caracteres" oninput="checkPw(this)" value="StrongPass2026"/>
+                <button type="button" class="trail-btn" onclick="togglePw('su-pw', this)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="pw-strength on-strong" id="pw-strength">
+                <div class="pw-strength-bar"></div>
+                <div class="pw-strength-bar"></div>
+                <div class="pw-strength-bar"></div>
+              </div>
+              <div class="pw-hints" id="pw-hints">
+                <span class="ok" data-rule="len">8+ caracteres</span>
+                <span class="ok" data-rule="upper">1 maiúscula</span>
+                <span class="ok" data-rule="num">1 número</span>
+                <span data-rule="sym">1 símbolo</span>
+              </div>
+            </div>
+
+            <label class="checkbox" style="margin-top: 4px; align-items: flex-start">
+              <input type="checkbox" checked style="margin-top: 3px"/>
+              <span style="font-size: 12px; line-height: 1.45">Aceito os <a href="#" style="color: var(--accent-deep)">termos</a> e a <a href="#" style="color: var(--accent-deep)">política de privacidade</a></span>
+            </label>
+
+            <button class="cta-primary" type="submit" style="margin-top: 8px">
+              Criar conta grátis
+              <span class="arr">→</span>
+            </button>
+          </form>
+
+          <p class="legal-micro">
+            AO CONTINUAR VOCÊ INICIA UM TRIAL DE 14 DIAS.<br>
+            SEM CARTÃO. CANCELE QUANDO QUISER.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 03 · FORGOT PASSWORD (step 1 — pedir email)
+============================================================ -->
+<section class="screen-frame" data-screen-label="03-forgot" id="screen-forgot">
+  <div class="screen-label"><strong>03 · Esqueci a senha</strong> <span class="flow">RECOVERY · STEP 1/3</span> Pedir reset por email</div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">
+        <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span><strong>spravio.io</strong>/forgot</span>
+      </div>
+    </div>
+
+    <div class="auth-page">
+      <aside class="brand-side">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">s</div>
+          <span class="brand-logo-name">Spravio</span>
+        </div>
+
+        <div class="brand-content">
+          <span class="brand-eyebrow">Acontece</span>
+          <h2 class="brand-title">Sem drama. <em>A gente resolve.</em></h2>
+          <p class="brand-sub">Esquecer senha é universal. Em 3 passos você volta pro seu portfólio — sem perder nenhuma configuração ou dado.</p>
+
+          <div style="margin-top: 40px; display: flex; flex-direction: column; gap: 2px;">
+            <div style="display: flex; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid color-mix(in oklab, var(--cream) 15%, transparent);">
+              <div style="width: 28px; height: 28px; border-radius: 100px; border: 1.5px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 500;">1</div>
+              <div>
+                <div style="color: var(--cream); font-weight: 500; font-size: 14px;">Informe seu email</div>
+                <div style="font-size: 12px; color: color-mix(in oklab, var(--cream) 55%, transparent); margin-top: 1px;">Enviamos um código de 6 dígitos</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 14px; align-items: center; padding: 14px 0; border-bottom: 1px solid color-mix(in oklab, var(--cream) 15%, transparent); opacity: .5">
+              <div style="width: 28px; height: 28px; border-radius: 100px; border: 1.5px solid color-mix(in oklab, var(--cream) 30%, transparent); color: color-mix(in oklab, var(--cream) 60%, transparent); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 500;">2</div>
+              <div>
+                <div style="color: var(--cream); font-weight: 500; font-size: 14px;">Confirme o código</div>
+                <div style="font-size: 12px; color: color-mix(in oklab, var(--cream) 55%, transparent); margin-top: 1px;">Válido por 15 minutos</div>
+              </div>
+            </div>
+            <div style="display: flex; gap: 14px; align-items: center; padding: 14px 0; opacity: .5">
+              <div style="width: 28px; height: 28px; border-radius: 100px; border: 1.5px solid color-mix(in oklab, var(--cream) 30%, transparent); color: color-mix(in oklab, var(--cream) 60%, transparent); display: grid; place-items: center; font-family: var(--font-mono); font-size: 11px; font-weight: 500;">3</div>
+              <div>
+                <div style="color: var(--cream); font-weight: 500; font-size: 14px;">Defina nova senha</div>
+                <div style="font-size: 12px; color: color-mix(in oklab, var(--cream) 55%, transparent); margin-top: 1px;">E pronto, você volta</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="brand-footer">
+          <span>© SPRAVIO 2026</span>
+          <span><a href="#">Suporte</a></span>
+        </div>
+      </aside>
+
+      <div class="form-side">
+        <div class="form-side-hdr">
+          <a href="#" data-goto="login" style="display: inline-flex; align-items: center; gap: 6px;">
+            <span>←</span> Voltar ao login
+          </a>
+        </div>
+
+        <div class="form-main">
+          <span class="form-eyebrow">Passo 1 de 3</span>
+          <h2 class="form-title">Redefinir <em>senha.</em></h2>
+          <p class="form-sub">Informe o email da sua conta. Vamos enviar um código de 6 dígitos para você confirmar.</p>
+
+          <form class="form-grid" style="margin-top: 32px" onsubmit="event.preventDefault(); goTo('forgot-sent');">
+            <div class="field">
+              <label class="field-label" for="fg-email">Email da conta</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+                <input class="input has-icon" id="fg-email" type="email" placeholder="voce@empresa.com" value="maria@studiolapa.co" autofocus/>
+              </div>
+            </div>
+
+            <button class="cta-primary" type="submit">
+              Enviar código de recuperação
+              <span class="arr">→</span>
+            </button>
+          </form>
+
+          <div class="form-foot">
+            Lembrou agora? <a href="#" data-goto="login">Entrar</a>
+          </div>
+
+          <p class="legal-micro" style="margin-top: 32px">
+            NÃO RECEBEU? CHEQUE O SPAM OU ENTRE EM CONTATO<br>
+            <a href="#">SUPORTE@SPRAVIO.IO</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 04 · FORGOT SENT (confirmação)
+============================================================ -->
+<section class="screen-frame" data-screen-label="04-forgot-sent" id="screen-forgot-sent">
+  <div class="screen-label"><strong>04 · Email enviado</strong> <span class="flow">RECOVERY · STEP 2/3</span> Verificação de código</div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">
+        <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span><strong>spravio.io</strong>/forgot/verify</span>
+      </div>
+    </div>
+
+    <div class="auth-page">
+      <aside class="brand-side">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">s</div>
+          <span class="brand-logo-name">Spravio</span>
+        </div>
+
+        <div class="brand-content">
+          <span class="brand-eyebrow">Quase lá</span>
+          <h2 class="brand-title">Verifique <em>sua caixa.</em></h2>
+          <p class="brand-sub">Se o email existe no sistema, você vai receber um código de 6 dígitos em menos de um minuto.</p>
+
+          <div style="margin-top: 36px; padding: 18px 20px; border-radius: 12px; background: color-mix(in oklab, var(--cream) 8%, transparent); border: 1px solid color-mix(in oklab, var(--cream) 15%, transparent);">
+            <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.14em; color: color-mix(in oklab, var(--cream) 60%, transparent); text-transform: uppercase;">⏱ CÓDIGO VÁLIDO POR</div>
+            <div style="font-family: var(--font-display); font-weight: 300; font-size: 36px; color: var(--cream); margin-top: 4px; line-height: 1;">15 <span style="font-size: 18px; color: color-mix(in oklab, var(--cream) 60%, transparent);">minutos</span></div>
+            <div style="font-size: 12px; color: color-mix(in oklab, var(--cream) 65%, transparent); margin-top: 10px; line-height: 1.5;">Expirou? Sem problema. Você pode pedir um novo código a qualquer momento.</div>
+          </div>
+        </div>
+
+        <div class="brand-footer">
+          <span>© SPRAVIO 2026</span>
+          <span><a href="#">Suporte</a></span>
+        </div>
+      </aside>
+
+      <div class="form-side">
+        <div class="form-side-hdr">
+          <a href="#" data-goto="forgot" style="display: inline-flex; align-items: center; gap: 6px;">
+            <span>←</span> Usar outro email
+          </a>
+        </div>
+
+        <div class="form-main">
+          <div class="success-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg>
+          </div>
+          <span class="form-eyebrow">Passo 2 de 3</span>
+          <h2 class="form-title">Cole o <em>código.</em></h2>
+          <p class="form-sub">Enviamos um código de 6 dígitos para <strong style="color: var(--ink); font-weight: 500;">maria@studiolapa.co</strong>. Cole ou digite ele abaixo.</p>
+
+          <form onsubmit="event.preventDefault(); goTo('reset');">
+            <div class="code-input">
+              <input type="text" maxlength="1" value="4" class="filled" autofocus/>
+              <input type="text" maxlength="1" value="7" class="filled"/>
+              <input type="text" maxlength="1" value="3" class="filled"/>
+              <input type="text" maxlength="1" value="9" class="filled"/>
+              <input type="text" maxlength="1" value=""/>
+              <input type="text" maxlength="1" value=""/>
+            </div>
+
+            <div class="code-resend">
+              Não chegou? Reenviar em <strong>00:42</strong>
+            </div>
+
+            <button class="cta-primary" type="submit" style="margin-top: 32px">
+              Verificar código
+              <span class="arr">→</span>
+            </button>
+          </form>
+
+          <p class="legal-micro" style="margin-top: 28px">
+            POR SEGURANÇA, O CÓDIGO EXPIRA EM 15 MINUTOS.<br>
+            NÃO COMPARTILHE COM NINGUÉM.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SCREEN 05 · RESET (nova senha)
+============================================================ -->
+<section class="screen-frame" data-screen-label="05-reset" id="screen-reset">
+  <div class="screen-label"><strong>05 · Nova senha</strong> <span class="flow">RECOVERY · STEP 3/3</span> Definir senha + entrar</div>
+
+  <div class="browser">
+    <div class="browser-bar">
+      <div class="browser-dots"><span></span><span></span><span></span></div>
+      <div class="browser-url">
+        <svg class="lock" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+        <span><strong>spravio.io</strong>/reset?token=•••</span>
+      </div>
+    </div>
+
+    <div class="auth-page">
+      <aside class="brand-side">
+        <div class="brand-logo">
+          <div class="brand-logo-mark">s</div>
+          <span class="brand-logo-name">Spravio</span>
+        </div>
+
+        <div class="brand-content">
+          <span class="brand-eyebrow">Último passo</span>
+          <h2 class="brand-title">Senha forte, <em>sprint sossegado.</em></h2>
+          <p class="brand-sub">Escolha uma senha que só você conhece. A gente usa bcrypt, criptografia em trânsito e em repouso — nem nossos devs veem sua senha.</p>
+
+          <div style="margin-top: 36px; padding: 16px 18px; border-radius: 12px; background: color-mix(in oklab, var(--good) 18%, transparent); border: 1px solid color-mix(in oklab, var(--good) 35%, transparent);">
+            <div style="display: flex; align-items: center; gap: 10px; color: var(--cream); font-weight: 500; font-size: 14px;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 13l4 4L19 7"/></svg>
+              Código verificado
+            </div>
+            <div style="font-size: 12px; color: color-mix(in oklab, var(--cream) 70%, transparent); margin-top: 6px; line-height: 1.5;">Sua identidade foi confirmada. Agora é só definir uma nova senha e você volta direto pro seu portfólio.</div>
+          </div>
+
+          <div style="margin-top: 24px; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; color: color-mix(in oklab, var(--cream) 55%, transparent); text-transform: uppercase;">
+            🔒 HASH COM BCRYPT · TLS 1.3 · GDPR/LGPD
+          </div>
+        </div>
+
+        <div class="brand-footer">
+          <span>© SPRAVIO 2026</span>
+          <span><a href="#">Segurança</a></span>
+        </div>
+      </aside>
+
+      <div class="form-side">
+        <div class="form-side-hdr"></div>
+
+        <div class="form-main">
+          <span class="form-eyebrow">Passo 3 de 3</span>
+          <h2 class="form-title">Defina uma <em>nova senha.</em></h2>
+          <p class="form-sub">Use uma senha forte que você não usa em nenhum outro lugar. Gerenciador de senhas funciona — recomendamos.</p>
+
+          <form class="form-grid" style="margin-top: 32px" onsubmit="event.preventDefault(); alert('Senha atualizada! Redirecionando...');">
+            <div class="field">
+              <label class="field-label" for="rs-pw">Nova senha</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                <input class="input has-icon" id="rs-pw" type="password" placeholder="Mínimo 8 caracteres" oninput="checkPw(this)" autofocus/>
+                <button type="button" class="trail-btn" onclick="togglePw('rs-pw', this)">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+                </button>
+              </div>
+              <div class="pw-strength" id="pw-strength-rs">
+                <div class="pw-strength-bar"></div>
+                <div class="pw-strength-bar"></div>
+                <div class="pw-strength-bar"></div>
+              </div>
+              <div class="pw-hints">
+                <span data-rule="len">8+ caracteres</span>
+                <span data-rule="upper">1 maiúscula</span>
+                <span data-rule="num">1 número</span>
+                <span data-rule="sym">1 símbolo</span>
+              </div>
+            </div>
+
+            <div class="field">
+              <label class="field-label" for="rs-pw2">Confirme a senha</label>
+              <div class="field-wrap">
+                <svg class="icn" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg>
+                <input class="input has-icon" id="rs-pw2" type="password" placeholder="Digite novamente"/>
+              </div>
+            </div>
+
+            <label class="checkbox" style="margin-top: 4px">
+              <input type="checkbox"/>
+              Desconectar de outros dispositivos
+            </label>
+
+            <button class="cta-primary" type="submit" style="margin-top: 8px">
+              Atualizar senha e entrar
+              <span class="arr">→</span>
+            </button>
+          </form>
+
+          <p class="legal-micro" style="margin-top: 32px">
+            VOCÊ SERÁ REDIRECIONADO AO SEU PORTFÓLIO.<br>
+            SESSÕES ANTERIORES PODEM CONTINUAR ATIVAS SE DESMARCADO.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="showcase-foot">
+  SPRAVIO AUTH · v0.1 · 5 TELAS · DESIGN SYSTEM WARM EDITORIAL · ✦ PRONTO PARA DEV
+</footer>
+
+<script>
+// Tab navigation
+const tabs = document.querySelectorAll('.screen-nav button');
+const screens = document.querySelectorAll('.screen-frame');
+function goTo(id) {
+  screens.forEach(s => s.classList.toggle('active', s.id === 'screen-' + id));
+  tabs.forEach(t => t.classList.toggle('active', t.dataset.screen === id));
+  try { localStorage.setItem('spravio_auth_screen', id); } catch(e) {}
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+tabs.forEach(t => t.addEventListener('click', () => goTo(t.dataset.screen)));
+document.addEventListener('click', e => {
+  const a = e.target.closest('[data-goto]');
+  if (a) { e.preventDefault(); goTo(a.dataset.goto); }
+});
+
+// Restore persisted screen
+try {
+  const saved = localStorage.getItem('spravio_auth_screen');
+  if (saved && document.getElementById('screen-' + saved)) goTo(saved);
+} catch(e) {}
+
+// Password toggle
+function togglePw(id, btn) {
+  const el = document.getElementById(id);
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
+// Password strength
+function checkPw(el) {
+  const v = el.value;
+  const rules = {
+    len: v.length >= 8,
+    upper: /[A-Z]/.test(v),
+    num: /[0-9]/.test(v),
+    sym: /[^A-Za-z0-9]/.test(v),
+  };
+  // Update hints near this input
+  const form = el.closest('form');
+  if (!form) return;
+  form.querySelectorAll('.pw-hints span').forEach(s => {
+    s.classList.toggle('ok', rules[s.dataset.rule]);
+  });
+  const ok = Object.values(rules).filter(Boolean).length;
+  const strength = form.querySelector('.pw-strength');
+  if (strength) {
+    strength.classList.remove('on-weak', 'on-med', 'on-strong');
+    if (ok >= 4) strength.classList.add('on-strong');
+    else if (ok >= 2) strength.classList.add('on-med');
+    else if (ok >= 1) strength.classList.add('on-weak');
+  }
+}
+
+// Code input auto-advance
+document.querySelectorAll('.code-input').forEach(group => {
+  const inputs = group.querySelectorAll('input');
+  inputs.forEach((inp, i) => {
+    inp.addEventListener('input', () => {
+      if (inp.value) {
+        inp.classList.add('filled');
+        if (i < inputs.length - 1) inputs[i + 1].focus();
+      } else {
+        inp.classList.remove('filled');
+      }
+    });
+    inp.addEventListener('keydown', e => {
+      if (e.key === 'Backspace' && !inp.value && i > 0) inputs[i - 1].focus();
+    });
+  });
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,99 @@
+name: Reset Production Database
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "RESET DATABASE" to confirm'
+        required: true
+        type: string
+
+jobs:
+  reset-db:
+    name: Reset Production Database
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify confirmation
+        run: |
+          if [ "${{ inputs.confirm }}" != "RESET DATABASE" ]; then
+            echo "❌ Confirmation failed. You must type exactly: RESET DATABASE"
+            exit 1
+          fi
+
+      - name: Reset database via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            cd /opt/spravio
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🗑️  RESETTING PRODUCTION DATABASE"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+
+            # Stop API to prevent connections
+            echo "⏸️  Stopping API container..."
+            docker compose stop api
+            echo "   ✅ API stopped"
+            echo ""
+
+            # Load environment variables
+            set -a
+            source .env
+            set +a
+
+            # Reset database using Prisma
+            echo "🔄 Resetting database (drop all tables + re-run migrations)..."
+            docker compose exec -T postgres psql -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "
+              DROP SCHEMA public CASCADE;
+              CREATE SCHEMA public;
+              GRANT ALL ON SCHEMA public TO $POSTGRES_USER;
+              GRANT ALL ON SCHEMA public TO public;
+            "
+            echo "   ✅ Database schema dropped and recreated"
+            echo ""
+
+            # Start API container (migrations need the container running)
+            echo "▶️  Starting API container..."
+            docker compose start api
+            sleep 3
+            echo "   ✅ API started"
+            echo ""
+
+            # Run migrations to recreate schema
+            echo "📦 Running Prisma migrations..."
+            docker compose exec -T api npx prisma migrate deploy
+            echo "   ✅ Migrations applied"
+            echo ""
+
+            # Restart API to apply changes
+            echo "🔄 Restarting API..."
+            docker compose restart api
+            sleep 5
+            echo "   ✅ API restarted"
+            echo ""
+
+            # Health check
+            echo "🏥 Health check..."
+            sleep 3
+            if curl -sf http://localhost:3010/health > /dev/null 2>&1; then
+              echo "   ✅ API is healthy"
+            else
+              echo "   ⚠️  API health check failed"
+              docker compose logs --tail=30 api
+            fi
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✅ Database reset completed!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "📊 Database is now empty with fresh schema"

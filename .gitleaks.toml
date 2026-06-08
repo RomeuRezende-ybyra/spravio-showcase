@@ -1,0 +1,10 @@
+# Gitleaks configuration for Spravio showcase repo
+# Allowlist known false positives (placeholder/example values in design assets)
+
+[allowlist]
+  description = "Allowlisted false positives"
+
+  # UI design mock: curl example with placeholder token "sprv_live_xxx"
+  paths = [
+    '''Spravio_design/design_handoff_spravio_app/source/spravio_portfolio/page_settings\.jsx''',
+  ]

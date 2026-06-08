@@ -1,0 +1,40 @@
+global:
+  resolve_timeout: 5m
+
+route:
+  group_by: ['alertname', 'cluster']
+  group_wait: 10s
+  group_interval: 10s
+  repeat_interval: 12h
+  receiver: 'default'
+
+receivers:
+  - name: 'default'
+    # Email configuration (configure SMTP settings)
+    # email_configs:
+    #   - to: 'alerts@spravio.io'
+    #     from: 'prometheus@spravio.io'
+    #     smarthost: 'smtp.gmail.com:587'
+    #     auth_username: 'your-email@gmail.com'
+    #     auth_password: 'your-app-password'
+    #     headers:
+    #       Subject: '[Spravio] Alert: {{ .GroupLabels.alertname }}'
+
+    # Slack configuration (uncomment and configure)
+    # slack_configs:
+    #   - api_url: 'YOUR_SLACK_WEBHOOK_URL'
+    #     channel: '#alerts'
+    #     title: '{{ .GroupLabels.alertname }}'
+    #     text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+
+    # Webhook configuration (for PagerDuty, Opsgenie, etc.)
+    webhook_configs:
+      - url: 'http://localhost:5001/webhook' # Replace with your webhook endpoint
+        send_resolved: true
+
+inhibit_rules:
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal: ['alertname', 'cluster']

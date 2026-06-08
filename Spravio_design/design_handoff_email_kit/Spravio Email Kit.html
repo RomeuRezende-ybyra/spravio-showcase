@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Spravio — Email Kit (9 templates)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: oklch(0.975 0.012 75);
+  --cream-2: oklch(0.955 0.018 72);
+  --cream-3: oklch(0.93 0.022 70);
+  --paper: #fdfbf6;
+  --ink: #1a140c;
+  --ink-2: #4a3d30;
+  --ink-3: #8a7a68;
+  --rule: #e8ddc8;
+  --rule-2: #d4c5a8;
+  --accent: #c96a3c;
+  --accent-soft: #f5e6d8;
+  --accent-deep: #8b4420;
+  --good: #4a8b5c;
+  --warn: #c89540;
+  --bad: #b8432a;
+  --fd: 'Fraunces', ui-serif, Georgia, serif;
+  --fb: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --fm: 'JetBrains Mono', ui-monospace, monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cream-2);color:var(--ink);font-family:var(--fb);-webkit-font-smoothing:antialiased}
+
+/* Showcase chrome */
+.shc-hdr{padding:40px 48px 32px;border-bottom:1px solid var(--rule);background:var(--cream)}
+.shc-hdr .eb{font-family:var(--fm);font-size:11px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);display:inline-flex;align-items:center;gap:10px}
+.shc-hdr .eb::before{content:"";width:22px;height:1px;background:var(--ink-3)}
+.shc-hdr h1{font-family:var(--fd);font-weight:300;font-size:clamp(36px,4.5vw,52px);letter-spacing:-.025em;line-height:1.02;margin:14px 0 0;max-width:820px}
+.shc-hdr h1 em{font-style:italic;color:var(--accent-deep)}
+.shc-hdr .lede{margin-top:14px;color:var(--ink-2);font-size:15px;max-width:640px;line-height:1.55}
+
+.nav{display:flex;gap:6px;padding:20px 48px;background:var(--cream);border-bottom:1px solid var(--rule);position:sticky;top:0;z-index:10;flex-wrap:wrap}
+.nav button{font-family:var(--fm);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:7px 12px;border:1px solid var(--rule-2);background:transparent;color:var(--ink-2);border-radius:100px;cursor:pointer;font-weight:500}
+.nav button:hover{background:var(--cream-2)}
+.nav button.on{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+
+.stage{padding:48px;display:none}
+.stage.on{display:block}
+.stage-lbl{max-width:640px;margin:0 auto 20px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.12em;text-transform:uppercase;display:flex;gap:12px;align-items:baseline}
+.stage-lbl strong{color:var(--ink)}
+.stage-lbl .pill{padding:2px 8px;border-radius:4px;background:var(--cream-3);font-size:9px}
+.stage-meta{max-width:640px;margin:0 auto 16px;padding:14px 18px;background:var(--paper);border:1px solid var(--rule);border-radius:10px;font-size:12px;color:var(--ink-2);display:grid;grid-template-columns:90px 1fr;gap:6px 16px}
+.stage-meta span{font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-transform:uppercase}
+
+/* EMAIL (the actual rendered thing) */
+.email{max-width:640px;margin:0 auto;background:var(--paper);border:1px solid var(--rule);border-radius:4px;overflow:hidden;box-shadow:0 20px 40px -20px rgba(0,0,0,.15)}
+.email-hdr{padding:32px 40px 24px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between}
+.email-logo{display:flex;align-items:center;gap:10px}
+.email-logo-mark{width:32px;height:32px;border-radius:8px;background:var(--ink);color:var(--accent);display:grid;place-items:center;font-family:var(--fd);font-style:italic;font-weight:400;font-size:18px}
+.email-logo-name{font-family:var(--fd);font-weight:400;font-size:18px;letter-spacing:-.01em;color:var(--ink)}
+.email-hdr-meta{font-family:var(--fm);font-size:10px;letter-spacing:.1em;color:var(--ink-3);text-transform:uppercase}
+
+.email-body{padding:40px}
+.email-eb{font-family:var(--fm);font-size:10px;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-deep);display:inline-flex;align-items:center;gap:10px}
+.email-eb::before{content:"";width:20px;height:1px;background:var(--accent)}
+.email-h{font-family:var(--fd);font-weight:300;font-size:36px;letter-spacing:-.02em;line-height:1.1;color:var(--ink);margin:14px 0 0}
+.email-h em{font-style:italic;color:var(--accent-deep)}
+.email-h.sm{font-size:28px}
+.email-p{font-size:15px;line-height:1.65;color:var(--ink-2);margin:18px 0 0}
+.email-p strong{color:var(--ink);font-weight:600}
+.email-p a{color:var(--accent-deep);text-decoration:underline;text-decoration-color:var(--accent);text-underline-offset:3px}
+
+.cta{display:inline-block;margin-top:28px;padding:14px 28px;background:var(--ink);color:var(--cream);border-radius:10px;font-size:14px;font-weight:600;text-decoration:none;letter-spacing:.01em}
+.cta.arr::after{content:" →"}
+.cta-sec{display:inline-block;margin-top:14px;margin-left:12px;padding:12px 20px;background:transparent;color:var(--ink-2);text-decoration:none;font-size:13px;font-weight:500;border:1px solid var(--rule-2);border-radius:10px}
+
+/* blocks */
+.panel{margin-top:24px;padding:20px;background:var(--cream-2);border:1px solid var(--rule);border-radius:12px}
+.panel-eb{font-family:var(--fm);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3);font-weight:500}
+.panel-h{font-family:var(--fd);font-weight:400;font-size:22px;margin:6px 0 0}
+
+.code{margin:24px 0;padding:20px;background:var(--ink);color:var(--cream);border-radius:12px;text-align:center}
+.code-lbl{font-family:var(--fm);font-size:10px;letter-spacing:.14em;color:color-mix(in oklab,var(--cream) 60%,transparent);text-transform:uppercase}
+.code-val{font-family:var(--fd);font-weight:300;font-size:44px;letter-spacing:.25em;margin-top:8px;padding-left:.25em}
+.code-expire{margin-top:8px;font-size:11px;color:color-mix(in oklab,var(--cream) 55%,transparent);font-family:var(--fm);letter-spacing:.08em}
+
+.kpi-grid{margin-top:24px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.kpi{padding:14px;background:var(--paper);border:1px solid var(--rule);border-radius:10px}
+.kpi-lbl{font-family:var(--fm);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3)}
+.kpi-val{font-family:var(--fd);font-weight:400;font-size:26px;margin-top:6px;line-height:1}
+.kpi-val.bad{color:var(--bad)}
+.kpi-val.good{color:var(--good)}
+.kpi-sub{font-family:var(--fm);font-size:10px;color:var(--ink-3);margin-top:4px;letter-spacing:.04em}
+
+.alert{margin-top:24px;padding:18px 20px;border-radius:12px;display:flex;gap:14px;align-items:flex-start}
+.alert.bad{background:color-mix(in oklab,var(--bad) 8%,var(--paper));border:1px solid color-mix(in oklab,var(--bad) 30%,var(--rule))}
+.alert.good{background:color-mix(in oklab,var(--good) 8%,var(--paper));border:1px solid color-mix(in oklab,var(--good) 30%,var(--rule))}
+.alert.warn{background:color-mix(in oklab,var(--warn) 10%,var(--paper));border:1px solid color-mix(in oklab,var(--warn) 35%,var(--rule))}
+.alert-ic{width:36px;height:36px;border-radius:100px;display:grid;place-items:center;flex-shrink:0;font-size:16px}
+.alert.bad .alert-ic{background:color-mix(in oklab,var(--bad) 18%,transparent);color:var(--bad)}
+.alert.good .alert-ic{background:color-mix(in oklab,var(--good) 18%,transparent);color:var(--good)}
+.alert.warn .alert-ic{background:color-mix(in oklab,var(--warn) 20%,transparent);color:var(--warn)}
+.alert-h{font-weight:600;color:var(--ink);font-size:14px}
+.alert-p{font-size:13px;color:var(--ink-2);margin-top:4px;line-height:1.5}
+
+.dl{margin-top:24px;border-top:1px solid var(--rule)}
+.dl-row{display:grid;grid-template-columns:160px 1fr;gap:16px;padding:12px 0;border-bottom:1px solid var(--rule);font-size:13px}
+.dl-row dt{font-family:var(--fm);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);margin:0}
+.dl-row dd{margin:0;color:var(--ink)}
+.dl-row dd strong{font-weight:600}
+
+.steps{margin-top:24px;display:flex;flex-direction:column;gap:2px}
+.step{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--rule)}
+.step:last-child{border-bottom:0}
+.step-n{width:26px;height:26px;border-radius:100px;border:1.5px solid var(--accent);color:var(--accent-deep);display:grid;place-items:center;font-family:var(--fm);font-size:11px;font-weight:500;flex-shrink:0}
+.step-h{font-weight:600;color:var(--ink);font-size:14px}
+.step-p{font-size:13px;color:var(--ink-2);margin-top:2px;line-height:1.5}
+
+.divider{margin:28px 0;height:1px;background:var(--rule);position:relative}
+.divider span{position:absolute;left:50%;top:-8px;transform:translateX(-50%);background:var(--paper);padding:0 14px;font-family:var(--fm);font-size:10px;letter-spacing:.14em;color:var(--ink-3);text-transform:uppercase}
+
+/* Footer */
+.email-ft{padding:28px 40px 32px;background:var(--cream-2);border-top:1px solid var(--rule)}
+.ft-brand{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.ft-brand-mark{width:24px;height:24px;border-radius:6px;background:var(--ink);color:var(--accent);display:grid;place-items:center;font-family:var(--fd);font-style:italic;font-size:14px}
+.ft-brand-name{font-family:var(--fd);font-weight:400;font-size:15px;color:var(--ink)}
+.ft-addr{font-size:11px;color:var(--ink-3);line-height:1.6}
+.ft-addr strong{color:var(--ink-2);font-weight:500}
+.ft-links{margin-top:14px;display:flex;gap:14px;flex-wrap:wrap;font-size:10px;font-family:var(--fm);letter-spacing:.1em;text-transform:uppercase}
+.ft-links a{color:var(--ink-3);text-decoration:none}
+.ft-links a:hover{color:var(--ink)}
+.ft-legal{margin-top:14px;padding-top:14px;border-top:1px solid var(--rule);font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.04em;line-height:1.6}
+.ft-legal a{color:var(--ink-2)}
+.ft-unsub{margin-top:8px;font-size:10px;color:var(--ink-3)}
+.ft-unsub a{color:var(--ink-2);text-decoration:underline}
+
+.ft-foot{padding:40px;font-family:var(--fm);font-size:10px;color:var(--ink-3);letter-spacing:.08em;text-align:center;border-top:1px solid var(--rule)}
+</style>
+</head>
+<body>
+
+<header class="shc-hdr">
+  <span class="eb">Spravio · email kit</span>
+  <h1>Nove emails, <em>um tom consistente.</em></h1>
+  <p class="lede">Kit de emails transacionais do Spravio — do welcome ao alerta de PR stale. Mock visual em HTML moderno. Depois de aprovado, converto para tabelas inline compatíveis com Gmail/Outlook.</p>
+</header>
+
+<nav class="nav" id="nav"></nav>
+<main id="stage"></main>
+<div class="ft-foot">SPRAVIO EMAIL KIT · v0.1 · 9 TEMPLATES · MOCK VISUAL · ✦ PRONTO PARA APROVAÇÃO</div>
+
+<!-- Rodapé corporativo reutilizado (template) -->
+<template id="corp-footer">
+  <div class="email-ft">
+    <div class="ft-brand">
+      <div class="ft-brand-mark">s</div>
+      <span class="ft-brand-name">Spravio</span>
+    </div>
+    <div class="ft-addr">
+      <strong>Spravio Technologies Ltda.</strong><br>
+      Av. Paulista, 1578 · Bela Vista · São Paulo, SP 01310-200 · Brasil<br>
+      CNPJ 00.000.000/0001-00
+    </div>
+    <div class="ft-links">
+      <a href="#">spravio.io</a>
+      <a href="#">Docs</a>
+      <a href="#">Status</a>
+      <a href="#">Segurança</a>
+      <a href="#">Contato</a>
+    </div>
+    <div class="ft-legal">
+      © 2026 SPRAVIO · <a href="#">PRIVACIDADE</a> · <a href="#">TERMOS</a> · <a href="#">LGPD</a>
+      <div class="ft-unsub">Você está recebendo este email porque tem uma conta no Spravio. <a href="#" class="unsub-link">Gerenciar notificações</a></div>
+    </div>
+  </div>
+</template>
+
+<script>
+const EMAILS = [
+  {
+    id: 'welcome', num: '01', label: 'Welcome', kind: 'Warm',
+    meta: { 'De': 'Spravio <oi@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Bem-vinda ao Spravio, Maria', 'Quando': 'Pós primeiro login' },
+    body: `
+      <span class="email-eb">Bem-vinda · 14 dias de trial</span>
+      <h1 class="email-h">Que bom <em>te ver por aqui,</em><br>Maria.</h1>
+      <p class="email-p">O Spravio nasceu de um incômodo simples: sprints precisam ser honestos. Menos cerimônia, mais verdade. E agora você tem uma conta pra conferir isso na prática.</p>
+      <p class="email-p">Seu trial de 14 dias começou. Sem cartão, sem pegadinha. Te preparei 3 passos pra você ver valor ainda hoje:</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div><div class="step-h">Conecte Jira, GitHub ou Azure DevOps</div><div class="step-p">OAuth em um clique. Importamos seus sprints sem copiar nada pro nosso banco.</div></div></div>
+        <div class="step"><div class="step-n">2</div><div><div class="step-h">Veja seu primeiro dashboard</div><div class="step-p">Em menos de 30 segundos você tem forecast de sprint, PRs stale e health do time.</div></div></div>
+        <div class="step"><div class="step-n">3</div><div><div class="step-h">Convide seu time (opcional)</div><div class="step-p">Até 3 pessoas grátis. Funciona melhor com gente.</div></div></div>
+      </div>
+      <a href="#" class="cta arr">Conectar minha primeira ferramenta</a>
+      <p class="email-p" style="margin-top:36px;font-size:13px;color:var(--ink-3)">Se precisar de ajuda, responde esse email. Chega direto pra mim.<br>— Romeu, founder</p>
+    `,
+  },
+  {
+    id: 'verify', num: '02', label: 'Confirmação email', kind: 'Transacional',
+    meta: { 'De': 'Spravio <noreply@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Confirme seu email · Spravio', 'Quando': 'Imediato após signup' },
+    body: `
+      <span class="email-eb">Confirmação · 15 min</span>
+      <h1 class="email-h sm">Confirme seu email para ativar a conta.</h1>
+      <p class="email-p">Olá Maria. Você (ou alguém) acabou de criar uma conta no Spravio com este email. Para continuar, confirme clicando no botão abaixo.</p>
+      <a href="#" class="cta arr">Confirmar email</a>
+      <div class="divider"><span>Ou use o código</span></div>
+      <div class="code">
+        <div class="code-lbl">Código de verificação</div>
+        <div class="code-val">473924</div>
+        <div class="code-expire">EXPIRA EM 15 MINUTOS</div>
+      </div>
+      <p class="email-p" style="font-size:13px;color:var(--ink-3)">Se não foi você, pode ignorar esse email — a conta não é ativada sem essa confirmação.</p>
+    `,
+  },
+  {
+    id: 'reset', num: '03', label: 'Reset de senha', kind: 'Transacional',
+    meta: { 'De': 'Spravio <noreply@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Código para redefinir senha · 473924', 'Quando': 'Pós forgot password' },
+    body: `
+      <span class="email-eb">Segurança · 15 min</span>
+      <h1 class="email-h sm">Redefinição de senha solicitada.</h1>
+      <p class="email-p">Alguém (esperamos que você) pediu para redefinir a senha da conta <strong>maria@studiolapa.co</strong>. Use o código abaixo para continuar.</p>
+      <div class="code">
+        <div class="code-lbl">Código de recuperação</div>
+        <div class="code-val">473924</div>
+        <div class="code-expire">EXPIRA EM 15 MINUTOS</div>
+      </div>
+      <a href="#" class="cta arr">Redefinir no navegador</a>
+      <div class="alert warn" style="margin-top:32px">
+        <div class="alert-ic">!</div>
+        <div>
+          <div class="alert-h">Não foi você?</div>
+          <div class="alert-p">Ignore este email e sua senha permanece inalterada. Se acontecer de novo, <a href="#" style="color:var(--accent-deep)">reporte uma tentativa suspeita</a>.</div>
+        </div>
+      </div>
+    `,
+  },
+  {
+    id: 'invite', num: '04', label: 'Convite para org', kind: 'Transacional',
+    meta: { 'De': 'Spravio <noreply@spravio.io>', 'Para': 'lucas@studiolapa.co', 'Assunto': 'Maria te convidou para Studio Lapa no Spravio', 'Quando': 'Convite enviado' },
+    body: `
+      <span class="email-eb">Convite para colaborar</span>
+      <h1 class="email-h sm"><strong style="color:var(--ink);font-weight:400">Maria Schmidt</strong> te convidou para <em>Studio Lapa</em>.</h1>
+      <p class="email-p">Maria adicionou você como <strong>Desenvolvedor</strong> no workspace <strong>Studio Lapa</strong>. Você vai ter acesso a 5 projetos, incluindo Banco Meridian e E-comm Vora.</p>
+      <div class="panel">
+        <div class="panel-eb">Detalhes do convite</div>
+        <dl class="dl">
+          <div class="dl-row"><dt>Workspace</dt><dd><strong>Studio Lapa</strong></dd></div>
+          <div class="dl-row"><dt>Role</dt><dd>Desenvolvedor</dd></div>
+          <div class="dl-row"><dt>Convidou</dt><dd>Maria Schmidt · Project Manager</dd></div>
+          <div class="dl-row"><dt>Projetos acessíveis</dt><dd>5 projetos ativos</dd></div>
+        </dl>
+      </div>
+      <a href="#" class="cta arr">Aceitar convite</a>
+      <a href="#" class="cta-sec">Recusar</a>
+      <p class="email-p" style="margin-top:32px;font-size:13px;color:var(--ink-3)">Convite expira em 7 dias. Novo no Spravio? Você cria sua conta no mesmo fluxo — só isso.</p>
+    `,
+  },
+  {
+    id: 'onboarding-d3', num: '05', label: 'Onboarding D3', kind: 'Nurture',
+    meta: { 'De': 'Romeu Rezende <romeu@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Maria, faltam 11 dias — conectou o Jira ainda?', 'Quando': 'D+3 do signup (sem integração conectada)' },
+    body: `
+      <span class="email-eb">Onboarding · dia 3 de 14</span>
+      <h1 class="email-h sm">Faltam <em>11 dias</em> de trial, Maria.</h1>
+      <p class="email-p">Vi que você criou a conta mas ainda não conectou Jira nem GitHub. Sem isso o Spravio fica meio no vazio — é como ter um painel de carro sem motor. Seguem 3 coisas pra destravar:</p>
+      <div class="steps">
+        <div class="step"><div class="step-n">1</div><div><div class="step-h">OAuth em 2 cliques</div><div class="step-p">Você autoriza, a gente importa. Não copiamos nada pro nosso banco — tudo é cache leve.</div></div></div>
+        <div class="step"><div class="step-n">2</div><div><div class="step-h">Primeiro forecast IA em 30s</div><div class="step-p">Assim que conectar, calculamos probabilidade de sprint no prazo.</div></div></div>
+        <div class="step"><div class="step-n">3</div><div><div class="step-h">Alertas ligam sozinhos</div><div class="step-p">PRs parados, cards parados, budget estourando — você fica sabendo antes do cliente.</div></div></div>
+      </div>
+      <a href="#" class="cta arr">Conectar Jira agora</a>
+      <a href="#" class="cta-sec">Conectar GitHub</a>
+      <p class="email-p" style="margin-top:32px;font-size:13px;color:var(--ink-3)">Dúvida ou atrito? Responde esse email — leio todas.<br>— Romeu</p>
+    `,
+  },
+  {
+    id: 'pr-stale', num: '06', label: 'PR stale', kind: 'Alerta automático',
+    meta: { 'De': 'Spravio <alerts@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': '⚠ 2 PRs críticos sem atividade há +72h — Banco Meridian', 'Quando': 'Detecção automática' },
+    body: `
+      <span class="email-eb">Alerta · Banco Meridian</span>
+      <h1 class="email-h sm"><strong style="color:var(--ink);font-weight:400">2 PRs</strong> parados há <em style="color:var(--bad)">+72 horas</em>.</h1>
+      <p class="email-p">Detectamos PRs sem review nem atividade há mais de 3 dias no projeto <strong>Banco Meridian</strong>. Em sprint corrente, isso geralmente vira atraso na sprint review.</p>
+      <div class="alert bad">
+        <div class="alert-ic">⚠</div>
+        <div>
+          <div class="alert-h">PR #187 · Extract payment service</div>
+          <div class="alert-p">Lucas F. abriu há 76h · nenhuma review · +824 / −312 LOC · 0 comentários</div>
+        </div>
+      </div>
+      <div class="alert bad">
+        <div class="alert-ic">⚠</div>
+        <div>
+          <div class="alert-h">PR #192 · Refactor auth middleware</div>
+          <div class="alert-p">Renata K. abriu há 80h · 1 review pendente (Lucas) · +156 / −94 LOC</div>
+        </div>
+      </div>
+      <a href="#" class="cta arr">Ver no Spravio</a>
+      <a href="#" class="cta-sec">Silenciar 24h</a>
+      <p class="email-p" style="margin-top:24px;font-size:12px;color:var(--ink-3)">Esse alerta é enviado uma vez por PR a cada 24h enquanto permanecer stale. Ajuste threshold em <a href="#" style="color:var(--accent-deep)">Configurações › Notificações</a>.</p>
+    `,
+  },
+  {
+    id: 'weekly', num: '07', label: 'Resumo semanal', kind: 'Digest',
+    meta: { 'De': 'Spravio <digest@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Seu resumo · Studio Lapa · 14–20 abr', 'Quando': 'Segunda 8h' },
+    body: `
+      <span class="email-eb">Resumo · 14 – 20 abr · Studio Lapa</span>
+      <h1 class="email-h sm">Semana em <em>números.</em></h1>
+      <p class="email-p">Visão agregada dos seus 5 projetos na semana passada. Clica nos números pra ir direto no detalhe.</p>
+      <div class="kpi-grid">
+        <div class="kpi"><div class="kpi-lbl">Cards entregues</div><div class="kpi-val good">47</div><div class="kpi-sub">+12% vs. semana anterior</div></div>
+        <div class="kpi"><div class="kpi-lbl">PRs mergeados</div><div class="kpi-val">28</div><div class="kpi-sub">Cycle time médio 3.1 dias</div></div>
+        <div class="kpi"><div class="kpi-lbl">Alertas críticos</div><div class="kpi-val bad">4</div><div class="kpi-sub">3 resolvidos, 1 em aberto</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-eb">Destaques</div>
+        <ul style="margin:10px 0 0;padding-left:0;list-style:none">
+          <li style="padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;color:var(--ink-2)"><strong style="color:var(--ink)">Banco Meridian</strong> · sprint 14 em risco (forecast IA 67%) · <a href="#" style="color:var(--accent-deep)">ver</a></li>
+          <li style="padding:10px 0;border-bottom:1px solid var(--rule);font-size:14px;color:var(--ink-2)"><strong style="color:var(--ink)">E-comm Vora</strong> · budget atingiu 92% · <a href="#" style="color:var(--accent-deep)">ver</a></li>
+          <li style="padding:10px 0;font-size:14px;color:var(--ink-2)"><strong style="color:var(--ink)">Saúde+ Portal</strong> · velocity +28% · <a href="#" style="color:var(--accent-deep)">ver</a></li>
+        </ul>
+      </div>
+      <a href="#" class="cta arr">Abrir dashboard</a>
+    `,
+  },
+  {
+    id: 'trial-end', num: '08', label: 'Trial 3 dias', kind: 'Conversão',
+    meta: { 'De': 'Romeu Rezende <romeu@spravio.io>', 'Para': 'maria@studiolapa.co', 'Assunto': 'Faltam 3 dias de trial, Maria', 'Quando': 'D+11 do signup' },
+    body: `
+      <span class="email-eb">Trial · 3 dias restantes</span>
+      <h1 class="email-h sm">Obrigado por testar o Spravio, <em>Maria.</em></h1>
+      <p class="email-p">Seu trial acaba em <strong>3 dias</strong>. Nos últimos 11 dias você conectou 2 projetos, recebeu 14 alertas (9 resolvidos) e salvou umas boas horas de catch-up. Nada mal.</p>
+      <div class="panel">
+        <div class="panel-eb">O que acontece depois do trial</div>
+        <p style="margin:10px 0 0;color:var(--ink-2);font-size:14px;line-height:1.6">Se você não assinar, sua conta vira <strong style="color:var(--ink)">Free</strong>: até 1 projeto, 1 integração, sem alertas proativos. Seus dados ficam salvos — nada é perdido. É só voltar quando quiser.</p>
+      </div>
+      <div class="kpi-grid" style="grid-template-columns:1fr 1fr">
+        <div class="kpi">
+          <div class="kpi-lbl">Studio · para agências</div>
+          <div class="kpi-val" style="font-size:30px">R$ 89<span style="font-size:13px;color:var(--ink-3);font-family:var(--fb)">/dev/mês</span></div>
+          <div class="kpi-sub">Mín 3 devs · projetos ilimitados</div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-lbl">Solo · para freelancer</div>
+          <div class="kpi-val" style="font-size:30px">R$ 39<span style="font-size:13px;color:var(--ink-3);font-family:var(--fb)">/mês</span></div>
+          <div class="kpi-sub">1 pessoa · 3 projetos</div>
+        </div>
+      </div>
+      <a href="#" class="cta arr">Escolher plano</a>
+      <a href="#" class="cta-sec">Agendar uma call</a>
+      <p class="email-p" style="margin-top:32px;font-size:13px;color:var(--ink-3)">Nenhum plano cabe? Responde esse email — a gente conversa.<br>— Romeu</p>
+    `,
+  },
+  {
+    id: 'invoice', num: '09', label: 'Fatura', kind: 'Billing',
+    meta: { 'De': 'Spravio Billing <billing@spravio.io>', 'Para': 'financeiro@studiolapa.co', 'Assunto': 'Fatura Spravio · abril 2026 · R$ 1.068,00', 'Quando': 'Mensal · dia 1º' },
+    body: `
+      <span class="email-eb">Fatura · abril 2026</span>
+      <h1 class="email-h sm">Fatura disponível, Studio Lapa.</h1>
+      <p class="email-p">Sua cobrança recorrente foi gerada. O pagamento acontece automaticamente em <strong>25/abr/2026</strong> no cartão terminado em <strong>••• 4242</strong>.</p>
+      <div class="panel" style="padding:0;overflow:hidden">
+        <dl class="dl" style="margin-top:0;border-top:0">
+          <div class="dl-row" style="padding:18px 20px;border-bottom:1px solid var(--rule);background:var(--paper)"><dt>Plano</dt><dd><strong>Studio</strong> · 8 devs × R$ 89/mês</dd></div>
+          <div class="dl-row" style="padding:14px 20px"><dt>Subtotal</dt><dd>R$ 712,00</dd></div>
+          <div class="dl-row" style="padding:14px 20px"><dt>Integrações extra</dt><dd>R$ 0,00</dd></div>
+          <div class="dl-row" style="padding:14px 20px"><dt>Impostos (ISS)</dt><dd>R$ 35,60</dd></div>
+          <div class="dl-row" style="padding:16px 20px;background:var(--cream-2);border-bottom:0;font-size:16px"><dt style="color:var(--ink)">Total</dt><dd><strong style="font-size:18px">R$ 1.068,00</strong></dd></div>
+        </dl>
+      </div>
+      <div class="alert good" style="margin-top:20px">
+        <div class="alert-ic">✓</div>
+        <div>
+          <div class="alert-h">Pagamento agendado</div>
+          <div class="alert-p">O débito acontece automaticamente em 25/abr/2026. NFS-e será enviada pro <strong>financeiro@studiolapa.co</strong> no dia seguinte.</div>
+        </div>
+      </div>
+      <a href="#" class="cta arr">Baixar fatura em PDF</a>
+      <a href="#" class="cta-sec">Gerenciar cobrança</a>
+    `,
+  },
+];
+
+function tplFooter() {
+  return document.getElementById('corp-footer').innerHTML;
+}
+
+function render(id) {
+  const e = EMAILS.find(x => x.id === id);
+  const host = document.getElementById('stage');
+  host.innerHTML = '';
+  EMAILS.forEach(em => {
+    const sec = document.createElement('section');
+    sec.className = 'stage' + (em.id === id ? ' on' : '');
+    sec.id = 'st-' + em.id;
+    sec.setAttribute('data-screen-label', em.num + '-' + em.id);
+    sec.innerHTML = `
+      <div class="stage-lbl"><strong>${em.num} · ${em.label}</strong> <span class="pill">${em.kind}</span> · gatilho: ${em.meta.Quando}</div>
+      <div class="stage-meta">
+        ${Object.entries(em.meta).map(([k,v]) => `<span>${k}</span><div>${v}</div>`).join('')}
+      </div>
+      <div class="email">
+        <div class="email-hdr">
+          <div class="email-logo">
+            <div class="email-logo-mark">s</div>
+            <span class="email-logo-name">Spravio</span>
+          </div>
+          <div class="email-hdr-meta">${em.num} · ${em.kind.toUpperCase()}</div>
+        </div>
+        <div class="email-body">${em.body}</div>
+        ${tplFooter()}
+      </div>
+    `;
+    host.appendChild(sec);
+  });
+  // nav state
+  document.querySelectorAll('#nav button').forEach(b => b.classList.toggle('on', b.dataset.id === id));
+  try { localStorage.setItem('spravio_email', id); } catch(e) {}
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// build nav
+const nav = document.getElementById('nav');
+EMAILS.forEach(em => {
+  const b = document.createElement('button');
+  b.dataset.id = em.id;
+  b.textContent = em.num + ' · ' + em.label;
+  b.addEventListener('click', () => render(em.id));
+  nav.appendChild(b);
+});
+
+// initial
+let initial = 'welcome';
+try { const saved = localStorage.getItem('spravio_email'); if (saved && EMAILS.find(e => e.id === saved)) initial = saved; } catch(e) {}
+render(initial);
+
+// Only show the active one (already done by render) — but make sure all are in DOM for data-screen-label labeling
+</script>
+
+</body>
+</html>

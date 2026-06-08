@@ -1,0 +1,66 @@
+# Local production test - Without Traefik, direct port exposure
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    ports:
+      - "5435:5432"  # Different port to avoid conflict with dev
+    environment:
+      POSTGRES_USER: spravio
+      POSTGRES_PASSWORD: testpassword123
+      POSTGRES_DB: spravio_prod_test
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U spravio']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    ports:
+      - "6381:6379"  # Different port to avoid conflict with dev
+    command: redis-server --requirepass redispass123
+    volumes:
+      - redis_prod_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', '-a', 'redispass123', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    image: spravio-api:latest
+    restart: unless-stopped
+    ports:
+      - "3020:3010"  # Expose on different port
+    environment:
+      DATABASE_URL: postgresql://spravio:testpassword123@postgres:5432/spravio_prod_test
+      REDIS_URL: redis://:redispass123@redis:6379
+      JWT_SECRET: test-jwt-secret-64-chars-CHANGE-IN-REAL-PRODUCTION-xxxxxxx
+      PORTAL_SECRET: test-portal-secret-32-chars-xxx
+      PORT: '3010'
+      NODE_ENV: production
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    image: spravio-web:latest
+    restart: unless-stopped
+    ports:
+      - "3021:3000"  # Expose on different port
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:3020
+      NEXTAUTH_URL: http://localhost:3021
+      NEXTAUTH_SECRET: test-nextauth-secret-32-chars-xx
+    depends_on:
+      - api
+
+volumes:
+  postgres_prod_data:
+  redis_prod_data:

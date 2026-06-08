@@ -1,0 +1,177 @@
+name: Deploy (Direct Build on VPS)
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to VPS with Direct Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Sync code to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: "."
+          target: "/opt/spravio"
+          overwrite: true
+          rm: false
+
+      - name: Deploy via SSH with direct build
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 20m
+          script: |
+            set -e
+            cd /opt/spravio
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🚀 DEPLOYING SPRAVIO (Direct Build)"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+
+            # Remove override file if it exists (prevents dev config from interfering)
+            if [ -f docker-compose.override.yml ]; then
+              echo "⚠️  Found docker-compose.override.yml - removing to prevent conflicts"
+              rm docker-compose.override.yml
+              echo "   ✅ Override file removed"
+              echo ""
+            fi
+
+            # Load environment and set COMPOSE_FILE to use only prod config
+            set -a
+            source .env
+            set +a
+            export COMPOSE_FILE=docker-compose.prod.yml
+
+            # Fix DATABASE_URL if needed
+            echo "🔍 Checking DATABASE_URL configuration..."
+            if echo "$DATABASE_URL" | grep -q "@postgres:5432"; then
+              echo "   ✅ DATABASE_URL uses correct hostname (postgres)"
+            else
+              echo "   ⚠️  DATABASE_URL uses incorrect hostname - fixing..."
+              # Backup .env
+              cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+              # Build correct DATABASE_URL
+              CORRECT_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?connection_limit=20&pool_timeout=20&connect_timeout=10"
+              # Update in .env file
+              sed -i "s|^DATABASE_URL=.*|DATABASE_URL=$CORRECT_URL|" .env
+              # Reload environment
+              set -a
+              source .env
+              set +a
+              echo "   ✅ DATABASE_URL updated to use postgres hostname"
+            fi
+            echo ""
+
+            # Stop services
+            echo "⏸️  Stopping services..."
+            docker compose down
+            echo "   ✅ Services stopped"
+            echo ""
+
+            # Clear Next.js cache to force fresh build
+            echo "🧹 Clearing Next.js cache..."
+            rm -rf apps/web/.next || true
+            echo "   ✅ Cache cleared"
+            echo ""
+
+            # Build images directly on VPS
+            echo "🔨 Building Docker images..."
+            docker compose build --no-cache
+            echo "   ✅ Images built"
+            echo ""
+
+            # Start database services
+            echo "▶️  Starting postgres and redis..."
+            docker compose up -d postgres redis
+            echo ""
+
+            echo "⏳ Waiting for database healthchecks..."
+            for i in $(seq 1 30); do
+              pg_ok=$(docker compose ps postgres --format '{{.Health}}' 2>/dev/null || echo "")
+              rd_ok=$(docker compose ps redis --format '{{.Health}}' 2>/dev/null || echo "")
+              if [ "$pg_ok" = "healthy" ] && [ "$rd_ok" = "healthy" ]; then
+                echo "   ✅ Databases are healthy"
+                break
+              fi
+              if [ "$i" -eq 30 ]; then
+                echo "   ⚠️  Timeout waiting for healthchecks"
+              fi
+              sleep 2
+            done
+            echo ""
+
+            # Run migrations
+            echo "📦 Running Prisma migrations..."
+            docker compose run --rm api npx prisma migrate deploy
+            echo "   ✅ Migrations applied"
+            echo ""
+
+            # Start all services
+            echo "🚀 Starting all services..."
+            docker compose up -d --remove-orphans
+            echo "   ✅ Services started"
+            echo ""
+
+            # Debug: Show container status
+            echo "📊 Container status:"
+            docker compose ps
+            echo ""
+
+            # Debug: Check API container logs immediately
+            echo "📋 API container logs (last 20 lines):"
+            docker compose logs --tail 20 api
+            echo ""
+
+            # Health check with better error reporting
+            echo "⏳ Waiting for API healthcheck..."
+            sleep 5
+
+            API_CONTAINER=$(docker compose ps -q api)
+            for i in $(seq 1 30); do
+              # Check if container is still running
+              if ! docker ps -q --filter "id=$API_CONTAINER" | grep -q .; then
+                echo "   ❌ API container stopped unexpectedly!"
+                echo ""
+                echo "📋 Full API logs:"
+                docker compose logs api
+                exit 1
+              fi
+
+              # Try health check
+              if docker exec "$API_CONTAINER" wget -qO- http://127.0.0.1:3010/health > /dev/null 2>&1; then
+                echo "   ✅ API is healthy"
+                echo ""
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                echo "✅ DEPLOYMENT SUCCESSFUL"
+                echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+                exit 0
+              fi
+              echo "   Attempt ${i}/30..."
+              sleep 2
+            done
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "❌ DEPLOYMENT FAILED - Health check timeout"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+            echo "📋 Full API logs:"
+            docker compose logs api
+            echo ""
+            echo "📋 All services status:"
+            docker compose ps
+            exit 1

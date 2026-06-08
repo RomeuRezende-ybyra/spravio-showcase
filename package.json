@@ -1,0 +1,33 @@
+{
+  "name": "spravio",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "pnpm run --parallel dev:api dev:web",
+    "dev:api": "pnpm --filter @spravio/api dev",
+    "dev:web": "pnpm --filter @spravio/web dev",
+    "build": "pnpm run --parallel build:api build:web",
+    "build:api": "pnpm --filter @spravio/api build",
+    "build:web": "pnpm --filter @spravio/web build",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint apps packages --ext .ts,.tsx",
+    "db:generate": "pnpm --filter @spravio/api prisma generate",
+    "db:migrate": "pnpm --filter @spravio/api prisma migrate dev",
+    "db:push": "pnpm --filter @spravio/api prisma db push",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:build": "docker compose build",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r --parallel test:watch"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@vitest/coverage-v8": "^4.1.2",
+    "eslint": "^10.0.2",
+    "globals": "^17.4.0",
+    "typescript-eslint": "^8.56.1",
+    "vitest": "^4.1.2"
+  }
+}

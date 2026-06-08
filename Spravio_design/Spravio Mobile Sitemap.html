@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Spravio Mobile — Sitemap & Flows</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cream:oklch(0.975 0.012 75); --cream-2:oklch(0.955 0.018 72); --cream-3:oklch(0.93 0.022 70);
+  --paper:oklch(0.99 0.008 80); --ink:oklch(0.22 0.02 40); --ink-2:oklch(0.36 0.02 40);
+  --ink-3:oklch(0.56 0.015 45); --rule:oklch(0.88 0.015 60); --rule-2:oklch(0.82 0.02 55);
+  --accent:oklch(0.62 0.14 35); --accent-deep:oklch(0.42 0.12 35); --accent-soft:oklch(0.92 0.06 35);
+  --good:oklch(0.58 0.12 145); --warn:oklch(0.72 0.15 75); --bad:oklch(0.58 0.18 25);
+  --owner:oklch(0.52 0.15 280); --gp:oklch(0.55 0.14 200); --viewer:oklch(0.55 0.08 60);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--cream);color:var(--ink);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0;background-image:radial-gradient(oklch(0.22 0.02 40/.02) 1px,transparent 1px);background-size:4px 4px;pointer-events:none;z-index:0;opacity:.6}
+.wrap{max-width:1320px;margin:0 auto;padding:0 32px;position:relative;z-index:1}
+.display{font-family:'Fraunces',serif;font-weight:300;letter-spacing:-0.025em;line-height:1.02}
+.display em{font-style:italic;color:var(--accent-deep)}
+.mono{font-family:'JetBrains Mono',monospace}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);display:inline-flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--ink-3)}
+
+/* ===== HEADER ===== */
+.hdr{padding:64px 0 48px;border-bottom:1px solid var(--rule)}
+.hdr .meta{display:flex;justify-content:space-between;align-items:flex-start;gap:40px;flex-wrap:wrap}
+.hdr h1{font-size:clamp(48px,6vw,78px);margin-top:18px;line-height:1.02}
+.hdr .lede{margin-top:24px;max-width:640px;color:var(--ink-2);font-size:18px;line-height:1.55}
+.stamp{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);letter-spacing:0.06em;line-height:1.8;text-align:right}
+.stamp strong{color:var(--ink);font-weight:500}
+
+/* ===== SECTIONS ===== */
+section{padding:80px 0;border-bottom:1px solid var(--rule)}
+section h2{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(32px,4vw,52px);letter-spacing:-0.025em;line-height:1.08;margin-top:16px}
+section h2 em{font-style:italic;color:var(--accent-deep)}
+.section-head{max-width:720px;margin-bottom:48px}
+.section-head .sub{margin-top:24px;color:var(--ink-2);font-size:16px;line-height:1.6}
+
+/* ===== PERSONAS ===== */
+.personas{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:16px;overflow:hidden}
+@media(max-width:900px){.personas{grid-template-columns:1fr}}
+.persona{background:var(--paper);padding:32px}
+.persona .role{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:0.14em;text-transform:uppercase;padding:4px 10px;border-radius:4px;display:inline-block}
+.persona[data-r="owner"] .role{background:color-mix(in oklab,var(--owner) 15%,transparent);color:var(--owner)}
+.persona[data-r="gp"] .role{background:color-mix(in oklab,var(--gp) 15%,transparent);color:var(--gp)}
+.persona[data-r="viewer"] .role{background:color-mix(in oklab,var(--viewer) 15%,transparent);color:var(--viewer)}
+.persona h3{font-family:'Fraunces',serif;font-weight:400;font-size:28px;margin:16px 0 6px;letter-spacing:-0.02em}
+.persona .sub{color:var(--ink-3);font-size:13px}
+.persona ul{margin:20px 0 0;padding:0;list-style:none}
+.persona li{font-size:13px;color:var(--ink-2);padding:6px 0;border-top:1px solid var(--rule);display:flex;gap:10px;line-height:1.5}
+.persona li::before{content:"→";color:var(--accent-deep);font-family:'JetBrains Mono',monospace;flex-shrink:0}
+.persona .primary-tag{margin-top:20px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--accent-deep);letter-spacing:0.1em;text-transform:uppercase}
+.persona.primary{background:var(--cream-2);box-shadow:inset 3px 0 0 var(--accent)}
+
+/* ===== SITEMAP / TREE ===== */
+.sitemap{background:var(--paper);border:1px solid var(--rule);border-radius:20px;padding:40px;overflow-x:auto}
+.tree{font-family:'JetBrains Mono',monospace;font-size:13px;line-height:1.9;color:var(--ink-2);min-width:760px}
+.tree .root{font-family:'Fraunces',serif;font-style:italic;font-size:22px;color:var(--ink);font-weight:400;margin-bottom:14px;display:block}
+.tree .branch{display:block;padding-left:0}
+.tree .level-1{padding-left:24px;color:var(--ink)}
+.tree .level-2{padding-left:48px}
+.tree .level-3{padding-left:72px;color:var(--ink-3)}
+.tree .pipe{color:var(--rule-2)}
+.tree .label{display:inline-flex;align-items:center;gap:8px;padding:1px 0}
+.tree .ico{width:14px;height:14px;display:inline-block;border-radius:3px;background:var(--cream-3);flex-shrink:0;position:relative;top:2px}
+.tree .tag{font-size:9px;padding:1px 6px;border-radius:3px;letter-spacing:0.1em;text-transform:uppercase;font-weight:500;margin-left:8px;vertical-align:middle}
+.tag.mvp{background:color-mix(in oklab,var(--accent) 18%,transparent);color:var(--accent-deep)}
+.tag.v2{background:color-mix(in oklab,var(--ink-3) 14%,transparent);color:var(--ink-3)}
+.tag.owner{background:color-mix(in oklab,var(--owner) 15%,transparent);color:var(--owner)}
+.tag.gp{background:color-mix(in oklab,var(--gp) 15%,transparent);color:var(--gp)}
+.tag.all{background:color-mix(in oklab,var(--good) 15%,transparent);color:var(--good)}
+.tree-key{margin-top:32px;padding-top:20px;border-top:1px solid var(--rule);display:flex;gap:20px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.08em;text-transform:uppercase}
+.tree-key span{display:inline-flex;align-items:center;gap:6px}
+
+/* ===== TAB BAR DIAGRAM ===== */
+.tabbar-block{display:grid;grid-template-columns:1fr 1.4fr;gap:48px;align-items:center}
+@media(max-width:900px){.tabbar-block{grid-template-columns:1fr}}
+.tabbar-phone{background:var(--ink);border-radius:40px;padding:10px;max-width:280px;margin:0 auto;box-shadow:0 30px 60px -20px oklch(0 0 0/.3)}
+.tabbar-screen{background:var(--paper);border-radius:32px;height:540px;position:relative;overflow:hidden;display:flex;flex-direction:column}
+.tabbar-screen .stat{padding:10px 20px 4px;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink);display:flex;justify-content:space-between;align-items:center}
+.tabbar-screen .content-area{flex:1;background:var(--cream-2);padding:20px;display:flex;flex-direction:column;gap:10px}
+.tabbar-screen .content-area .stub{height:10px;background:var(--rule);border-radius:4px;width:60%}
+.tabbar-screen .content-area .stub.wide{width:90%}
+.tabbar-screen .content-area .stub.thick{height:26px;width:70%}
+.tabbar-screen .content-area .card{background:var(--paper);border:1px solid var(--rule);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.tabbar-screen .content-area .card .line{height:6px;background:var(--rule);border-radius:3px}
+.tabbar-screen .content-area .card .line.w1{width:80%}
+.tabbar-screen .content-area .card .line.w2{width:50%}
+.tabbar-screen .tabs{display:flex;justify-content:space-around;padding:8px 4px 18px;border-top:1px solid var(--rule);background:var(--paper)}
+.tabbar-screen .tabs .t{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:9px;color:var(--ink-3);flex:1}
+.tabbar-screen .tabs .t.on{color:var(--accent-deep)}
+.tabbar-screen .tabs .t svg{width:22px;height:22px}
+.tabbar-screen .tabs .t.on svg{color:var(--accent)}
+.tab-desc{display:flex;flex-direction:column;gap:20px}
+.tab-row{display:grid;grid-template-columns:80px 1fr;gap:20px;padding:16px;border:1px solid var(--rule);border-radius:14px;background:var(--paper)}
+.tab-row .ti{display:flex;flex-direction:column;align-items:center;gap:6px;padding-top:4px}
+.tab-row .ti .ic{width:34px;height:34px;border-radius:10px;background:var(--cream-2);display:grid;place-items:center;color:var(--accent-deep)}
+.tab-row .ti .nm{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.08em;text-transform:uppercase}
+.tab-row h4{font-family:'Fraunces',serif;font-weight:400;font-size:20px;margin:0;letter-spacing:-0.015em}
+.tab-row p{margin:6px 0 0;color:var(--ink-2);font-size:13px;line-height:1.55}
+.tab-row .sub-meta{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-3);letter-spacing:0.08em;text-transform:uppercase}
+.tab-row .sub-meta span{padding:2px 7px;border:1px solid var(--rule);border-radius:3px}
+
+/* ===== FLOWS ===== */
+.flows{display:grid;grid-template-columns:1fr;gap:24px}
+.flow{background:var(--paper);border:1px solid var(--rule);border-radius:18px;padding:32px;overflow-x:auto}
+.flow .flow-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.flow .flow-num{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:52px;color:var(--accent);line-height:0.8}
+.flow .flow-title{font-family:'Fraunces',serif;font-weight:400;font-size:28px;letter-spacing:-0.02em}
+.flow .flow-sub{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;margin-left:auto}
+.flow .flow-desc{color:var(--ink-2);font-size:14px;line-height:1.6;margin-bottom:28px;max-width:680px}
+.steps{display:flex;gap:14px;align-items:stretch;min-width:min-content}
+.step{background:var(--cream-2);border:1px solid var(--rule);border-radius:12px;padding:16px;min-width:170px;flex:1;display:flex;flex-direction:column;gap:8px;position:relative}
+.step .s-n{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.1em}
+.step .s-t{font-weight:500;font-size:13px;line-height:1.4;color:var(--ink)}
+.step .s-d{font-size:11px;color:var(--ink-3);line-height:1.5}
+.step .s-ic{width:24px;height:24px;border-radius:6px;background:var(--paper);border:1px solid var(--rule);display:grid;place-items:center;color:var(--accent-deep)}
+.step.decision{background:color-mix(in oklab,var(--warn) 10%,var(--paper));border-color:color-mix(in oklab,var(--warn) 30%,var(--rule))}
+.step.end{background:var(--ink);color:var(--cream);border-color:var(--ink)}
+.step.end .s-n,.step.end .s-d{color:color-mix(in oklab,var(--cream) 65%,transparent)}
+.step.end .s-t{color:var(--cream)}
+.step-arrow{align-self:center;color:var(--rule-2);flex-shrink:0;font-family:'JetBrains Mono',monospace}
+
+/* ===== NOTIFICATIONS MATRIX ===== */
+.notif-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+@media(max-width:760px){.notif-grid{grid-template-columns:1fr}}
+.notif{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:20px;display:grid;grid-template-columns:auto 1fr auto;gap:16px;align-items:center}
+.notif .n-ic{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;font-size:18px}
+.notif[data-sev="critical"] .n-ic{background:color-mix(in oklab,var(--bad) 15%,transparent);color:var(--bad)}
+.notif[data-sev="warn"] .n-ic{background:color-mix(in oklab,var(--warn) 20%,transparent);color:oklch(0.45 0.15 75)}
+.notif[data-sev="info"] .n-ic{background:color-mix(in oklab,var(--accent) 15%,transparent);color:var(--accent-deep)}
+.notif[data-sev="good"] .n-ic{background:color-mix(in oklab,var(--good) 15%,transparent);color:var(--good)}
+.notif .n-body h4{font-size:14px;font-weight:500;margin:0 0 4px}
+.notif .n-body p{font-size:12px;color:var(--ink-3);margin:0;line-height:1.5}
+.notif .n-body .sample{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-2);margin-top:6px;padding:6px 8px;background:var(--cream-2);border-radius:5px;border:1px solid var(--rule)}
+.notif .n-act{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;padding:4px 8px;border:1px solid var(--rule);border-radius:4px;white-space:nowrap}
+
+/* ===== DESIGN TOKENS ===== */
+.tokens{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
+@media(max-width:900px){.tokens{grid-template-columns:1fr}}
+.token-card{background:var(--paper);border:1px solid var(--rule);border-radius:16px;padding:28px}
+.token-card h3{font-family:'Fraunces',serif;font-weight:400;font-size:22px;margin:0 0 16px;letter-spacing:-0.02em}
+.swatch-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.sw{width:52px;height:52px;border-radius:10px;border:1px solid var(--rule);position:relative;display:grid;place-items:end;padding:4px;font-family:'JetBrains Mono',monospace;font-size:8px;color:oklch(0 0 0/.4)}
+.type-sample{margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--rule)}
+.type-sample:last-child{border:0;padding:0;margin:0}
+.type-sample .lbl{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.space-scale{display:flex;flex-direction:column;gap:8px}
+.space-row{display:grid;grid-template-columns:60px 1fr auto;gap:14px;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-2)}
+.space-row .bar{background:var(--accent-soft);height:8px;border-radius:2px}
+
+/* ===== TECH RECO ===== */
+.tech{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+@media(max-width:760px){.tech{grid-template-columns:1fr}}
+.tech-card{background:var(--paper);border:1px solid var(--rule);border-radius:18px;padding:32px}
+.tech-card h3{font-family:'Fraunces',serif;font-weight:400;font-size:26px;margin:0 0 8px;letter-spacing:-0.02em}
+.tech-card .lead{color:var(--ink-2);font-size:14px;margin-bottom:20px}
+.tech-card ul{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:10px}
+.tech-card li{display:grid;grid-template-columns:140px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--rule);font-size:13px;color:var(--ink-2)}
+.tech-card li:first-child{border-top:0;padding-top:0}
+.tech-card li .k{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.08em;text-transform:uppercase;padding-top:2px}
+.tech-card.featured{background:var(--ink);color:var(--cream)}
+.tech-card.featured h3{color:var(--cream)}
+.tech-card.featured .lead,.tech-card.featured li{color:color-mix(in oklab,var(--cream) 70%,transparent)}
+.tech-card.featured li{border-color:color-mix(in oklab,var(--cream) 15%,transparent)}
+.tech-card.featured li .k{color:var(--accent)}
+
+/* ===== NEXT STEPS ===== */
+.next{background:var(--paper);border:1px solid var(--rule);border-radius:18px;padding:40px}
+.next ol{margin:24px 0 0;padding:0;list-style:none;counter-reset:ns}
+.next li{counter-increment:ns;padding:20px 0;border-top:1px solid var(--rule);display:grid;grid-template-columns:60px 1fr;gap:20px;align-items:baseline}
+.next li:first-child{border-top:0}
+.next li::before{content:counter(ns,decimal-leading-zero);font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:44px;color:var(--accent);line-height:1}
+.next li h4{font-family:'Fraunces',serif;font-weight:400;font-size:22px;margin:0 0 6px;letter-spacing:-0.02em}
+.next li p{color:var(--ink-2);font-size:14px;margin:0;line-height:1.55}
+
+footer.site{padding:40px 0 32px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);letter-spacing:0.06em;display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="wrap">
+    <div class="meta">
+      <div>
+        <span class="eyebrow">Spravio mobile · arquitetura da informação</span>
+        <h1 class="display">Sitemap, fluxos &amp; <em>sistema mobile</em>.</h1>
+        <p class="lede">Antes das telas em hi-fi, o esqueleto. Aqui está a estrutura do app v1 — o que existe, quem acessa, como os fluxos se conectam, e as bases do design system mobile. Um documento pra você validar antes da gente gastar ciclo pintando pixels.</p>
+      </div>
+      <div class="stamp">
+        <strong>v0.1 · SITEMAP</strong><br>
+        19 abr 2026<br>
+        PLATAFORMAS · iOS + ANDROID<br>
+        ESCOPO · COMPANION+<br>
+        PERSONA PRIMÁRIA · GP
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ===== PERSONAS ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">01 — personas</span>
+      <h2 class="display">Quem abre o app, e <em>quando.</em></h2>
+      <p class="sub">O mobile não substitui o web — ele complementa. Cada papel tem um momento de uso distinto: o GP checa durante o trajeto, o owner quer um pulso do portfólio entre reuniões, o cliente abre o link uma vez por sprint. Projetamos pro GP primeiro porque é quem mais volta.</p>
+    </div>
+
+    <div class="personas">
+      <div class="persona primary" data-r="gp">
+        <span class="role">Project Manager · GP</span>
+        <h3>Maria, Diretora</h3>
+        <p class="sub">35–45 · 5–15 projetos · Jira diário</p>
+        <p class="primary-tag">★ Persona primária do mobile</p>
+        <ul>
+          <li>Confere sprint antes de reunião de cliente</li>
+          <li>Recebe alerta de PR stale no Uber e decide ação</li>
+          <li>Lança horas de reunião no final do dia</li>
+          <li>Compartilha progresso no grupo do cliente</li>
+        </ul>
+      </div>
+      <div class="persona" data-r="owner">
+        <span class="role">Owner · CEO</span>
+        <h3>Ricardo, Fundador</h3>
+        <p class="sub">40+ · visão de portfólio · foco em margem</p>
+        <ul>
+          <li>Abre pra ver saúde geral (health by project)</li>
+          <li>Alerta de budget overflow leva ação imediata</li>
+          <li>Atribui/remaneja GP entre sprints</li>
+          <li>Exporta relatório executivo</li>
+        </ul>
+      </div>
+      <div class="persona" data-r="viewer">
+        <span class="role">Viewer · Cliente</span>
+        <h3>Ana, Stakeholder</h3>
+        <p class="sub">Read-only · uso episódico</p>
+        <ul>
+          <li>Abre link do portal no mobile 1–2x por semana</li>
+          <li>Vê progresso e burndown do sprint atual</li>
+          <li>Não vê scorecard nem budget</li>
+          <li>Não entra em nenhum fluxo de escrita</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== TAB BAR ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">02 — navegação</span>
+      <h2 class="display">Cinco destinos, <em>sem menu hambúrguer.</em></h2>
+      <p class="sub">Tab bar fixa. Nada escondido. As cinco áreas foram escolhidas pela frequência de acesso do GP — não pela estrutura técnica do produto. <span class="mono" style="color:var(--ink)">Portfólio / Sprint / PRs / Inbox / Eu</span>. Cada uma tem stack própria e preserva histórico ao trocar de aba (iOS pattern).</p>
+    </div>
+
+    <div class="tabbar-block">
+      <div class="tabbar-phone">
+        <div class="tabbar-screen">
+          <div class="stat"><span>9:41</span><span>●●●</span></div>
+          <div class="content-area">
+            <div class="stub thick" style="background:var(--ink);opacity:.7"></div>
+            <div class="stub wide"></div>
+            <div class="card"><div class="line w1"></div><div class="line w2"></div></div>
+            <div class="card"><div class="line w1"></div><div class="line w2"></div></div>
+            <div class="card"><div class="line w1"></div><div class="line w2"></div></div>
+          </div>
+          <div class="tabs">
+            <div class="t on">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg>
+              <span>Portfólio</span>
+            </div>
+            <div class="t">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg>
+              <span>Sprint</span>
+            </div>
+            <div class="t">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7"/><path d="M8.3 6.5c5 0 7 2 7 5.5"/></svg>
+              <span>PRs</span>
+            </div>
+            <div class="t">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v10H7l-3 3z"/></svg>
+              <span>Inbox</span>
+            </div>
+            <div class="t">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+              <span>Eu</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tab-desc">
+        <div class="tab-row">
+          <div class="ti"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="8" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/><rect x="13" y="13" width="8" height="8" rx="1.5"/></svg></div><span class="nm">01 · Portfólio</span></div>
+          <div><h4>Todos os projetos, health em linha.</h4><p>Owner vê todos, GP vê só os seus. Swipe lateral pra trocar de organização. Filtros por health (on-track, at-risk, late) e por GP.</p><div class="sub-meta"><span>all roles</span><span>entry point</span><span>pull-to-sync</span></div></div>
+        </div>
+        <div class="tab-row">
+          <div class="ti"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 17l6-6 4 4 8-8"/><path d="M14 7h7v7"/></svg></div><span class="nm">02 · Sprint</span></div>
+          <div><h4>Sprint atual do projeto selecionado.</h4><p>KPIs, burndown, cards por status (Todo / In Progress / Test / UAT / Done), velocity, forecast de entrega (IA). Tela mais visitada pelo GP.</p><div class="sub-meta"><span>gp primary</span><span>ai forecast</span><span>drill-down</span></div></div>
+        </div>
+        <div class="tab-row">
+          <div class="ti"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="2.5"/><circle cx="6" cy="18" r="2.5"/><circle cx="18" cy="12" r="2.5"/><path d="M6 8.5v7"/><path d="M8.3 6.5c5 0 7 2 7 5.5"/></svg></div><span class="nm">03 · PRs</span></div>
+          <div><h4>Pull requests com health signal.</h4><p>Cycle time color-coded. Stale em 24h (amarelo) e 72h (vermelho). Swipe no card pra marcar como reviewed ou abrir no GitHub.</p><div class="sub-meta"><span>gp + owner</span><span>swipe actions</span><span>deep-link github</span></div></div>
+        </div>
+        <div class="tab-row">
+          <div class="ti"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16v10H7l-3 3z"/></svg></div><span class="nm">04 · Inbox</span></div>
+          <div><h4>Alertas do produto, não do calendário.</h4><p>PR stale, sprint em risco (forecast), budget threshold, done-sem-código, sync logs. Agrupados por projeto. Quick-actions inline.</p><div class="sub-meta"><span>all roles</span><span>push origin</span><span>quick-actions</span></div></div>
+        </div>
+        <div class="tab-row">
+          <div class="ti"><div class="ic"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg></div><span class="nm">05 · Eu</span></div>
+          <div><h4>Perfil, organização, notificações.</h4><p>Switcher de org, configurações de push (quais alertas disparam), tema, idioma, lançamento de horas, logout. Owner vê billing e membros.</p><div class="sub-meta"><span>all roles</span><span>org switcher</span><span>billing owner-only</span></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== SITEMAP TREE ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">03 — sitemap completo</span>
+      <h2 class="display">Todas as telas, <em>em uma árvore.</em></h2>
+      <p class="sub">As tags à direita indicam escopo do MVP vs. v2 e qual papel tem acesso. Telas marcadas <span class="mono" style="color:var(--accent-deep)">MVP</span> vão ao ar primeiro; <span class="mono" style="color:var(--ink-3)">v2</span> ficam pra segunda release. Permissões seguem a matriz do PRD (OWNER/PM/VIEWER).</p>
+    </div>
+
+    <div class="sitemap">
+      <div class="tree">
+        <span class="root">spravio.mobile/</span>
+
+        <span class="branch level-1">├── <span class="label">◉ Auth Stack <span class="tag mvp">mvp</span><span class="tag all">all</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /welcome — splash com lockup warm</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /login — email + senha, biometria como opt-in</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /login/sso — futuro (Google, Microsoft)</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /login/forgot — reset via email</span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /onboarding — 2 steps: push permission + tour rápido</span>
+
+        <span class="branch level-1">├── <span class="label">◉ 01 Portfolio Tab <span class="tag mvp">mvp</span><span class="tag all">all</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /portfolio — lista de projetos com health chip</span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> ?filter=health — on-track | at-risk | late</span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> ?filter=gp — filtro por project manager <span class="tag owner">owner</span></span>
+        <span class="branch level-3"><span class="pipe">│   │   └─</span> ?sort=budget-health — desc/asc</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /portfolio/org-switcher — sheet com organizações</span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /portfolio/search — busca fuzzy nome/key</span>
+
+        <span class="branch level-1">├── <span class="label">◉ 02 Project Stack <span class="tag mvp">mvp</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/overview — KPIs + forecast card</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/sprint — sprint atual (tab focus) <span class="tag mvp">mvp</span></span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> /sprint/[id]/board — cards por coluna (swipe entre)</span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> /sprint/[id]/burndown — full-screen chart</span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> /sprint/[id]/forecast — IA reasoning completo <span class="tag v2">v2</span></span>
+        <span class="branch level-3"><span class="pipe">│   │   └─</span> /sprint/[id]/history — sprints anteriores <span class="tag v2">v2</span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/developers — scorecards grid</span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> /developers/[devId] — detalhe + métricas</span>
+        <span class="branch level-3"><span class="pipe">│   │   └─</span> /developers/[devId]/cards — cards atribuídos</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/budget — gauge + breakdown <span class="tag gp">gp</span><span class="tag owner">owner</span></span>
+        <span class="branch level-3"><span class="pipe">│   │   ├─</span> /budget/rates — taxa por dev <span class="tag owner">owner</span></span>
+        <span class="branch level-3"><span class="pipe">│   │   └─</span> /budget/log-hours — lançar horas (modal)</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/prs — PRs do projeto</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/settings — GP assignment <span class="tag owner">owner</span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /project/[id]/share — client portal read-only link <span class="tag v2">v2</span></span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /project/[id]/export — PDF/CSV (share sheet) <span class="tag v2">v2</span></span>
+
+        <span class="branch level-1">├── <span class="label">◉ 03 PRs Tab <span class="tag mvp">mvp</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /prs — todos os projetos, agrupado por status</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /prs?filter=stale — só stale 24h+</span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /prs/[prId] — detalhe + linked card + abrir GitHub</span>
+
+        <span class="branch level-1">├── <span class="label">◉ 04 Inbox Tab <span class="tag mvp">mvp</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /inbox — alertas por severidade, agrupado por projeto</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /inbox/[alertId] — detalhe + quick actions</span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /inbox/digest — resumo diário opt-in <span class="tag v2">v2</span></span>
+
+        <span class="branch level-1">├── <span class="label">◉ 05 Me Tab <span class="tag mvp">mvp</span></span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me — perfil, org atual</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me/notifications — toggle push por tipo</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me/appearance — theme + density + idioma</span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me/organization — membros + roles <span class="tag owner">owner</span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me/billing — plano, invoices <span class="tag owner">owner</span></span>
+        <span class="branch level-2"><span class="pipe">│   ├─</span> /me/integrations — read-only status dos syncs</span>
+        <span class="branch level-2"><span class="pipe">│   └─</span> /me/help — docs, contato, logout</span>
+
+        <span class="branch level-1">└── <span class="label">◉ Deep Links (push)</span></span>
+        <span class="branch level-2">    ├─ spravio://pr/[id] — abre PR detail</span>
+        <span class="branch level-2">    ├─ spravio://sprint/[id] — abre sprint do alerta</span>
+        <span class="branch level-2">    ├─ spravio://budget/[projectId] — abre gauge</span>
+        <span class="branch level-2">    └─ spravio://alert/[id] — abre inbox no alerta</span>
+      </div>
+
+      <div class="tree-key">
+        <span><i class="sw" style="width:10px;height:10px;background:color-mix(in oklab,var(--accent) 18%,transparent);border:1px solid color-mix(in oklab,var(--accent) 40%,transparent);border-radius:2px"></i> MVP</span>
+        <span><i class="sw" style="width:10px;height:10px;background:color-mix(in oklab,var(--ink-3) 14%,transparent);border:1px solid color-mix(in oklab,var(--ink-3) 30%,transparent);border-radius:2px"></i> v2</span>
+        <span><i class="sw" style="width:10px;height:10px;background:color-mix(in oklab,var(--owner) 15%,transparent);border-radius:2px"></i> owner-only</span>
+        <span><i class="sw" style="width:10px;height:10px;background:color-mix(in oklab,var(--gp) 15%,transparent);border-radius:2px"></i> gp+owner</span>
+        <span><i class="sw" style="width:10px;height:10px;background:color-mix(in oklab,var(--good) 15%,transparent);border-radius:2px"></i> todos roles</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FLOWS ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">04 — fluxos críticos</span>
+      <h2 class="display">As quatro jornadas <em>que precisam ser perfeitas.</em></h2>
+      <p class="sub">Tudo mais pode ser wireframe funcional. Estas quatro jornadas recebem o maior polimento porque representam os momentos em que o mobile ganha ou perde o usuário: primeiro acesso, alerta em movimento, decisão de sprint, e lançamento de horas.</p>
+    </div>
+
+    <div class="flows">
+
+      <div class="flow">
+        <div class="flow-head">
+          <span class="flow-num">01</span>
+          <h3 class="flow-title">First-time login &amp; onboarding</h3>
+          <span class="flow-sub">time-to-first-value &lt; 60s</span>
+        </div>
+        <p class="flow-desc">Usuário já tem conta criada no web. No mobile, login deve ser curto, push permission deve aparecer no momento certo (não na cara), e a primeira tela vista tem que ter valor imediato — o projeto mais ativo.</p>
+        <div class="steps">
+          <div class="step"><span class="s-n">01</span><span class="s-t">Welcome</span><span class="s-d">Lockup + CTA "Entrar". Sign-up manda pro web.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">02</span><span class="s-t">Login</span><span class="s-d">Email + senha. Opção "Lembrar" + biometria.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step decision"><span class="s-n">03</span><span class="s-t">Push permission</span><span class="s-d">Soft ask primeiro ("quer receber alertas críticos?"), depois o prompt nativo.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">04</span><span class="s-t">Org selection</span><span class="s-d">Se &gt;1 org, escolhe. Se 1, pula.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step end"><span class="s-n">05</span><span class="s-t">Portfolio</span><span class="s-d">Já carregado com dados em cache da última sessão.</span></div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-head">
+          <span class="flow-num">02</span>
+          <h3 class="flow-title">Push "PR stale 72h" → decisão</h3>
+          <span class="flow-sub">critical — &lt; 3 taps</span>
+        </div>
+        <p class="flow-desc">Fluxo mais importante do app. GP recebe push em movimento — tem que chegar na decisão em no máximo 3 taps e uma rolagem. Push tem deep link direto para o PR detail.</p>
+        <div class="steps">
+          <div class="step"><span class="s-n">01</span><span class="s-t">Push notification</span><span class="s-d">"⚠ PR #187 parado há 72h — refactor(api): extract payment service"</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">02</span><span class="s-t">PR Detail</span><span class="s-d">Card, status, autor, idade, link card, link review.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step decision"><span class="s-n">03</span><span class="s-t">Ação rápida</span><span class="s-d">3 botões: "Abrir no GitHub", "Ping autor (Slack)", "Snooze 24h"</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step end"><span class="s-n">04</span><span class="s-t">Confirmação</span><span class="s-d">Toast + card marca como "pinged" por 24h.</span></div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-head">
+          <span class="flow-num">03</span>
+          <h3 class="flow-title">Manhã do GP — sprint health check</h3>
+          <span class="flow-sub">uso recorrente · 2–5 min</span>
+        </div>
+        <p class="flow-desc">Uso mais frequente. GP abre de manhã pra saber onde estão os projetos. Pull-to-sync força update. Dados em cache garantem abertura instantânea mesmo offline.</p>
+        <div class="steps">
+          <div class="step"><span class="s-n">01</span><span class="s-t">Open app</span><span class="s-d">Portfolio cached carrega &lt;200ms. Background fetch no sync.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">02</span><span class="s-t">Scan portfolio</span><span class="s-d">Health chips: verde/amarelo/vermelho + IA forecast %.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step decision"><span class="s-n">03</span><span class="s-t">Projeto amarelo?</span><span class="s-d">Sim → tap pra drill-down. Não → fecha app.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">04</span><span class="s-t">Sprint tab</span><span class="s-d">Burndown + KPIs + forecast reasoning.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step end"><span class="s-n">05</span><span class="s-t">Share</span><span class="s-d">Screenshot + share sheet pro WhatsApp do cliente.</span></div>
+        </div>
+      </div>
+
+      <div class="flow">
+        <div class="flow-head">
+          <span class="flow-num">04</span>
+          <h3 class="flow-title">Lançar horas manualmente</h3>
+          <span class="flow-sub">fim do dia · batch input</span>
+        </div>
+        <p class="flow-desc">GP precisa lançar horas que não vieram do Tempo/Clockify — reuniões, discovery, briefing. Batch input em uma tela só, pré-preenche com projeto ativo, pra não virar fricção.</p>
+        <div class="steps">
+          <div class="step"><span class="s-n">01</span><span class="s-t">Me → Log hours</span><span class="s-d">CTA fixo. Atalho com swipe de cima no portfolio.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step"><span class="s-n">02</span><span class="s-t">Quick entry</span><span class="s-d">Date picker + projeto + dev + horas. Defaults inteligentes.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step decision"><span class="s-n">03</span><span class="s-t">Mais entries?</span><span class="s-d">+ Add → volta pra 02 preservando data.</span></div>
+          <div class="step-arrow">→</div>
+          <div class="step end"><span class="s-n">04</span><span class="s-t">Submit</span><span class="s-d">Confirmação animada. Budget gauge atualiza em tempo real.</span></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== NOTIFICATIONS ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">05 — push notifications</span>
+      <h2 class="display">Seis alertas, <em>nenhum spam.</em></h2>
+      <p class="sub">Toda notificação tem um quick-action. Agrupadas por projeto na inbox. Resumo diário (digest) é opt-in e reduz o ruído pra quem acha 6 tipos muito.</p>
+    </div>
+
+    <div class="notif-grid">
+      <div class="notif" data-sev="critical">
+        <div class="n-ic">⚠</div>
+        <div class="n-body"><h4>PR stale · 72h</h4><p>Pull request sem atividade há 3+ dias. Severidade crítica.</p><div class="sample">"⚠ #PRJ-187 parado há 76h — Banco Meridian"</div></div>
+        <span class="n-act">Ping autor</span>
+      </div>
+      <div class="notif" data-sev="warn">
+        <div class="n-ic">!</div>
+        <div class="n-body"><h4>PR stale · 24h</h4><p>Primeiro warning. Pode virar digest se o volume for alto.</p><div class="sample">"! 3 PRs aguardando review há +24h"</div></div>
+        <span class="n-act">Ver todos</span>
+      </div>
+      <div class="notif" data-sev="critical">
+        <div class="n-ic">⟂</div>
+        <div class="n-body"><h4>Sprint em risco (IA)</h4><p>Forecast on-time probability caiu abaixo de 50%.</p><div class="sample">"⟂ Sprint 14 em risco — probabilidade 42%"</div></div>
+        <span class="n-act">Ver forecast</span>
+      </div>
+      <div class="notif" data-sev="warn">
+        <div class="n-ic">$</div>
+        <div class="n-body"><h4>Budget threshold · 70%/85%</h4><p>Dois níveis. Owner recebe por padrão, GP opt-in.</p><div class="sample">"$ E-comm Vora atingiu 85% do orçamento"</div></div>
+        <span class="n-act">Ver breakdown</span>
+      </div>
+      <div class="notif" data-sev="info">
+        <div class="n-ic">◇</div>
+        <div class="n-body"><h4>Done sem código</h4><p>Card movido pra Done sem commit vinculado.</p><div class="sample">"◇ PRJ-204 marcado Done sem commit — Lucas F."</div></div>
+        <span class="n-act">Investigar</span>
+      </div>
+      <div class="notif" data-sev="good">
+        <div class="n-ic">✓</div>
+        <div class="n-body"><h4>Sync concluído</h4><p>Silent por padrão. Visível na inbox sem push. Opt-in pra push.</p><div class="sample">"✓ Jira sync · 127 cards · 4.2s"</div></div>
+        <span class="n-act">Ver diff</span>
+      </div>
+      <div class="notif" data-sev="info" style="grid-column:1/-1">
+        <div class="n-ic">☰</div>
+        <div class="n-body"><h4>Resumo diário (digest)</h4><p>Agrupa tudo em uma única notificação ao fim do dia. Reduz ruído. Horário configurável. <strong>Opt-in, não padrão.</strong></p><div class="sample">"☰ 2 PRs stale · 1 sprint em risco · 3 cards done · 87% orçamento em E-comm Vora"</div></div>
+        <span class="n-act">Abrir inbox</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DESIGN TOKENS ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">06 — design system mobile</span>
+      <h2 class="display">Warm adaptado, <em>menos editorial, mais UI.</em></h2>
+      <p class="sub">O mobile reduz o uso de Fraunces — vira accent apenas. Inter assume como fonte principal (mais legível em densidade mobile). Paleta mantém os tons warm da landing, mas com contraste mais forte e shadows sutis pra hierarquia em tela pequena.</p>
+    </div>
+
+    <div class="tokens">
+      <div class="token-card">
+        <h3>Paleta</h3>
+        <div class="swatch-row">
+          <div class="sw" style="background:var(--cream)">BG</div>
+          <div class="sw" style="background:var(--paper)">Paper</div>
+          <div class="sw" style="background:var(--ink);color:var(--cream)">Ink</div>
+          <div class="sw" style="background:var(--accent);color:#fff">Accent</div>
+          <div class="sw" style="background:var(--accent-deep);color:#fff">Deep</div>
+        </div>
+        <div class="swatch-row">
+          <div class="sw" style="background:var(--good);color:#fff">OK</div>
+          <div class="sw" style="background:var(--warn)">Warn</div>
+          <div class="sw" style="background:var(--bad);color:#fff">Bad</div>
+          <div class="sw" style="background:var(--owner);color:#fff">Owner</div>
+          <div class="sw" style="background:var(--gp);color:#fff">GP</div>
+        </div>
+        <p style="font-size:12px;color:var(--ink-3);margin:0;line-height:1.5">Cream para superfície, terracota só em accents e elementos ativos. Severidades têm hue fixo pra memorização.</p>
+      </div>
+
+      <div class="token-card">
+        <h3>Tipografia</h3>
+        <div class="type-sample">
+          <div class="lbl">Display · Fraunces 32/28px</div>
+          <div style="font-family:'Fraunces',serif;font-weight:400;font-size:26px;letter-spacing:-0.02em">Your sprints, <em style="font-style:italic;color:var(--accent-deep)">honest.</em></div>
+        </div>
+        <div class="type-sample">
+          <div class="lbl">Heading · Inter 600 · 20/17/15px</div>
+          <div style="font-size:17px;font-weight:600">Banco Meridian</div>
+        </div>
+        <div class="type-sample">
+          <div class="lbl">Body · Inter 400 · 15/13px</div>
+          <div style="font-size:15px;color:var(--ink-2)">Sprint 14 · 78% completo · 4 cards restantes.</div>
+        </div>
+        <div class="type-sample">
+          <div class="lbl">Mono · JetBrains · 11/10px</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--ink-3);letter-spacing:0.06em">PRJ-187 · 4H AGO · LUCAS F.</div>
+        </div>
+      </div>
+
+      <div class="token-card">
+        <h3>Spacing &amp; radii</h3>
+        <div class="space-scale">
+          <div class="space-row"><span>xs · 4px</span><div class="bar" style="width:4px"></div><span>hairline</span></div>
+          <div class="space-row"><span>sm · 8px</span><div class="bar" style="width:8px"></div><span>tight</span></div>
+          <div class="space-row"><span>md · 12px</span><div class="bar" style="width:12px"></div><span>default</span></div>
+          <div class="space-row"><span>lg · 16px</span><div class="bar" style="width:16px"></div><span>card inner</span></div>
+          <div class="space-row"><span>xl · 24px</span><div class="bar" style="width:24px"></div><span>section</span></div>
+          <div class="space-row"><span>2xl · 32px</span><div class="bar" style="width:32px"></div><span>block</span></div>
+        </div>
+        <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--rule);display:flex;gap:12px;align-items:center">
+          <div style="width:36px;height:36px;background:var(--cream-3);border-radius:6px"></div>
+          <div style="width:36px;height:36px;background:var(--cream-3);border-radius:10px"></div>
+          <div style="width:36px;height:36px;background:var(--cream-3);border-radius:14px"></div>
+          <div style="width:36px;height:36px;background:var(--cream-3);border-radius:20px"></div>
+          <div style="flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--ink-3);letter-spacing:0.06em">6 · 10 · 14 · 20px</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ===== TECH ===== -->
+<section>
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">07 — stack recomendada</span>
+      <h2 class="display">React Native Expo, <em>pelo mesmo motivo do resto.</em></h2>
+      <p class="sub">O PRD lista React Native como escolha. Mantive, com Expo pra acelerar OTA updates e dev loop. Code sharing com web via packages/types — Zod schemas e TS types já compartilhados.</p>
+    </div>
+    <div class="tech">
+      <div class="tech-card featured">
+        <h3>Recomendado — Expo + RN</h3>
+        <p class="lead">Ecossistema moderno, TypeScript first, deploy fácil, OTA updates.</p>
+        <ul>
+          <li><span class="k">framework</span><span>Expo SDK 52 · RN 0.76</span></li>
+          <li><span class="k">navigation</span><span>Expo Router (file-based, igual Next)</span></li>
+          <li><span class="k">estado</span><span>React Query (reuso do web)</span></li>
+          <li><span class="k">auth</span><span>NextAuth JWT + expo-secure-store</span></li>
+          <li><span class="k">push</span><span>Expo Notifications + APNS/FCM</span></li>
+          <li><span class="k">tipografia</span><span>expo-font · Inter + Fraunces</span></li>
+          <li><span class="k">charts</span><span>Victory Native XL (burndown)</span></li>
+          <li><span class="k">offline</span><span>React Query cache + MMKV storage</span></li>
+          <li><span class="k">shared</span><span>@spravio/types (monorepo)</span></li>
+        </ul>
+      </div>
+      <div class="tech-card">
+        <h3>Alternativas</h3>
+        <p class="lead">Dependendo de restrições.</p>
+        <ul>
+          <li><span class="k">rn bare</span><span>Se precisar nativo custom (OCR, BLE). Build próprio.</span></li>
+          <li><span class="k">flutter</span><span>Não recomendo — força segunda linguagem (Dart), quebra code sharing.</span></li>
+          <li><span class="k">pwa</span><span>Só se mobile for priority baixa. Sem push iOS decente até 2024+.</span></li>
+          <li><span class="k">nativo</span><span>SwiftUI + Kotlin Compose. Qualidade máxima, dobro do custo.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== NEXT STEPS ===== -->
+<section style="border-bottom:0">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">08 — próximos passos</span>
+      <h2 class="display">O caminho <em>daqui até o TestFlight.</em></h2>
+    </div>
+    <div class="next">
+      <ol>
+        <li>
+          <div>
+            <h4>Você valida este sitemap</h4>
+            <p>Me diz o que falta, o que sobra, o que muda de MVP pra v2. Discutimos escopo de cada tela antes de desenhar. 1–2 rodadas.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Eu importo o repo do GitHub</h4>
+            <p>Leio os componentes React do web, extraio tokens reais (cores, radii, fontes da Tailwind config), e gero o design system mobile refletindo o que já existe. Garante consistência automática.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Hi-fi das 5 telas principais (iOS + Android lado a lado)</h4>
+            <p>Portfolio, Sprint, PR detail, Inbox, Me. Cada uma em frame iOS + frame Android. Com tweaks ao vivo (cor, densidade, variantes de cada tela).</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Telas secundárias + estados</h4>
+            <p>Empty states, loading, erro, offline. Login, onboarding, modais de ação. Cobertura completa do MVP.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Protótipo clicável (opcional)</h4>
+            <p>HTML interativo simulando navegação, push, swipe. Pra testar com usuários antes do dev começar.</p>
+          </div>
+        </li>
+        <li>
+          <div>
+            <h4>Handoff para Claude Code / dev</h4>
+            <p>Especificação pixel-perfect, tokens exportados, componentes mapeados. Dev começa Expo Router direto com tudo definido.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;width:100%">
+    <span>SPRAVIO MOBILE · SITEMAP v0.1 · 19 ABR 2026</span>
+    <span>✦ FEITO PARA VALIDAÇÃO</span>
+  </div>
+</footer>
+
+</body>
+</html>

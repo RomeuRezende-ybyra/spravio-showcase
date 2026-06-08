@@ -1,0 +1,94 @@
+{
+  "dashboard": {
+    "title": "Spravio Overview",
+    "tags": ["spravio"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 0,
+    "refresh": "30s",
+    "panels": [
+      {
+        "title": "API Status",
+        "type": "stat",
+        "gridPos": { "x": 0, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "probe_success{instance=~\".*:3020.*\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "none",
+          "colorMode": "background"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              { "value": 0, "text": "DOWN", "color": "red" },
+              { "value": 1, "text": "UP", "color": "green" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "Web Status",
+        "type": "stat",
+        "gridPos": { "x": 6, "y": 0, "w": 6, "h": 4 },
+        "targets": [
+          {
+            "expr": "probe_success{instance=~\".*:3021.*\"}",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "graphMode": "none",
+          "colorMode": "background"
+        },
+        "fieldConfig": {
+          "defaults": {
+            "mappings": [
+              { "value": 0, "text": "DOWN", "color": "red" },
+              { "value": 1, "text": "UP", "color": "green" }
+            ]
+          }
+        }
+      },
+      {
+        "title": "CPU Usage",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 4, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "100 - (avg by (instance) (irate(node_cpu_seconds_total{mode=\"idle\"}[5m])) * 100)",
+            "legendFormat": "CPU Usage %",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "title": "Memory Usage",
+        "type": "graph",
+        "gridPos": { "x": 12, "y": 4, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "Memory Usage %",
+            "refId": "A"
+          }
+        ]
+      },
+      {
+        "title": "Disk Usage",
+        "type": "graph",
+        "gridPos": { "x": 0, "y": 10, "w": 12, "h": 6 },
+        "targets": [
+          {
+            "expr": "(1 - (node_filesystem_avail_bytes{mountpoint=\"/\"} / node_filesystem_size_bytes{mountpoint=\"/\"})) * 100",
+            "legendFormat": "Disk Usage %",
+            "refId": "A"
+          }
+        ]
+      }
+    ]
+  }
+}

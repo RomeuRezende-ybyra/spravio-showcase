@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Spravio — Project Intelligence for Dev Agencies</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:       #0097A7;
+    --teal-dark:  #006B77;
+    --teal-light: #E0F7FA;
+    --teal-mid:   #B2EBF2;
+    --ink:        #0D1B2A;
+    --ink-mid:    #3D5068;
+    --ink-dim:    #7A8FA6;
+    --line:       #E4ECF2;
+    --surface:    #F7FAFB;
+    --white:      #FFFFFF;
+    --green:      #22C55E;
+    --yellow:     #F59E0B;
+    --red:        #EF4444;
+    --purple:     #8B5CF6;
+    --radius:     12px;
+    --shadow-sm:  0 1px 4px rgba(13,27,42,.06);
+    --shadow-md:  0 4px 20px rgba(13,27,42,.08);
+    --shadow-lg:  0 12px 48px rgba(13,27,42,.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    color: var(--ink);
+    background: var(--white);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── NAV ─────────────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--line);
+    padding: 0 48px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none;
+  }
+  .nav-logo-mark {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,151,167,.3);
+  }
+  .nav-logo-mark svg { width: 16px; height: 16px; }
+  .nav-brand { font-size: 17px; font-weight: 600; color: var(--ink); letter-spacing: -.3px; }
+  .nav-links { display: flex; gap: 32px; align-items: center; }
+  .nav-links a { font-size: 14px; color: var(--ink-mid); text-decoration: none; font-weight: 500; transition: color .15s; }
+  .nav-links a:hover { color: var(--ink); }
+  .nav-cta { display: flex; gap: 10px; align-items: center; }
+  .btn-ghost { font-size: 14px; font-weight: 500; color: var(--ink-mid); text-decoration: none; padding: 8px 16px; border-radius: 8px; transition: all .15s; }
+  .btn-ghost:hover { color: var(--ink); background: var(--surface); }
+  .btn-primary {
+    font-size: 14px; font-weight: 600; color: white; text-decoration: none;
+    padding: 9px 20px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    box-shadow: 0 2px 12px rgba(0,151,167,.3);
+    transition: all .2s;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,151,167,.4); }
+
+  /* ── HERO ────────────────────────────────────────────── */
+  .hero {
+    padding: 100px 48px 80px;
+    max-width: 1200px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 6px 12px; border-radius: 20px;
+    background: var(--teal-light); border: 1px solid var(--teal-mid);
+    font-size: 12px; font-weight: 600; color: var(--teal-dark);
+    text-transform: uppercase; letter-spacing: .06em;
+    margin-bottom: 24px;
+  }
+  .hero-eyebrow span { width: 6px; height: 6px; border-radius: 50%; background: var(--teal); display: inline-block; }
+  .hero h1 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 56px; line-height: 1.1; letter-spacing: -.5px;
+    color: var(--ink); margin-bottom: 24px;
+  }
+  .hero h1 em { font-style: italic; color: var(--teal); }
+  .hero p {
+    font-size: 18px; color: var(--ink-mid); line-height: 1.7;
+    margin-bottom: 36px; font-weight: 400;
+  }
+  .hero-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .btn-hero {
+    font-size: 15px; font-weight: 600; color: white; text-decoration: none;
+    padding: 14px 28px; border-radius: 10px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    box-shadow: 0 4px 20px rgba(0,151,167,.35);
+    transition: all .2s; display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-hero:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,151,167,.45); }
+  .btn-hero-outline {
+    font-size: 15px; font-weight: 500; color: var(--ink-mid); text-decoration: none;
+    padding: 14px 28px; border-radius: 10px;
+    border: 1.5px solid var(--line);
+    transition: all .2s;
+  }
+  .btn-hero-outline:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-light); }
+  .hero-note { font-size: 12px; color: var(--ink-dim); margin-top: 14px; }
+
+  /* ── DASHBOARD PREVIEW ───────────────────────────────── */
+  .hero-visual {
+    position: relative;
+  }
+  .dashboard-frame {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    position: relative;
+  }
+  .dashboard-frame::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(255,255,255,.95) 100%);
+    pointer-events: none; z-index: 2;
+  }
+  .frame-topbar {
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .frame-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .frame-content { display: flex; height: 320px; }
+  .frame-sidebar {
+    width: 140px; background: var(--surface);
+    border-right: 1px solid var(--line);
+    padding: 14px 12px;
+    display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;
+  }
+  .frame-sb-logo {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 8px; margin-bottom: 10px;
+  }
+  .frame-sb-logo-mark {
+    width: 20px; height: 20px; border-radius: 5px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  }
+  .frame-sb-logo-text { font-size: 12px; font-weight: 700; color: var(--ink); }
+  .frame-sb-item {
+    padding: 6px 8px; border-radius: 6px;
+    font-size: 10px; color: var(--ink-dim); font-weight: 500;
+  }
+  .frame-sb-item.active {
+    background: rgba(0,151,167,.1);
+    color: var(--teal-dark); font-weight: 600;
+  }
+  .frame-sb-section { font-size: 8px; color: var(--ink-dim); font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: 8px 8px 4px; }
+  .frame-main { flex: 1; padding: 14px; overflow: hidden; }
+  .frame-kpis { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 12px; }
+  .frame-kpi {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px 12px;
+    border-top: 2.5px solid var(--teal);
+  }
+  .frame-kpi-label { font-size: 8px; color: var(--ink-dim); font-weight: 500; margin-bottom: 4px; }
+  .frame-kpi-value { font-size: 18px; font-weight: 700; color: var(--ink); font-family: 'DM Mono', monospace; }
+  .frame-kpi.green  { border-top-color: var(--green); }
+  .frame-kpi.yellow { border-top-color: var(--yellow); }
+  .frame-kpi.purple { border-top-color: var(--purple); }
+  .frame-charts { display: grid; grid-template-columns: 1fr 80px; gap: 8px; margin-bottom: 10px; }
+  .frame-chart-box {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 8px; padding: 10px;
+    height: 90px; display: flex; flex-direction: column;
+  }
+  .frame-chart-title { font-size: 8px; font-weight: 600; color: var(--ink); margin-bottom: 6px; }
+  .frame-burndown { display: flex; align-items: flex-end; gap: 3px; flex: 1; }
+  .frame-bar { flex: 1; border-radius: 2px 2px 0 0; }
+  .frame-devs { display: grid; grid-template-columns: repeat(4,1fr); gap: 6px; }
+  .frame-dev {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 8px; padding: 8px;
+  }
+  .frame-dev-avatar {
+    width: 22px; height: 22px; border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 8px; font-weight: 700; margin-bottom: 5px;
+  }
+  .frame-dev-name { font-size: 8px; font-weight: 600; color: var(--ink); }
+  .frame-dev-role { font-size: 7px; color: var(--ink-dim); margin-bottom: 4px; }
+  .frame-dev-bar { height: 2px; border-radius: 1px; background: var(--line); overflow: hidden; margin-bottom: 2px; }
+  .frame-dev-fill { height: 100%; border-radius: 1px; }
+  .frame-dev-score { font-size: 9px; font-weight: 700; font-family: 'DM Mono', monospace; }
+
+  /* floating badges */
+  .hero-badge {
+    position: absolute;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow-md);
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600; color: var(--ink);
+    z-index: 3;
+    animation: float 3s ease-in-out infinite;
+  }
+  .hero-badge.b1 { top: -20px; right: -20px; animation-delay: 0s; }
+  .hero-badge.b2 { bottom: 30px; left: -24px; animation-delay: 1.5s; }
+  .hero-badge .dot { width: 8px; height: 8px; border-radius: 50%; }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+
+  /* ── LOGOS ───────────────────────────────────────────── */
+  .logos {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    padding: 28px 48px;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+    flex-wrap: wrap;
+  }
+  .logos-label { font-size: 12px; color: var(--ink-dim); font-weight: 500; margin-right: 8px; }
+  .logo-pill {
+    display: flex; align-items: center; gap: 7px;
+    padding: 7px 16px; border-radius: 20px;
+    background: var(--surface); border: 1px solid var(--line);
+    font-size: 13px; font-weight: 600; color: var(--ink-mid);
+  }
+
+  /* ── SECTIONS ────────────────────────────────────────── */
+  section { padding: 96px 48px; }
+  .section-inner { max-width: 1200px; margin: 0 auto; }
+  .section-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .1em; color: var(--teal); margin-bottom: 16px;
+  }
+  .section-label::before { content: ''; width: 20px; height: 2px; background: var(--teal); border-radius: 1px; }
+  .section-title {
+    font-family: 'Instrument Serif', serif;
+    font-size: 44px; line-height: 1.15; letter-spacing: -.4px;
+    color: var(--ink); margin-bottom: 16px;
+  }
+  .section-title em { font-style: italic; color: var(--teal); }
+  .section-sub { font-size: 18px; color: var(--ink-mid); max-width: 560px; line-height: 1.7; }
+
+  /* ── FEATURES ────────────────────────────────────────── */
+  .features-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 24px; margin-top: 56px;
+  }
+  .feature-card {
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 28px;
+    transition: all .2s;
+    position: relative; overflow: hidden;
+  }
+  .feature-card::before {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--teal), var(--teal-mid));
+    transform: scaleX(0); transform-origin: left;
+    transition: transform .3s;
+  }
+  .feature-card:hover { transform: translateY(-4px); box-shadow: var(--shadow-md); }
+  .feature-card:hover::before { transform: scaleX(1); }
+  .feature-icon {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--teal-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 18px; font-size: 20px;
+  }
+  .feature-card h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .feature-card p { font-size: 14px; color: var(--ink-mid); line-height: 1.65; }
+  .feature-tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    margin-top: 14px; padding: 3px 9px; border-radius: 4px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em;
+  }
+  .tag-jira  { background: #E3F2FD; color: #0288D1; }
+  .tag-gh    { background: #F3E5F5; color: #7B1FA2; }
+  .tag-both  { background: var(--teal-light); color: var(--teal-dark); }
+  .tag-new   { background: #FFF3E0; color: #E65100; }
+
+  /* ── HOW IT WORKS ────────────────────────────────────── */
+  .how { background: var(--surface); }
+  .how-steps {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 40px; margin-top: 56px; position: relative;
+  }
+  .how-steps::before {
+    content: '';
+    position: absolute; top: 28px; left: calc(16.66% + 28px); right: calc(16.66% + 28px);
+    height: 1px; background: var(--line); z-index: 0;
+  }
+  .how-step { text-align: center; position: relative; z-index: 1; }
+  .how-step-num {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: var(--white); border: 2px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; font-weight: 700; color: var(--teal);
+    font-family: 'DM Mono', monospace;
+    margin: 0 auto 20px;
+    box-shadow: var(--shadow-sm);
+  }
+  .how-step h3 { font-size: 17px; font-weight: 600; color: var(--ink); margin-bottom: 10px; }
+  .how-step p  { font-size: 14px; color: var(--ink-mid); line-height: 1.65; }
+
+  /* ── COMPARISON ──────────────────────────────────────── */
+  .comparison-table {
+    width: 100%; border-collapse: collapse;
+    margin-top: 56px; border-radius: var(--radius);
+    overflow: hidden; box-shadow: var(--shadow-md);
+  }
+  .comparison-table th {
+    padding: 14px 20px; font-size: 13px; font-weight: 600;
+    text-align: center; background: var(--ink); color: white;
+  }
+  .comparison-table th:first-child { text-align: left; }
+  .comparison-table th.highlight { background: var(--teal); }
+  .comparison-table td {
+    padding: 13px 20px; font-size: 13px; color: var(--ink-mid);
+    border-bottom: 1px solid var(--line); text-align: center;
+    background: var(--white);
+  }
+  .comparison-table td:first-child { text-align: left; font-weight: 500; color: var(--ink); }
+  .comparison-table tr:last-child td { border-bottom: none; }
+  .comparison-table tr:nth-child(even) td { background: var(--surface); }
+  .comparison-table td.highlight { background: var(--teal-light); font-weight: 600; color: var(--teal-dark); }
+  .check { color: var(--green); font-size: 16px; }
+  .cross { color: var(--red);   font-size: 16px; }
+
+  /* ── PRICING ─────────────────────────────────────────── */
+  .pricing-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 24px; margin-top: 56px; align-items: start;
+  }
+  .pricing-card {
+    background: var(--white); border: 1.5px solid var(--line);
+    border-radius: 16px; padding: 32px; position: relative;
+    transition: all .2s;
+  }
+  .pricing-card:hover { box-shadow: var(--shadow-md); }
+  .pricing-card.featured {
+    border-color: var(--teal);
+    box-shadow: 0 0 0 4px rgba(0,151,167,.08), var(--shadow-md);
+  }
+  .pricing-badge {
+    position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+    background: var(--teal); color: white;
+    font-size: 11px; font-weight: 700; padding: 4px 14px; border-radius: 20px;
+    text-transform: uppercase; letter-spacing: .06em; white-space: nowrap;
+  }
+  .pricing-plan { font-size: 13px; font-weight: 600; color: var(--ink-mid); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px; }
+  .pricing-price { display: flex; align-items: baseline; gap: 4px; margin-bottom: 6px; }
+  .pricing-amount { font-size: 48px; font-weight: 700; color: var(--ink); font-family: 'Instrument Serif', serif; letter-spacing: -1px; }
+  .pricing-period { font-size: 14px; color: var(--ink-dim); }
+  .pricing-desc { font-size: 13px; color: var(--ink-mid); margin-bottom: 24px; line-height: 1.5; }
+  .pricing-divider { height: 1px; background: var(--line); margin-bottom: 20px; }
+  .pricing-features { list-style: none; display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
+  .pricing-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--ink-mid); }
+  .pricing-features li::before { content: '✓'; color: var(--teal); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+  .pricing-cta {
+    display: block; text-align: center; padding: 12px; border-radius: 10px;
+    font-size: 14px; font-weight: 600; text-decoration: none; transition: all .2s;
+  }
+  .pricing-cta.outline { border: 1.5px solid var(--line); color: var(--ink-mid); }
+  .pricing-cta.outline:hover { border-color: var(--teal); color: var(--teal); background: var(--teal-light); }
+  .pricing-cta.filled { background: linear-gradient(135deg, var(--teal), var(--teal-dark)); color: white; box-shadow: 0 2px 12px rgba(0,151,167,.3); }
+  .pricing-cta.filled:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,151,167,.4); }
+  .pricing-annual { text-align: center; margin-top: 20px; font-size: 13px; color: var(--ink-dim); }
+  .pricing-annual strong { color: var(--teal); }
+
+  /* ── TESTIMONIALS ────────────────────────────────────── */
+  .testimonials { background: var(--surface); }
+  .testimonials-grid {
+    display: grid; grid-template-columns: repeat(3,1fr);
+    gap: 24px; margin-top: 56px;
+  }
+  .testimonial-card {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: var(--radius); padding: 28px;
+  }
+  .testimonial-stars { color: #F59E0B; font-size: 14px; margin-bottom: 14px; letter-spacing: 2px; }
+  .testimonial-text { font-size: 15px; color: var(--ink-mid); line-height: 1.7; font-style: italic; margin-bottom: 20px; }
+  .testimonial-author { display: flex; align-items: center; gap: 12px; }
+  .testimonial-avatar {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white; flex-shrink: 0;
+  }
+  .testimonial-name { font-size: 14px; font-weight: 600; color: var(--ink); }
+  .testimonial-role { font-size: 12px; color: var(--ink-dim); }
+
+  /* ── FAQ ─────────────────────────────────────────────── */
+  .faq-list { max-width: 720px; margin: 56px auto 0; display: flex; flex-direction: column; gap: 0; }
+  .faq-item { border-bottom: 1px solid var(--line); }
+  .faq-q {
+    width: 100%; background: none; border: none; cursor: pointer;
+    padding: 20px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 16px; font-weight: 600; color: var(--ink); text-align: left; gap: 16px;
+    transition: color .15s;
+  }
+  .faq-q:hover { color: var(--teal); }
+  .faq-icon { font-size: 20px; color: var(--teal); flex-shrink: 0; transition: transform .2s; font-weight: 300; }
+  .faq-a { font-size: 14px; color: var(--ink-mid); line-height: 1.75; padding-bottom: 20px; display: none; }
+  .faq-item.open .faq-a { display: block; }
+  .faq-item.open .faq-icon { transform: rotate(45deg); }
+
+  /* ── CTA BAND ─────────────────────────────────────────── */
+  .cta-band {
+    background: linear-gradient(135deg, var(--ink) 0%, #1a3a4a 100%);
+    padding: 80px 48px; text-align: center;
+  }
+  .cta-band h2 {
+    font-family: 'Instrument Serif', serif;
+    font-size: 44px; color: white; margin-bottom: 16px; letter-spacing: -.4px;
+  }
+  .cta-band h2 em { font-style: italic; color: var(--teal-mid); }
+  .cta-band p { font-size: 17px; color: rgba(255,255,255,.6); margin-bottom: 36px; }
+  .cta-band-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn-cta-white {
+    font-size: 15px; font-weight: 600; color: var(--ink);
+    padding: 14px 32px; border-radius: 10px; background: white;
+    text-decoration: none; transition: all .2s;
+    box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  }
+  .btn-cta-white:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.3); }
+  .btn-cta-ghost {
+    font-size: 15px; font-weight: 500; color: rgba(255,255,255,.7);
+    padding: 14px 32px; border-radius: 10px;
+    border: 1.5px solid rgba(255,255,255,.2);
+    text-decoration: none; transition: all .2s;
+  }
+  .btn-cta-ghost:hover { border-color: rgba(255,255,255,.5); color: white; }
+
+  /* ── FOOTER ──────────────────────────────────────────── */
+  footer {
+    background: var(--ink); padding: 48px;
+    display: flex; align-items: center; justify-content: space-between; flex-wrap: gap;
+  }
+  .footer-logo { display: flex; align-items: center; gap: 8px; }
+  .footer-logo-mark {
+    width: 24px; height: 24px; border-radius: 6px;
+    background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+    display: flex; align-items: center; justify-content: center;
+  }
+  .footer-brand { font-size: 15px; font-weight: 600; color: white; }
+  .footer-copy { font-size: 13px; color: rgba(255,255,255,.3); }
+  .footer-links { display: flex; gap: 24px; }
+  .footer-links a { font-size: 13px; color: rgba(255,255,255,.4); text-decoration: none; transition: color .15s; }
+  .footer-links a:hover { color: rgba(255,255,255,.8); }
+
+  /* ── ANIMATIONS ──────────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp .6s ease both; }
+  .fade-up-1 { animation-delay: .1s; }
+  .fade-up-2 { animation-delay: .2s; }
+  .fade-up-3 { animation-delay: .3s; }
+  .fade-up-4 { animation-delay: .4s; }
+
+  /* ── RESPONSIVE ──────────────────────────────────────── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 48px; padding: 60px 24px; }
+    .hero h1 { font-size: 40px; }
+    .features-grid, .pricing-grid, .testimonials-grid { grid-template-columns: 1fr; }
+    .how-steps { grid-template-columns: 1fr; }
+    .how-steps::before { display: none; }
+    nav { padding: 0 24px; }
+    .nav-links { display: none; }
+    section { padding: 64px 24px; }
+    .cta-band { padding: 60px 24px; }
+    footer { padding: 32px 24px; flex-direction: column; gap: 20px; text-align: center; }
+    .logos { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-mark">
+      <svg viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 11L6 5L9 8L13 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="13" cy="3" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="nav-brand">Spravio</span>
+  </a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#how">How it works</a>
+    <a href="#pricing">Pricing</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <div class="nav-cta">
+    <a href="#" class="btn-ghost">Sign in</a>
+    <a href="#" class="btn-primary">Start free trial</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:1200px;margin:0 auto;padding:0 48px;">
+  <div class="hero" style="padding:100px 0 80px;max-width:none;">
+    <div>
+      <div class="hero-eyebrow fade-up"><span></span> Built for dev agencies</div>
+      <h1 class="fade-up fade-up-1">One dashboard for <em>every</em> project tool.</h1>
+      <p class="fade-up fade-up-2">Spravio connects Jira, GitHub, Azure DevOps, Trello, ClickUp, Linear and more into one real-time dashboard — giving agency managers visibility into delivery, developer performance, budget, and PR health across every client project.</p>
+      <div class="hero-actions fade-up fade-up-3">
+        <a href="#" class="btn-hero">Start free trial →</a>
+        <a href="#" class="btn-hero-outline">See a demo</a>
+      </div>
+      <p class="hero-note fade-up fade-up-4">14-day free trial · No credit card required · Setup in 5 minutes</p>
+    </div>
+    <div class="hero-visual fade-up fade-up-2">
+      <div class="hero-badge b1">
+        <div class="dot" style="background:var(--green)"></div>
+        4 PRs merged today
+      </div>
+      <div class="hero-badge b2">
+        <div class="dot" style="background:var(--yellow)"></div>
+        2 stale PRs detected
+      </div>
+      <div class="dashboard-frame">
+        <div class="frame-topbar">
+          <div class="frame-dot" style="background:#FF5F57"></div>
+          <div class="frame-dot" style="background:#FFBD2E"></div>
+          <div class="frame-dot" style="background:#28C840"></div>
+        </div>
+        <div class="frame-content">
+          <div class="frame-sidebar">
+            <div class="frame-sb-logo">
+              <div class="frame-sb-logo-mark"></div>
+              <span class="frame-sb-logo-text">Spravio</span>
+            </div>
+            <div class="frame-sb-section">Projects</div>
+            <div class="frame-sb-item active">Banco Meridian</div>
+            <div class="frame-sb-item">E-comm Vora</div>
+            <div class="frame-sb-item">Portal RH Nex</div>
+            <div class="frame-sb-item">App Kaia Pay</div>
+          </div>
+          <div class="frame-main">
+            <div class="frame-kpis">
+              <div class="frame-kpi">
+                <div class="frame-kpi-label">Cards</div>
+                <div class="frame-kpi-value">115</div>
+              </div>
+              <div class="frame-kpi green">
+                <div class="frame-kpi-label">Done</div>
+                <div class="frame-kpi-value">67</div>
+              </div>
+              <div class="frame-kpi yellow">
+                <div class="frame-kpi-label">Open PRs</div>
+                <div class="frame-kpi-value">4</div>
+              </div>
+              <div class="frame-kpi purple">
+                <div class="frame-kpi-label">Avg Cycle</div>
+                <div class="frame-kpi-value">22h</div>
+              </div>
+            </div>
+            <div class="frame-charts">
+              <div class="frame-chart-box">
+                <div class="frame-chart-title">Sprint Burndown</div>
+                <div class="frame-burndown">
+                  <div class="frame-bar" style="height:80%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:72%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:64%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:56%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:48%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:40%;background:var(--line)"></div>
+                  <div class="frame-bar" style="height:80%;background:var(--teal);opacity:.7"></div>
+                  <div class="frame-bar" style="height:60%;background:var(--teal);opacity:.8"></div>
+                  <div class="frame-bar" style="height:50%;background:var(--teal);opacity:.85"></div>
+                  <div class="frame-bar" style="height:44%;background:var(--teal);opacity:.9"></div>
+                  <div class="frame-bar" style="height:28%;background:var(--teal)"></div>
+                </div>
+              </div>
+              <div class="frame-chart-box">
+                <div class="frame-chart-title">Progress</div>
+                <div style="display:flex;flex-direction:column;gap:5px;flex:1;justify-content:center;">
+                  <div style="font-size:22px;font-weight:700;color:var(--teal);font-family:'DM Mono',monospace;text-align:center;">78%</div>
+                  <div style="font-size:8px;color:var(--ink-dim);text-align:center;">on track</div>
+                </div>
+              </div>
+            </div>
+            <div class="frame-devs">
+              <div class="frame-dev">
+                <div class="frame-dev-avatar" style="background:rgba(0,151,167,.15);color:var(--teal)">LF</div>
+                <div class="frame-dev-name">Lucas F.</div>
+                <div class="frame-dev-role">Backend</div>
+                <div class="frame-dev-bar"><div class="frame-dev-fill" style="width:94%;background:var(--green)"></div></div>
+                <div class="frame-dev-score" style="color:var(--teal)">4.9</div>
+              </div>
+              <div class="frame-dev">
+                <div class="frame-dev-avatar" style="background:rgba(139,92,246,.12);color:var(--purple)">MS</div>
+                <div class="frame-dev-name">Mariana S.</div>
+                <div class="frame-dev-role">Frontend</div>
+                <div class="frame-dev-bar"><div class="frame-dev-fill" style="width:97%;background:var(--green)"></div></div>
+                <div class="frame-dev-score" style="color:var(--purple)">5.0</div>
+              </div>
+              <div class="frame-dev">
+                <div class="frame-dev-avatar" style="background:rgba(245,158,11,.12);color:var(--yellow)">PA</div>
+                <div class="frame-dev-name">Pedro A.</div>
+                <div class="frame-dev-role">Backend</div>
+                <div class="frame-dev-bar"><div class="frame-dev-fill" style="width:72%;background:var(--yellow)"></div></div>
+                <div class="frame-dev-score" style="color:var(--yellow)">3.7</div>
+              </div>
+              <div class="frame-dev">
+                <div class="frame-dev-avatar" style="background:rgba(0,151,167,.12);color:var(--teal)">AC</div>
+                <div class="frame-dev-name">Ana C.</div>
+                <div class="frame-dev-role">Frontend</div>
+                <div class="frame-dev-bar"><div class="frame-dev-fill" style="width:88%;background:var(--green)"></div></div>
+                <div class="frame-dev-score" style="color:var(--teal)">4.6</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOGOS -->
+<div class="logos">
+  <span class="logos-label">Integrates with</span>
+  <div class="logo-pill">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#0052CC"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.757a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.002-1.001z"/></svg>
+    Jira
+  </div>
+  <div class="logo-pill">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="#24292F"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+    GitHub
+  </div>
+  <div class="logo-pill">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="#FC6D26"><path d="M23.955 13.587l-1.342-4.135-2.664-8.189a.455.455 0 00-.866 0L16.419 9.45H7.581L4.917 1.263a.455.455 0 00-.866 0L1.386 9.45 0 13.587a.924.924 0 00.331 1.023L12 23.054l11.624-8.443a.92.92 0 00.331-1.024"/></svg>
+    GitLab
+  </div>
+  <div class="logo-pill">⚡ Slack <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">live</span></div>
+  <div class="logo-pill">💬 Teams <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">coming soon</span></div>
+  <div class="logo-pill">📋 Azure DevOps <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">live</span></div>
+  <div class="logo-pill">📌 Trello <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">coming soon</span></div>
+  <div class="logo-pill">✅ ClickUp <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">coming soon</span></div>
+  <div class="logo-pill">◆ Linear <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">coming soon</span></div>
+  <div class="logo-pill">U+1F4B0 Budget Tracking <span style="font-size:10px;color:var(--ink-dim);margin-left:2px">coming soon</span></div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything your agency needs.<br><em>Nothing you don't.</em></h2>
+    <p class="section-sub">Purpose-built for dev agencies — works with Jira, GitHub, Azure DevOps, Trello, ClickUp, Linear and more. Connect the tools you already use.</p>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Sprint Burndown & Progress</h3>
+        <p>Real-time baseline vs. actual charts. Know instantly whether a sprint is on track or heading off the rails — days before the deadline.</p>
+        <span class="feature-tag tag-jira">Jira</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👤</div>
+        <h3>Developer Scorecards</h3>
+        <p>Combined Jira + GitHub rating per developer: delivery rate, rework rate, PRs merged, cycle time, and code reviews — all in one number.</p>
+        <span class="feature-tag tag-both">Jira + GitHub</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⑂</div>
+        <h3>Pull Request Intelligence</h3>
+        <p>See every PR linked to its Jira card. Cycle time color-coded. Stale PRs flagged automatically at 24h and 72h thresholds.</p>
+        <span class="feature-tag tag-gh">GitHub</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔍</div>
+        <h3>Done Without Code Detection</h3>
+        <p>Cards marked "Done" in Jira with zero linked commits are automatically flagged. Know the difference between what was shipped and what was just moved.</p>
+        <span class="feature-tag tag-both">Jira + GitHub</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">👥</div>
+        <h3>GP Portfolio Management</h3>
+        <p>Assign Project Managers to projects. Owners see the full portfolio filtered by GP. GPs see only their projects. Dynamic assignment between sprints.</p>
+        <span class="feature-tag tag-new">Unique</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⚡</div>
+        <h3>Multi-Project Overview</h3>
+        <p>All your client projects in one sidebar. Health status at a glance — On Track, At Risk, Late. Switch between projects in one click.</p>
+        <span class="feature-tag tag-both">Jira + GitHub</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">💰</div>
+        <h3>Budget &amp; Financial Tracking</h3>
+        <p>Set project budgets, define developer rates, and track cost per sprint in real time. Know your margin before the project ends — not after.</p>
+        <span class="feature-tag tag-new">Coming soon</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔔</div>
+        <h3>Slack Notifications</h3>
+        <p>Automatic alerts in your Slack channels — stale PRs, budget overruns, sprint health warnings, and done-without-code detections. Stay informed without opening the dashboard.</p>
+        <span class="feature-tag tag-new">Coming soon</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔗</div>
+        <h3>Client Portal</h3>
+        <p>Share a read-only project portal with your clients. They see sprint progress, burndown, and delivery status — without accessing your internal metrics.</p>
+        <span class="feature-tag tag-new">Coming soon</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>AI Delivery Forecast</h3>
+        <p>Using your sprint history, Spravio predicts the probability of on-time delivery. "73% chance of delivering on schedule." No other agency tool does this.</p>
+        <span class="feature-tag tag-new">Coming soon</span>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">⏱️</div>
+        <h3>Automatic Time Tracking</h3>
+        <p>Connect Tempo or Clockify and your budget tracking fills itself. Developer hours import automatically on every sync — no spreadsheets, no manual input.</p>
+        <span class="feature-tag tag-new">Coming soon</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how" class="how">
+  <div class="section-inner">
+    <div class="section-label">How it works</div>
+    <h2 class="section-title">Up and running in <em>5 minutes.</em></h2>
+    <p class="section-sub">No complex configuration. No data migration. Just connect your tools and start seeing the full picture.</p>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-step-num">1</div>
+        <h3>Connect Jira & GitHub</h3>
+        <p>Authorize Spravio with your Atlassian account and GitHub organization. We handle auth, scopes, and rate limits automatically.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">2</div>
+        <h3>Add your projects</h3>
+        <p>Select which Jira projects and GitHub repos to sync. Assign Project Managers to each project. Done in under two minutes.</p>
+      </div>
+      <div class="how-step">
+        <div class="how-step-num">3</div>
+        <h3>Get real-time visibility</h3>
+        <p>Spravio syncs every 15 minutes. Your dashboard always reflects what's actually happening — not what was planned last sprint.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARISON -->
+<section id="compare">
+  <div class="section-inner">
+    <div class="section-label">Comparison</div>
+    <h2 class="section-title">Built for agencies,<br><em>not product teams.</em></h2>
+    <p class="section-sub">Existing tools were designed for in-house engineering teams. Spravio is the first built specifically for dev agencies.</p>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th style="width:220px">Feature</th>
+          <th>Jellyfish</th>
+          <th>Swarmia</th>
+          <th>LinearB</th>
+          <th class="highlight">Spravio</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Jira + GitHub integration</td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Multi-project management</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Project Manager roles (GP)</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Stale PR alerts</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="check">✓</span></td>
+          <td><span class="check">✓</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>"Done without code" detection</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Budget &amp; financial tracking</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>AI delivery forecast</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Multi-tool support (Trello, ClickUp, Linear...)</td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td><span class="cross">✗</span></td>
+          <td class="highlight"><span class="check">✓</span></td>
+        </tr>
+        <tr>
+          <td>Price per month</td>
+          <td>~$30/dev</td>
+          <td>~$20/dev</td>
+          <td>~$25/dev</td>
+          <td class="highlight">From $49/project</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing" style="background:var(--surface)">
+  <div class="section-inner">
+    <div class="section-label">Pricing</div>
+    <h2 class="section-title">Pay per project,<br><em>not per seat.</em></h2>
+    <p class="section-sub">Aligned with the way agencies actually work — you pay for active projects, not for every developer on your team.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <div class="pricing-plan">Starter</div>
+        <div class="pricing-price">
+          <span class="pricing-amount">$49</span>
+          <span class="pricing-period">/month</span>
+        </div>
+        <p class="pricing-desc">Perfect for small agencies getting started with project visibility.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>Up to 3 active projects</li>
+          <li>Up to 10 developers</li>
+          <li>1 Project Manager</li>
+          <li>Jira + GitHub integration</li>
+          <li>15-min auto sync</li>
+          <li>Email support</li>
+        </ul>
+        <a href="#" class="pricing-cta outline">Start free trial</a>
+      </div>
+      <div class="pricing-card featured">
+        <div class="pricing-badge">Most popular</div>
+        <div class="pricing-plan">Growth</div>
+        <div class="pricing-price">
+          <span class="pricing-amount">$149</span>
+          <span class="pricing-period">/month</span>
+        </div>
+        <p class="pricing-desc">For growing agencies managing multiple clients and multiple GPs.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>Up to 10 active projects</li>
+          <li>Up to 30 developers</li>
+          <li>Up to 5 Project Managers</li>
+          <li>Jira + GitHub integration</li>
+          <li>15-min auto sync</li>
+          <li>GP portfolio view</li>
+          <li>Stale PR alerts</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#" class="pricing-cta filled">Start free trial</a>
+      </div>
+      <div class="pricing-card">
+        <div class="pricing-plan">Scale</div>
+        <div class="pricing-price">
+          <span class="pricing-amount">$399</span>
+          <span class="pricing-period">/month</span>
+        </div>
+        <p class="pricing-desc">For large agencies that need unlimited scale and premium features.</p>
+        <div class="pricing-divider"></div>
+        <ul class="pricing-features">
+          <li>Unlimited projects</li>
+          <li>Unlimited developers</li>
+          <li>Unlimited Project Managers</li>
+          <li>Everything in Growth</li>
+          <li>Stakeholder report export</li>
+          <li>Client-facing portal</li>
+          <li>Dedicated support</li>
+        </ul>
+        <a href="#" class="pricing-cta outline">Start free trial</a>
+      </div>
+    </div>
+    <p class="pricing-annual">Save <strong>20%</strong> with annual billing · All plans include a 14-day free trial</p>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testimonials">
+  <div class="section-inner">
+    <div class="section-label">Social proof</div>
+    <h2 class="section-title">Trusted by agency<br><em>managers like you.</em></h2>
+    <div class="testimonials-grid">
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I used to spend 2 hours every Friday building a status report in a spreadsheet. Now I just open Spravio and everything is already there — Jira cards, PRs, developer performance."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:linear-gradient(135deg,var(--teal),var(--teal-dark))">RM</div>
+          <div>
+            <div class="testimonial-name">Rafael Mendes</div>
+            <div class="testimonial-role">CTO · Codecraft Agency</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The GP portfolio view is a game changer. As the agency owner I can see how each project manager is doing across all their projects in one screen. No other tool does this."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:linear-gradient(135deg,#7C3AED,#5B21B6)">PS</div>
+          <div>
+            <div class="testimonial-name">Patricia Souza</div>
+            <div class="testimonial-role">CEO · DevLab Studio</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card">
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The stale PR detection caught a critical bottleneck we would have missed. A developer had been blocked for 3 days and no one noticed. Spravio flagged it automatically."</p>
+        <div class="testimonial-author">
+          <div class="testimonial-avatar" style="background:linear-gradient(135deg,#F59E0B,#D97706)">JO</div>
+          <div>
+            <div class="testimonial-name">João Oliveira</div>
+            <div class="testimonial-role">Tech Lead · Nexus Digital</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-inner" style="text-align:center">
+    <div class="section-label" style="justify-content:center">FAQ</div>
+    <h2 class="section-title">Questions? <em>We've got answers.</em></h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Does Spravio work with any Jira plan?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Yes. Spravio works with Jira Cloud on any plan — Free, Standard, Premium, or Enterprise. We use the standard Atlassian REST API and Agile API, so there are no restrictions on your Jira tier.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          How does the GitHub integration work?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">You connect your GitHub organization via OAuth. Spravio links PRs to Jira cards automatically by reading the Jira issue key in PR titles and branch names — no manual setup needed. Data syncs every 15 minutes.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          What is a Project Manager (GP) role?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">A GP (Project Manager) is a user who manages a specific set of projects. They only see their assigned projects in the dashboard. The agency Owner sees all projects and can filter the portfolio by GP. Assignments can change between sprints.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Is my data secure?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Yes. Spravio only reads data from Jira and GitHub — we never write to your tools. All data is encrypted in transit (TLS) and at rest. We never sell or share your data with third parties.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Can I cancel anytime?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Yes, absolutely. Cancel anytime from your account settings with no questions asked. If you're on an annual plan, we'll prorate the remaining months.</div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFaq(this)">
+          Do you offer a free trial?
+          <span class="faq-icon">+</span>
+        </button>
+        <div class="faq-a">Yes — all plans include a 14-day free trial with full access to every feature. No credit card required to start. You'll be prompted to add payment details when your trial ends.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <div style="max-width:600px;margin:0 auto">
+    <h2>Stop guessing.<br>Start <em>knowing.</em></h2>
+    <p>Join agency managers who replaced spreadsheet reports with real-time project intelligence.</p>
+    <div class="cta-band-actions">
+      <a href="#" class="btn-cta-white">Start free trial →</a>
+      <a href="#" class="btn-cta-ghost">Schedule a demo</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">
+    <div class="footer-logo-mark">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
+        <path d="M2 11L6 5L9 8L13 3" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="13" cy="3" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    <span class="footer-brand">Spravio</span>
+  </div>
+  <span class="footer-copy">© 2025 Spravio. All rights reserved.</span>
+  <div class="footer-links">
+    <a href="#">Privacy</a>
+    <a href="#">Terms</a>
+    <a href="#">Contact</a>
+  </div>
+</footer>
+
+<script>
+  function toggleFaq(btn) {
+    const item = btn.closest('.faq-item');
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  // Intersection observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.feature-card, .how-step, .pricing-card, .testimonial-card').forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(20px)';
+    el.style.transition = 'opacity .5s ease, transform .5s ease';
+    observer.observe(el);
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,669 @@
+// Spravio - Prisma Schema
+// Run: pnpm db:generate && pnpm db:migrate
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── MULTI-TENANT ────────────────────────────────────────────────────────────
+
+model Organization {
+  id                 String              @id @default(cuid())
+  name               String
+  slug               String              @unique
+  stripeCustomerId   String?             @unique
+  stripePriceId      String?
+  subscriptionStatus SubscriptionStatus  @default(TRIALING)
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+
+  users              OrganizationUser[]
+  projects           Project[]
+  clients            Client[]
+  settings           OrganizationSettings?
+  githubWebhook      GitHubWebhookConfig?
+}
+
+model OrganizationUser {
+  id             String       @id @default(cuid())
+  role           OrgRole      @default(VIEWER)
+  createdAt      DateTime     @default(now())
+
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([organizationId, userId])
+}
+
+model OrganizationSettings {
+  id                        String       @id @default(cuid())
+  jiraBaseUrl               String?
+  jiraEmail                 String?
+  jiraApiToken              String?      // encrypted at rest
+  jiraCloudId               String?
+  azureOrganization         String?      // Azure DevOps organization name
+  azurePersonalAccessToken  String?      // encrypted at rest
+  githubOrg                 String?
+  githubToken               String?      // encrypted at rest
+
+  organizationId String       @unique
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+// ─── AUTH ────────────────────────────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  avatarUrl     String?
+  passwordHash  String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // User preferences
+  language      String?   @default("en")
+  timezone      String?   @default("America/Sao_Paulo")
+  dateFormat    String?   @default("DD/MM/YYYY")
+  theme         String?   @default("dark")
+
+  organizations        OrganizationUser[]
+  accounts             Account[]
+  sessions             Session[]
+  assignments          ProjectAssignment[]
+  notificationSettings NotificationSetting[]
+  notificationChannel  NotificationChannel?
+  auditLogs            AuditLog[]
+  webhooks             Webhook[]
+  apiKeys              ApiKey[]
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+
+  userId            String
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  expires      DateTime
+  ipAddress    String?
+  userAgent    String?
+  device       String?   // e.g. "Chrome on macOS", "Safari on iPhone"
+  location     String?   // e.g. "São Paulo, Brazil"
+  lastActive   DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  event     String   // e.g. "login", "logout", "password_change", "2fa_enabled"
+  ipAddress String?
+  userAgent String?
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+// ─── WEBHOOKS ────────────────────────────────────────────────────────────────
+
+model Webhook {
+  id             String    @id @default(cuid())
+  url            String
+  events         String[]  // Array of event names to subscribe to
+  secret         String?   // Secret key for HMAC signature verification
+  isActive       Boolean   @default(true)
+  lastDeliveryAt DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deliveries     WebhookDelivery[]
+
+  @@index([userId])
+}
+
+model WebhookDelivery {
+  id             String   @id @default(cuid())
+  event          String   // Event that triggered this delivery
+  payload        Json     // The payload sent
+  statusCode     Int?     // HTTP response status code
+  success        Boolean  @default(false)
+  errorMessage   String?  @db.Text
+  responseTime   Int?     // Response time in milliseconds
+  createdAt      DateTime @default(now())
+
+  webhookId      String
+  webhook        Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, createdAt])
+}
+
+// ─── API KEYS ────────────────────────────────────────────────────────────────
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  name        String    // User-defined name for the key
+  keyPrefix   String    @unique // First 9 chars, e.g. "spv_live_"
+  keyHash     String    @unique // SHA-256 hash of the full key
+  scopes      String[]  // Array of allowed scopes/permissions
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+// ─── NOTIFICATIONS ───────────────────────────────────────────────────────────
+
+model NotificationSetting {
+  id           String   @id @default(cuid())
+  event        String   // e.g. "sprint.completed", "pr.opened", "project.health.warning"
+  emailEnabled Boolean  @default(false)
+  slackEnabled Boolean  @default(false)
+  inAppEnabled Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, event])
+}
+
+model NotificationChannel {
+  id              String    @id @default(cuid())
+  email           String?
+  emailVerified   Boolean   @default(false)
+  slackWebhookUrl String?
+  slackChannelId  String?
+  slackConnected  Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── PROJECT ASSIGNMENTS (GP ↔ Project) ─────────────────────────────────────
+
+model ProjectAssignment {
+  id         String   @id @default(cuid())
+  assignedAt DateTime @default(now())
+
+  projectId  String
+  project    Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+}
+
+// ─── CLIENTS ─────────────────────────────────────────────────────────────────
+
+model Client {
+  id              String    @id @default(cuid())
+  name            String
+  email           String?
+  phone           String?
+  cnpj            String?
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  projects        Project[]
+}
+
+// ─── PROJECTS ────────────────────────────────────────────────────────────────
+
+model Project {
+  id              String    @id @default(cuid())
+  name            String
+  key             String?   // Sigla do projeto (ex: "PROJ", "ADM")
+  description     String?
+  tags            String[]  @default([])
+  contractType    String?   // "fixed" | "tm" | "retainer"
+  contractValue   Decimal?  @db.Decimal(12, 2)
+  estimatedHours  Int?
+  startDate       DateTime?
+  deadline        DateTime?
+  source          String    @default("jira") // "jira" | "azure" | "trello"
+  jiraProjectKey  String?
+  jiraBoardId     Int?
+  azureProjectId  String?   // Azure DevOps project name/id
+  trelloBoardId   String?   // Trello board ID
+  clickupSpaceId  String?   // ClickUp space ID
+  linearTeamId    String?   // Linear team ID
+  asanaProjectId  String?   // Asana project GID
+  mondayBoardId   String?   // Monday.com board ID
+  githubRepo      String?   // format: "owner/repo"
+  gitlabRepo      String?   // format: "group/project" or "user/project"
+  isActive        Boolean   @default(true)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  lastSyncAt      DateTime?
+
+  organizationId  String
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  clientId        String?
+  client          Client?   @relation(fields: [clientId], references: [id], onDelete: SetNull)
+
+  sprints         Sprint[]
+  developers      ProjectDeveloper[]
+  epics           Epic[]
+  syncLogs        SyncLog[]
+  budget          ProjectBudget?
+  developerRates  DeveloperRate[]
+  slackConfig     SlackConfig?
+  teamsConfig     TeamsConfig?
+  tempoConfig     TempoConfig?
+  clockifyConfig  ClockifyConfig?
+  assignments     ProjectAssignment[]
+  forecasts       DeliveryForecast[]
+
+  @@unique([organizationId, jiraProjectKey])
+  @@unique([organizationId, azureProjectId])
+}
+
+// ─── SPRINTS ─────────────────────────────────────────────────────────────────
+
+model Sprint {
+  id               String      @id @default(cuid())
+  jiraSprintId     Int?        @unique
+  azureIterationId String?     @unique // Azure DevOps iteration path ID
+  trelloListId     String?     @unique // Trello list ID
+  clickupSprintId  String?     @unique // ClickUp sprint or folder ID
+  linearCycleId    String?     @unique // Linear cycle ID
+  asanaSectionId   String?     @unique // Asana section GID
+  mondayGroupId    String?     @unique // Monday.com group ID
+  name             String
+  state            SprintState @default(ACTIVE)
+  startDate        DateTime?
+  endDate          DateTime?
+  completeDate     DateTime?
+  totalPoints      Int         @default(0)
+  completedPoints  Int         @default(0)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+
+  projectId        String
+  project          Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  issues           Issue[]
+  burndownPoints   BurndownPoint[]
+  sprintHours      SprintHours[]
+}
+
+// ─── BURNDOWN ───────────────────────────────────────────────────────────────
+
+model BurndownPoint {
+  id           String   @id @default(cuid())
+  date         DateTime @db.Date
+  baselinePoints Int
+  actualPoints   Int
+  completedPoints Int
+
+  sprintId     String
+  sprint       Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintId, date])
+}
+
+// ─── DEVELOPERS ──────────────────────────────────────────────────────────────
+
+model Developer {
+  id              String  @id @default(cuid())
+  jiraAccountId   String? @unique
+  azureUserId     String? @unique // Azure DevOps user ID
+  githubLogin     String? @unique
+  gitlabUserId    String? @unique // GitLab user ID
+  trelloMemberId  String? @unique // Trello member ID
+  clickupUserId   String? @unique // ClickUp user ID
+  linearUserId    String? @unique // Linear user ID
+  asanaUserId     String? @unique // Asana user GID
+  mondayUserId    String? @unique // Monday.com user ID
+  name            String
+  email           String?
+  avatarUrl       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  projects        ProjectDeveloper[]
+  issues          Issue[]
+  rates           DeveloperRate[]
+  sprintHours     SprintHours[]
+}
+
+model ProjectDeveloper {
+  id           String    @id @default(cuid())
+  rating       Float     @default(0)
+  deliveryRate Float     @default(0)   // percentage: 0–100
+  returnRate   Float     @default(0)   // percentage: 0–100
+  backendPoints Int      @default(0)
+  frontendPoints Int     @default(0)
+  updatedAt    DateTime  @updatedAt
+
+  projectId    String
+  project      Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  developerId  String
+  developer    Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, developerId])
+}
+
+// ─── ISSUES (CARDS) ──────────────────────────────────────────────────────────
+
+model Issue {
+  id              String      @id @default(cuid())
+  jiraIssueId     String?     @unique
+  jiraIssueKey    String?     // e.g. "PROJ-123"
+  azureWorkItemId Int?        @unique // Azure DevOps work item ID
+  trelloCardId    String?     @unique // Trello card ID
+  clickupTaskId   String?     @unique // ClickUp task ID
+  linearIssueId   String?     @unique // Linear issue ID
+  asanaTaskId     String?     @unique // Asana task GID
+  mondayItemId    String?     @unique // Monday.com item ID
+  title           String
+  points          Int         @default(0)
+  issueType       IssueType   @default(BACKEND)
+  status          IssueStatus @default(TODO)
+  wasReturned     Boolean     @default(false) // went back from Done
+  linkedPRNumber  Int?
+  linkedPRStatus  String?     // OPEN | MERGED | CLOSED
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  resolvedAt      DateTime?
+
+  sprintId        String?
+  sprint          Sprint?     @relation(fields: [sprintId], references: [id])
+
+  developerId     String?
+  developer       Developer?  @relation(fields: [developerId], references: [id])
+
+  epicId          String?
+  epic            Epic?       @relation(fields: [epicId], references: [id])
+}
+
+// ─── EPICS ───────────────────────────────────────────────────────────────────
+
+model Epic {
+  id           String  @id @default(cuid())
+  jiraEpicId   String? @unique
+  jiraEpicKey  String?
+  azureEpicId  Int?    @unique // Azure DevOps epic work item ID
+  name         String
+  color        String?
+  createdAt    DateTime @default(now())
+
+  projectId    String
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  issues       Issue[]
+}
+
+// ─── BUDGET & FINANCIALS (Phase 8) ──────────────────────────────────────────
+
+model ProjectBudget {
+  id          String   @id @default(cuid())
+  totalBudget Decimal  // in project currency
+  currency    String   @default("USD")
+  startDate   DateTime
+  endDate     DateTime
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String   @unique
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model DeveloperRate {
+  id          String  @id @default(cuid())
+  hourlyRate  Decimal
+  currency    String  @default("USD")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  developerId String
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  projectId   String
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([developerId, projectId])
+}
+
+model SprintHours {
+  id          String   @id @default(cuid())
+  hoursLogged Decimal
+  source      String   @default("manual") // "manual" | "tempo" | "clockify"
+  externalId  String?  // External worklog ID for deduplication (Tempo/Clockify)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sprintId    String
+  sprint      Sprint   @relation(fields: [sprintId], references: [id], onDelete: Cascade)
+
+  developerId String
+  developer   Developer @relation(fields: [developerId], references: [id], onDelete: Cascade)
+
+  @@unique([sprintId, developerId, source]) // Allow multiple sources per dev/sprint
+}
+
+// ─── SLACK CONFIGURATION (Phase 7) ──────────────────────────────────────────
+
+model SlackConfig {
+  id          String   @id @default(cuid())
+  channelId   String?
+  webhookUrl  String?
+  alertTypes  String[] // e.g. ["stale_pr", "budget", "sprint_health", "done_without_code"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String   @unique
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── TEAMS CONFIGURATION (Phase 10) ─────────────────────────────────────────
+
+model TeamsConfig {
+  id          String   @id @default(cuid())
+  webhookUrl  String
+  alertTypes  String[] // e.g. ["stale_pr", "budget", "sprint_health", "done_without_code"]
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  projectId   String   @unique
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── TEMPO CONFIGURATION (Phase 11) ─────────────────────────────────────────
+
+model TempoConfig {
+  id         String    @id @default(cuid())
+  apiToken   String
+  isActive   Boolean   @default(true)
+  lastSyncAt DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  projectId  String    @unique
+  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── CLOCKIFY CONFIGURATION (Phase 11) ──────────────────────────────────────
+
+model ClockifyConfig {
+  id          String    @id @default(cuid())
+  apiKey      String
+  workspaceId String
+  isActive    Boolean   @default(true)
+  lastSyncAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  projectId   String    @unique
+  project     Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── DELIVERY FORECAST (Phase 12) ──────────────────────────────────────────
+
+model DeliveryForecast {
+  id                  String    @id @default(cuid())
+  onTimeProbability   Int       // 0-100 percentage
+  predictedEndDate    DateTime?
+  confidence          String    // "low" | "medium" | "high"
+  reasoning           String    @db.Text
+  inputSnapshot       Json      // Store the input data used for the forecast
+  createdAt           DateTime  @default(now())
+
+  projectId           String
+  project             Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId, createdAt])
+}
+
+// ─── SYNC LOGS ───────────────────────────────────────────────────────────────
+
+model SyncLog {
+  id          String     @id @default(cuid())
+  type        SyncType
+  status      SyncStatus @default(RUNNING)
+  startedAt   DateTime   @default(now())
+  finishedAt  DateTime?
+  durationMs  Int?
+  errorMsg    String?
+  itemsSynced Int        @default(0)
+
+  projectId   String
+  project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+// ─── GITHUB WEBHOOKS ────────────────────────────────────────────────────────
+
+model GitHubWebhookConfig {
+  id              String    @id @default(cuid())
+  webhookSecret   String    // encrypted - HMAC shared secret
+  githubWebhookId Int?      // GitHub's webhook ID
+  events          String[]  // ["push", "pull_request"]
+  isActive        Boolean   @default(true)
+  lastEventAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  organizationId  String    @unique
+  organization    Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model GitHubWebhookEvent {
+  id             String   @id @default(cuid())
+  event          String   // "pull_request", "push"
+  action         String?  // "opened", "closed"
+  deliveryId     String   @unique // X-GitHub-Delivery header
+  processed      Boolean  @default(false)
+  errorMessage   String?  @db.Text
+  createdAt      DateTime @default(now())
+  organizationId String
+
+  @@index([organizationId, createdAt])
+}
+
+// ─── ENUMS ───────────────────────────────────────────────────────────────────
+
+enum OrgRole {
+  OWNER
+  PROJECT_MANAGER
+  VIEWER
+}
+
+enum SprintState {
+  FUTURE
+  ACTIVE
+  CLOSED
+}
+
+enum IssueType {
+  BACKEND
+  FRONTEND
+  DESIGN
+  DEVOPS
+}
+
+enum IssueStatus {
+  TODO
+  IN_PROGRESS
+  TEST
+  UAT
+  DONE
+  CANCELLED
+}
+
+enum SyncType {
+  FULL
+  SPRINT
+  INCREMENTAL
+  GITHUB
+  AZURE
+  GITLAB
+  TEMPO
+  CLOCKIFY
+  TRELLO
+  CLICKUP
+  LINEAR
+  ASANA
+  MONDAY
+}
+
+enum SyncStatus {
+  RUNNING
+  SUCCESS
+  FAILED
+  PARTIAL
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  CANCELLED
+}

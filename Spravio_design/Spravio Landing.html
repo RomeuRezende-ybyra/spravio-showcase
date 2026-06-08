@@ -1,0 +1,1630 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spravio — See what your team actually shipped.</title>
+<template id="__bundler_thumbnail" data-bg-color="#f4ede0">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#f4ede0"/>
+    <text x="600" y="430" text-anchor="middle" font-family="Georgia, serif" font-weight="300" font-style="italic" font-size="260" fill="#1a140c">s</text>
+    <text x="600" y="540" text-anchor="middle" font-family="ui-monospace, monospace" font-size="28" letter-spacing="8" fill="#8a6d4f">SPRAVIO</text>
+    <circle cx="920" cy="300" r="12" fill="#b85a2e"/>
+  </svg>
+</template>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* -------- TWEAKABLE TOKENS -------- */
+:root {
+  --accent-h: 35;           /* terracotta hue */
+  --accent-c: 0.14;
+  --accent-l: 0.62;
+  --density: 1;             /* 0.85 compact, 1 default, 1.15 spacious */
+  --anim: 1;                /* 0 none, 1 normal */
+  --font-display: 'Fraunces', ui-serif, Georgia, serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  /* Warm palette (light) */
+  --cream: oklch(0.975 0.012 75);
+  --cream-2: oklch(0.955 0.018 72);
+  --cream-3: oklch(0.93 0.022 70);
+  --paper: oklch(0.99 0.008 80);
+  --ink: oklch(0.22 0.02 40);
+  --ink-2: oklch(0.36 0.02 40);
+  --ink-3: oklch(0.56 0.015 45);
+  --rule: oklch(0.88 0.015 60);
+  --rule-2: oklch(0.82 0.02 55);
+  --accent: oklch(var(--accent-l) var(--accent-c) var(--accent-h));
+  --accent-soft: oklch(0.92 0.06 var(--accent-h));
+  --accent-deep: oklch(0.42 0.12 var(--accent-h));
+  --good: oklch(0.58 0.12 145);
+  --warn: oklch(0.72 0.15 75);
+  --bad:  oklch(0.58 0.18 25);
+  --shadow: 0 1px 0 oklch(0.9 0.02 60 / .6), 0 12px 32px -16px oklch(0.22 0.05 40 / .18);
+}
+html[data-theme="dark"] {
+  --cream: oklch(0.17 0.012 55);
+  --cream-2: oklch(0.195 0.014 55);
+  --cream-3: oklch(0.23 0.016 55);
+  --paper: oklch(0.145 0.01 55);
+  --ink: oklch(0.96 0.01 75);
+  --ink-2: oklch(0.82 0.015 70);
+  --ink-3: oklch(0.62 0.02 60);
+  --rule: oklch(0.3 0.02 55);
+  --rule-2: oklch(0.38 0.025 55);
+  --accent-soft: oklch(0.32 0.08 var(--accent-h));
+  --accent-deep: oklch(0.78 0.14 var(--accent-h));
+  --shadow: 0 1px 0 oklch(0.25 0.02 55 / .6), 0 16px 40px -16px oklch(0 0 0 / .5);
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+html { background: var(--cream); color: var(--ink); }
+body {
+  font-family: var(--font-body);
+  font-size: calc(16px * var(--density));
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: hidden;
+}
+
+/* Subtle paper grain */
+body::before {
+  content: "";
+  position: fixed; inset: 0;
+  background-image:
+    radial-gradient(oklch(0.22 0.02 40 / .025) 1px, transparent 1px),
+    radial-gradient(oklch(0.22 0.02 40 / .02) 1px, transparent 1px);
+  background-size: 3px 3px, 7px 7px;
+  background-position: 0 0, 1px 1px;
+  pointer-events: none; z-index: 0; opacity: .5;
+}
+html[data-theme="dark"] body::before { opacity: .2; }
+
+.wrap { max-width: 1240px; margin: 0 auto; padding: 0 32px; position: relative; z-index: 1; }
+
+/* -------- Typography -------- */
+.display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  font-variation-settings: "opsz" 144, "SOFT" 50;
+}
+.display em { font-style: italic; font-variation-settings: "opsz" 144, "SOFT" 100; color: var(--accent-deep); }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.eyebrow::before {
+  content: ""; width: 22px; height: 1px; background: var(--ink-3);
+}
+h1, h2, h3, h4 { margin: 0; }
+p { margin: 0; }
+
+/* -------- NAV -------- */
+nav.top {
+  position: sticky; top: 0; z-index: 50;
+  backdrop-filter: blur(14px) saturate(140%);
+  background: color-mix(in oklab, var(--cream) 82%, transparent);
+  border-bottom: 1px solid var(--rule);
+}
+nav.top .inner {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 32px;
+  max-width: 1240px; margin: 0 auto;
+}
+.logo { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; color: var(--ink); font-weight: 600; }
+.logo-mark {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-deep) 100%);
+  position: relative; display: grid; place-items: center;
+  box-shadow: inset 0 1px 0 oklch(1 0 0 / .3);
+}
+.logo-mark::after {
+  content: ""; width: 10px; height: 10px; border-radius: 2px;
+  background: var(--cream);
+  transform: rotate(45deg);
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent-deep) 50%, transparent);
+}
+.logo-word { font-family: var(--font-display); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+nav.top ul { list-style: none; display: flex; gap: 28px; margin: 0; padding: 0; }
+nav.top ul a {
+  color: var(--ink-2); text-decoration: none; font-size: 14px; font-weight: 500;
+}
+nav.top ul a:hover { color: var(--accent-deep); }
+.nav-actions { display: flex; align-items: center; gap: 10px; }
+.lang-toggle {
+  display: inline-flex; background: var(--cream-3); border: 1px solid var(--rule);
+  border-radius: 999px; padding: 3px; font-family: var(--font-mono); font-size: 11px;
+}
+.lang-toggle button {
+  border: 0; background: transparent; padding: 5px 10px; border-radius: 999px;
+  color: var(--ink-3); cursor: pointer; font: inherit; letter-spacing: 0.05em;
+}
+.lang-toggle button.on { background: var(--ink); color: var(--cream); }
+
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 16px; border-radius: 10px;
+  font-family: var(--font-body); font-weight: 500; font-size: 14px;
+  text-decoration: none; cursor: pointer; border: 1px solid transparent;
+  transition: all .18s ease;
+}
+.btn.ghost { color: var(--ink-2); border-color: transparent; }
+.btn.ghost:hover { background: var(--cream-3); }
+.btn.primary {
+  background: var(--ink); color: var(--cream);
+  box-shadow: 0 1px 0 oklch(1 0 0 / .1) inset, 0 8px 20px -8px oklch(0.22 0.05 40 / .4);
+}
+.btn.primary:hover { transform: translateY(-1px); background: var(--accent-deep); }
+.btn.outline { border-color: var(--rule-2); color: var(--ink); background: var(--paper); }
+.btn.outline:hover { border-color: var(--ink); }
+.btn .arr { transition: transform .2s; }
+.btn:hover .arr { transform: translateX(3px); }
+
+/* -------- HERO -------- */
+.hero {
+  padding: calc(72px * var(--density)) 0 calc(48px * var(--density));
+  position: relative;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 56px;
+  align-items: center;
+}
+@media (max-width: 960px) { .hero-grid { grid-template-columns: 1fr; gap: 48px; } }
+.hero h1 { font-size: clamp(44px, 6.2vw, 78px); }
+.hero .sub {
+  margin-top: 24px; font-size: 19px; line-height: 1.55; color: var(--ink-2);
+  max-width: 540px;
+}
+.hero .pill {
+  margin-bottom: 28px;
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 6px 12px 6px 6px; border-radius: 999px;
+  background: var(--paper); border: 1px solid var(--rule);
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-2);
+  letter-spacing: 0.04em;
+}
+.pill .dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent-deep);
+  display: grid; place-items: center; font-size: 10px;
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--accent) 20%, transparent);
+  animation: pulse calc(2.4s / var(--anim)) ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--accent) 35%, transparent); }
+  50% { box-shadow: 0 0 0 8px color-mix(in oklab, var(--accent) 0%, transparent); }
+}
+.hero-cta { margin-top: 32px; display: flex; gap: 12px; flex-wrap: wrap; }
+.hero-meta {
+  margin-top: 20px; font-family: var(--font-mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta span + span::before { content: "·"; margin: 0 10px; color: var(--rule-2); }
+
+/* Decorative side notes */
+.marginalia {
+  position: absolute; font-family: var(--font-mono); font-size: 10px;
+  color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase;
+}
+.marginalia.top-left { top: 24px; left: -72px; transform: rotate(-90deg); transform-origin: top right; }
+
+/* -------- HERO PRODUCT LOOP -------- */
+.product-frame {
+  position: relative;
+  border-radius: 18px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  aspect-ratio: 5 / 4.2;
+  min-height: 460px;
+}
+.product-frame::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(1000px 500px at 80% -10%, color-mix(in oklab, var(--accent) 14%, transparent), transparent 60%);
+}
+.browser-chrome {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px; border-bottom: 1px solid var(--rule);
+  background: var(--cream-2);
+}
+.browser-chrome .dots { display: flex; gap: 6px; }
+.browser-chrome .dots i {
+  width: 10px; height: 10px; border-radius: 50%; background: var(--rule-2); display: block;
+}
+.browser-chrome .url {
+  flex: 1; text-align: center; font-family: var(--font-mono); font-size: 11px;
+  color: var(--ink-3); letter-spacing: 0.04em;
+}
+.product-stage {
+  position: relative; height: calc(100% - 38px);
+}
+
+/* Scenes */
+.scene {
+  position: absolute; inset: 0; padding: 20px;
+  display: grid; grid-template-columns: 160px 1fr; gap: 14px;
+  opacity: 0; transition: opacity .45s ease;
+}
+.scene.active { opacity: 1; }
+.scene .sidebar {
+  background: var(--cream-2); border: 1px solid var(--rule); border-radius: 12px;
+  padding: 14px 12px; display: flex; flex-direction: column; gap: 4px;
+}
+.scene .sidebar .sb-title {
+  font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.12em;
+  color: var(--ink-3); text-transform: uppercase; margin-bottom: 8px;
+}
+.scene .sidebar .prj {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 8px; border-radius: 7px; font-size: 12px; color: var(--ink-2);
+  cursor: default;
+}
+.scene .sidebar .prj .sw { width: 6px; height: 6px; border-radius: 50%; background: var(--ink-3); }
+.scene .sidebar .prj.on { background: color-mix(in oklab, var(--accent) 10%, transparent); color: var(--ink); font-weight: 500; }
+.scene .sidebar .prj.on .sw { background: var(--accent); box-shadow: 0 0 0 3px color-mix(in oklab, var(--accent) 25%, transparent); }
+.scene .sidebar .prj .st { margin-left: auto; font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); }
+
+.scene-main {
+  display: flex; flex-direction: column; gap: 12px; min-width: 0;
+}
+
+/* Scene 1: Overview / KPIs */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.kpi {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 12px;
+}
+.kpi .k-label { font-family: var(--font-mono); font-size: 9px; color: var(--ink-3); letter-spacing: 0.1em; text-transform: uppercase; }
+.kpi .k-value { font-family: var(--font-display); font-size: 28px; line-height: 1; margin-top: 6px; font-weight: 400; letter-spacing: -0.02em; }
+.kpi .k-value .suf { font-size: 12px; color: var(--ink-3); font-family: var(--font-body); margin-left: 2px; }
+.kpi .k-delta { font-size: 10px; margin-top: 4px; color: var(--good); font-family: var(--font-mono); }
+
+/* Burndown chart */
+.chart-card {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 14px; flex: 1; display: flex; flex-direction: column;
+}
+.chart-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.chart-head .title { font-size: 12px; font-weight: 500; }
+.chart-head .tag { font-family: var(--font-mono); font-size: 9px; color: var(--good); background: color-mix(in oklab, var(--good) 14%, transparent); padding: 3px 6px; border-radius: 4px; }
+.chart-svg { flex: 1; width: 100%; }
+
+/* Scene 2: PR intelligence */
+.pr-list { display: flex; flex-direction: column; gap: 8px; }
+.pr-card {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 10px 12px; display: grid; grid-template-columns: auto 1fr auto auto; gap: 12px; align-items: center;
+  font-size: 12px;
+}
+.pr-card .pr-ico {
+  width: 22px; height: 22px; border-radius: 6px; display: grid; place-items: center;
+  background: color-mix(in oklab, var(--good) 15%, transparent); color: var(--good);
+  font-family: var(--font-mono); font-size: 11px;
+}
+.pr-card.stale .pr-ico { background: color-mix(in oklab, var(--warn) 18%, transparent); color: oklch(0.5 0.15 75); }
+.pr-card.critical .pr-ico { background: color-mix(in oklab, var(--bad) 15%, transparent); color: var(--bad); }
+.pr-card .pr-title { font-weight: 500; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pr-card .pr-meta { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+.pr-card .pr-age {
+  font-family: var(--font-mono); font-size: 10px;
+  padding: 3px 7px; border-radius: 999px; background: var(--cream-2); color: var(--ink-2);
+}
+.pr-card.stale .pr-age { background: color-mix(in oklab, var(--warn) 18%, transparent); color: oklch(0.45 0.15 75); }
+.pr-card.critical .pr-age { background: color-mix(in oklab, var(--bad) 15%, transparent); color: var(--bad); }
+
+/* Scene 3: Scorecards */
+.sc-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.sc {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 10px;
+  padding: 12px; display: grid; grid-template-columns: 36px 1fr auto; gap: 10px; align-items: center;
+}
+.sc .av { width: 36px; height: 36px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-size: 14px; background: var(--cream-3); color: var(--ink); font-weight: 500; }
+.sc .nm { font-size: 12px; font-weight: 500; }
+.sc .rl { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); }
+.sc .score { font-family: var(--font-display); font-size: 22px; font-weight: 400; letter-spacing: -0.02em; }
+.sc .score small { font-size: 10px; color: var(--ink-3); font-family: var(--font-body); }
+.sc .bar { height: 3px; border-radius: 2px; background: var(--cream-3); overflow: hidden; grid-column: 1 / -1; margin-top: 4px; }
+.sc .bar > i { display: block; height: 100%; background: var(--accent); border-radius: 2px; transition: width .8s ease; }
+
+/* Scene indicator */
+.scene-nav {
+  position: absolute; bottom: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; gap: 6px; z-index: 5;
+}
+.scene-nav button {
+  width: 26px; height: 4px; border-radius: 2px; background: var(--rule-2);
+  border: 0; cursor: pointer; padding: 0; transition: all .3s;
+}
+.scene-nav button.on { background: var(--accent); width: 40px; }
+
+.scene-label {
+  position: absolute; top: 14px; right: 16px;
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3);
+  letter-spacing: 0.1em; text-transform: uppercase;
+  display: flex; align-items: center; gap: 6px;
+  background: var(--paper); border: 1px solid var(--rule); padding: 4px 8px; border-radius: 6px;
+  z-index: 5;
+}
+.scene-label .lv { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); animation: pulse calc(2s / var(--anim)) ease-in-out infinite; }
+
+/* Integration logos row */
+.integrations {
+  margin-top: 56px;
+  padding: 20px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule);
+}
+.integrations-inner {
+  display: flex; align-items: center; gap: 32px; flex-wrap: wrap;
+}
+.integrations .lbl {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--ink-3);
+}
+.integ-logos { display: flex; gap: 36px; flex-wrap: wrap; align-items: center; }
+.integ-logos span {
+  font-family: var(--font-display); font-size: 17px; color: var(--ink-2); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 8px; opacity: 0.75;
+}
+.integ-logos span:hover { opacity: 1; color: var(--ink); }
+.integ-logos svg { width: 18px; height: 18px; }
+
+/* -------- SECTION -------- */
+section.block { padding: calc(120px * var(--density)) 0; position: relative; }
+.section-head { max-width: 780px; margin-bottom: 64px; }
+.section-head h2 { font-size: clamp(36px, 4.5vw, 58px); margin-top: 16px; line-height: 1.08; }
+.section-head .sub { margin-top: 32px; color: var(--ink-2); font-size: 18px; max-width: 620px; }
+
+/* -------- FEATURES -------- */
+.features-grid {
+  display: grid; grid-template-columns: repeat(12, 1fr); gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule); border-radius: 16px; overflow: hidden;
+}
+.feature {
+  background: var(--paper);
+  padding: 36px 32px;
+  display: flex; flex-direction: column; gap: 14px; min-height: 240px;
+  position: relative;
+  transition: background .2s;
+}
+.feature:hover { background: var(--cream-2); }
+.feature.big { grid-column: span 6; }
+.feature.med { grid-column: span 6; }
+.feature.small { grid-column: span 4; }
+.feature .f-num {
+  font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.1em;
+}
+.feature .f-title { font-family: var(--font-display); font-size: 26px; letter-spacing: -0.02em; font-weight: 400; line-height: 1.1; }
+.feature .f-desc { font-size: 14px; color: var(--ink-2); line-height: 1.55; }
+.feature .f-tag {
+  margin-top: auto; font-family: var(--font-mono); font-size: 10px; color: var(--accent-deep);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.feature .f-visual { margin-top: 6px; }
+
+@media (max-width: 900px) {
+  .feature.big, .feature.med, .feature.small { grid-column: span 12; }
+}
+
+/* Feature visuals */
+.fv-bar { height: 24px; background: var(--cream-3); border-radius: 6px; position: relative; overflow: hidden; }
+.fv-bar > i { display: block; height: 100%; background: var(--accent); border-radius: 6px; animation: grow calc(2.4s / var(--anim)) ease-in-out infinite alternate; }
+@keyframes grow { from { width: 40%; } to { width: 82%; } }
+
+.fv-prs {
+  display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 11px;
+}
+.fv-prs div { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
+.fv-prs .dot { width: 8px; height: 8px; border-radius: 50%; }
+
+.fv-rings { display: flex; gap: 10px; }
+.fv-ring { position: relative; width: 54px; height: 54px; }
+.fv-ring svg { transform: rotate(-90deg); }
+.fv-ring .c {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: var(--font-display); font-size: 16px; font-weight: 500;
+}
+
+/* -------- HOW IT WORKS -------- */
+.steps {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;
+}
+@media (max-width: 900px) { .steps { grid-template-columns: 1fr; } }
+.step {
+  position: relative;
+  padding: 32px 28px;
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 16px;
+}
+.step .n {
+  font-family: var(--font-display); font-size: 72px; font-weight: 300;
+  color: var(--accent); letter-spacing: -0.04em; line-height: 0.9; font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+.step h3 { font-family: var(--font-display); font-size: 24px; margin-top: 16px; font-weight: 400; letter-spacing: -0.02em; }
+.step p { margin-top: 10px; color: var(--ink-2); font-size: 14px; line-height: 1.6; }
+.step .code {
+  margin-top: 20px; padding: 12px; background: var(--cream-2); border-radius: 8px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-2);
+  border: 1px solid var(--rule); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.step .code .ok { color: var(--good); }
+.step .code .kw { color: var(--accent-deep); }
+
+/* -------- COMPARE -------- */
+.compare {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 20px; overflow: hidden;
+}
+.compare-head {
+  display: grid; grid-template-columns: 2fr repeat(4, 1fr);
+  padding: 24px 28px; border-bottom: 1px solid var(--rule); background: var(--cream-2);
+  align-items: end;
+}
+.compare-head .cell {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+  color: var(--ink-3); text-align: center;
+}
+.compare-head .cell:first-child { text-align: left; }
+.compare-head .cell.us {
+  font-family: var(--font-display); font-size: 22px; color: var(--accent-deep);
+  text-transform: none; letter-spacing: -0.02em; font-style: italic;
+}
+.compare-row {
+  display: grid; grid-template-columns: 2fr repeat(4, 1fr);
+  padding: 18px 28px; border-top: 1px solid var(--rule); align-items: center;
+}
+.compare-row .label { font-size: 14px; color: var(--ink); font-weight: 500; }
+.compare-row .cell { text-align: center; font-family: var(--font-mono); font-size: 12px; color: var(--ink-3); }
+.compare-row .cell.us { color: var(--accent-deep); font-weight: 600; }
+.compare-row .ok { color: var(--good); font-size: 14px; }
+.compare-row .no { color: var(--rule-2); font-size: 14px; }
+.compare-row .ok-us { color: var(--accent-deep); font-size: 14px; }
+@media (max-width: 820px) {
+  .compare-head, .compare-row { grid-template-columns: 1.4fr repeat(4, 1fr); padding: 16px; font-size: 12px; }
+}
+
+/* -------- PRICING -------- */
+.plans { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+@media (max-width: 900px) { .plans { grid-template-columns: 1fr; } }
+.plan {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 18px;
+  padding: 32px 28px; position: relative; display: flex; flex-direction: column;
+}
+.plan.featured {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--cream);
+}
+.plan.featured .plan-desc, .plan.featured .plan-feats li { color: color-mix(in oklab, var(--cream) 75%, transparent); }
+.plan.featured .plan-feats li::before { color: var(--accent); }
+.plan.featured .plan-price { color: var(--cream); }
+.plan .tag {
+  position: absolute; top: -10px; left: 28px;
+  font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em;
+  background: var(--accent); color: var(--paper); padding: 4px 10px; border-radius: 4px; text-transform: uppercase;
+}
+.plan h3 { font-family: var(--font-display); font-size: 22px; font-weight: 400; letter-spacing: -0.02em; }
+.plan-price { font-family: var(--font-display); font-size: 54px; font-weight: 300; letter-spacing: -0.04em; line-height: 1; margin: 20px 0 4px; }
+.plan-price small { font-size: 14px; color: var(--ink-3); font-family: var(--font-body); }
+.plan-desc { font-size: 13px; color: var(--ink-2); line-height: 1.55; margin-bottom: 24px; }
+.plan-feats { list-style: none; padding: 0; margin: 0 0 28px; display: flex; flex-direction: column; gap: 10px; }
+.plan-feats li { font-size: 13px; color: var(--ink-2); display: flex; align-items: flex-start; gap: 10px; }
+.plan-feats li::before { content: "→"; color: var(--accent-deep); font-family: var(--font-mono); flex-shrink: 0; }
+.plan .btn { margin-top: auto; justify-content: center; }
+.plan.featured .btn.primary { background: var(--accent); }
+.plan.featured .btn.primary:hover { background: var(--cream); color: var(--ink); }
+
+.billing-note {
+  text-align: center; margin-top: 24px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-3);
+  letter-spacing: 0.06em;
+}
+.billing-note strong { color: var(--accent-deep); font-weight: 500; }
+
+/* -------- TESTIMONIALS -------- */
+.quotes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 900px) { .quotes { grid-template-columns: 1fr; } }
+.quote {
+  background: var(--paper); border: 1px solid var(--rule); border-radius: 16px;
+  padding: 32px 28px; display: flex; flex-direction: column; gap: 20px;
+}
+.quote .mark {
+  font-family: var(--font-display); font-size: 56px; color: var(--accent); line-height: 0.7; font-style: italic;
+  font-variation-settings: "opsz" 144, "SOFT" 100;
+}
+.quote p {
+  font-family: var(--font-display); font-size: 20px; line-height: 1.35;
+  font-weight: 400; letter-spacing: -0.01em; color: var(--ink);
+}
+.quote .who { margin-top: auto; display: flex; align-items: center; gap: 12px; }
+.quote .av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--cream-3); display: grid; place-items: center;
+  font-family: var(--font-display); font-weight: 500; font-size: 14px;
+}
+.quote .who .meta { display: flex; flex-direction: column; gap: 2px; }
+.quote .who .nm { font-size: 13px; font-weight: 500; }
+.quote .who .rl { font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.06em; }
+
+/* -------- FAQ -------- */
+.faq { max-width: 860px; margin: 0 auto; }
+.faq details {
+  border-top: 1px solid var(--rule); padding: 22px 0;
+}
+.faq details:last-child { border-bottom: 1px solid var(--rule); }
+.faq summary {
+  list-style: none; cursor: pointer; display: flex; justify-content: space-between; align-items: center;
+  font-family: var(--font-display); font-size: 21px; font-weight: 400; letter-spacing: -0.01em;
+}
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after {
+  content: "+"; font-family: var(--font-display); font-size: 24px; color: var(--accent-deep);
+  transition: transform .25s;
+}
+.faq details[open] summary::after { transform: rotate(45deg); }
+.faq details p { margin-top: 14px; color: var(--ink-2); font-size: 15px; line-height: 1.6; }
+
+/* -------- FINAL CTA -------- */
+.final {
+  position: relative; overflow: hidden;
+  background: var(--ink); color: var(--cream);
+  border-radius: 24px; padding: clamp(56px, 8vw, 96px);
+  text-align: center;
+}
+.final::before {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(800px 400px at 20% 20%, color-mix(in oklab, var(--accent) 40%, transparent), transparent 50%),
+              radial-gradient(700px 400px at 90% 90%, color-mix(in oklab, var(--accent-deep) 40%, transparent), transparent 60%);
+  opacity: 0.6;
+}
+.final > * { position: relative; }
+.final h2 { font-family: var(--font-display); font-size: clamp(36px, 5vw, 68px); font-weight: 300; letter-spacing: -0.025em; line-height: 1; }
+.final h2 em { color: var(--accent); font-style: italic; font-variation-settings: "opsz" 144, "SOFT" 100; }
+.final .sub { margin-top: 20px; font-size: 17px; color: color-mix(in oklab, var(--cream) 70%, transparent); max-width: 560px; margin-left: auto; margin-right: auto; }
+.final .cta-row { margin-top: 36px; display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
+.final .btn.primary { background: var(--cream); color: var(--ink); }
+.final .btn.primary:hover { background: var(--accent); color: var(--paper); }
+.final .btn.outline { background: transparent; border-color: color-mix(in oklab, var(--cream) 25%, transparent); color: var(--cream); }
+.final .btn.outline:hover { border-color: var(--cream); }
+
+/* -------- FOOTER -------- */
+footer.site {
+  padding: 56px 0 32px; border-top: 1px solid var(--rule); margin-top: 96px;
+}
+footer.site .grid {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px;
+}
+@media (max-width: 800px) { footer.site .grid { grid-template-columns: 1fr 1fr; } }
+footer.site .col h4 { font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 16px; }
+footer.site .col a { display: block; color: var(--ink-2); text-decoration: none; font-size: 14px; padding: 4px 0; }
+footer.site .col a:hover { color: var(--accent-deep); }
+footer.site .brand p { margin-top: 16px; color: var(--ink-2); font-size: 14px; max-width: 280px; line-height: 1.55; }
+footer.site .bottom {
+  margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--rule);
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  font-family: var(--font-mono); font-size: 11px; color: var(--ink-3); letter-spacing: 0.04em;
+}
+
+/* -------- TWEAKS PANEL -------- */
+#tweaks {
+  position: fixed; bottom: 20px; right: 20px; z-index: 100;
+  background: var(--paper); border: 1px solid var(--rule-2); border-radius: 14px;
+  box-shadow: 0 20px 50px -20px oklch(0.22 0.05 40 / .3);
+  padding: 16px; width: 280px;
+  display: none; flex-direction: column; gap: 14px;
+  font-size: 12px;
+}
+#tweaks.open { display: flex; }
+#tweaks .t-head { display: flex; justify-content: space-between; align-items: center; }
+#tweaks .t-title { font-family: var(--font-display); font-size: 16px; font-weight: 500; }
+#tweaks .t-close { border: 0; background: transparent; color: var(--ink-3); cursor: pointer; font-size: 16px; }
+#tweaks label { display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+#tweaks .swatches { display: flex; gap: 6px; flex-wrap: wrap; }
+#tweaks .swatches button {
+  width: 22px; height: 22px; border-radius: 6px; border: 2px solid transparent; cursor: pointer; padding: 0;
+  transition: transform .15s;
+}
+#tweaks .swatches button:hover { transform: scale(1.1); }
+#tweaks .swatches button.on { border-color: var(--ink); }
+#tweaks select, #tweaks input[type="range"] {
+  width: 100%; font-family: var(--font-mono); font-size: 11px;
+  background: var(--cream-2); border: 1px solid var(--rule); border-radius: 6px; padding: 6px;
+  color: var(--ink);
+}
+#tweaks .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+#tweaks .theme-row { display: flex; gap: 6px; }
+#tweaks .theme-row button {
+  flex: 1; padding: 6px; border: 1px solid var(--rule); background: var(--cream-2);
+  border-radius: 6px; cursor: pointer; font-family: var(--font-mono); font-size: 10px; color: var(--ink-2);
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+#tweaks .theme-row button.on { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+/* Hidden anchor offset */
+section[id] { scroll-margin-top: 80px; }
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- ============ NAV ============ -->
+<nav class="top">
+  <div class="inner">
+    <a class="logo" href="#top">
+      <span class="logo-mark"></span>
+      <span class="logo-word">Spravio</span>
+    </a>
+    <ul>
+      <li><a href="#features" data-i18n="nav.features">Features</a></li>
+      <li><a href="#how" data-i18n="nav.how">How it works</a></li>
+      <li><a href="#pricing" data-i18n="nav.pricing">Pricing</a></li>
+      <li><a href="#faq" data-i18n="nav.faq">FAQ</a></li>
+    </ul>
+    <div class="nav-actions">
+      <div class="lang-toggle" role="tablist" aria-label="Language">
+        <button data-lang="en" class="on">EN</button>
+        <button data-lang="pt">PT</button>
+      </div>
+      <a href="#" class="btn ghost" data-i18n="nav.signin">Sign in</a>
+      <a href="#" class="btn primary" data-i18n="nav.cta">Start free trial <span class="arr">→</span></a>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="top">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="pill">
+          <span class="dot">●</span>
+          <span data-i18n="hero.pill">Built for dev agencies</span>
+        </div>
+        <h1 class="display" data-i18n-html="hero.h1">See what your team <em>actually</em> shipped.</h1>
+        <p class="sub" data-i18n="hero.sub">Spravio turns Jira, Azure DevOps and GitHub into one living dashboard — so agency managers stop writing Friday status reports and start spotting delivery risk before it costs a client.</p>
+        <div class="hero-cta">
+          <a href="#" class="btn primary" data-i18n="hero.cta1">Start free trial <span class="arr">→</span></a>
+          <a href="#how" class="btn outline" data-i18n="hero.cta2">See how it works</a>
+        </div>
+        <div class="hero-meta">
+          <span>✦ <span data-i18n="hero.meta1">14-day trial</span></span>
+          <span data-i18n="hero.meta2">No credit card</span>
+          <span data-i18n="hero.meta3">5-minute setup</span>
+        </div>
+      </div>
+
+      <!-- PRODUCT LOOP -->
+      <div class="product-frame" id="product">
+        <div class="browser-chrome">
+          <div class="dots"><i></i><i></i><i></i></div>
+          <div class="url">app.spravio.io / portfolio</div>
+        </div>
+        <div class="product-stage">
+          <div class="scene-label"><span class="lv"></span><span id="sceneLabel">Overview</span></div>
+
+          <!-- Scene 1: Overview -->
+          <div class="scene active" data-scene="0">
+            <div class="sidebar">
+              <div class="sb-title" data-i18n="hero.sidebar">Projects</div>
+              <div class="prj on"><span class="sw"></span>Banco Meridian<span class="st">92%</span></div>
+              <div class="prj"><span class="sw"></span>E-comm Vora<span class="st">78%</span></div>
+              <div class="prj"><span class="sw"></span>Portal RH Nex<span class="st">54%</span></div>
+              <div class="prj"><span class="sw"></span>App Kaia Pay<span class="st">31%</span></div>
+            </div>
+            <div class="scene-main">
+              <div class="kpi-row">
+                <div class="kpi"><div class="k-label">Cards</div><div class="k-value" data-count="115">0</div><div class="k-delta">+12 wk</div></div>
+                <div class="kpi"><div class="k-label">Done</div><div class="k-value" data-count="67">0</div><div class="k-delta">58%</div></div>
+                <div class="kpi"><div class="k-label">Open PRs</div><div class="k-value" data-count="4">0</div><div class="k-delta" style="color: var(--warn)">2 stale</div></div>
+                <div class="kpi"><div class="k-label">Cycle</div><div class="k-value"><span data-count="22">0</span><span class="suf">h</span></div><div class="k-delta">-3h</div></div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-head">
+                  <div class="title" data-i18n="hero.burndown">Sprint Burndown</div>
+                  <div class="tag">● ON TRACK</div>
+                </div>
+                <svg class="chart-svg" viewBox="0 0 400 130" preserveAspectRatio="none">
+                  <defs>
+                    <linearGradient id="fill1" x1="0" x2="0" y1="0" y2="1">
+                      <stop offset="0%" stop-color="currentColor" stop-opacity="0.25"/>
+                      <stop offset="100%" stop-color="currentColor" stop-opacity="0"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- baseline dashed -->
+                  <line x1="0" y1="10" x2="400" y2="120" stroke="currentColor" stroke-dasharray="3 4" stroke-opacity="0.3" />
+                  <!-- actual line -->
+                  <path id="burnLine" d="M 0 10 L 50 22 L 100 30 L 150 48 L 200 60 L 250 78 L 300 88 L 350 98 L 400 110"
+                        fill="none" stroke="currentColor" stroke-width="2" style="color: var(--accent-deep)" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M 0 10 L 50 22 L 100 30 L 150 48 L 200 60 L 250 78 L 300 88 L 350 98 L 400 110 L 400 130 L 0 130 Z"
+                        fill="url(#fill1)" style="color: var(--accent-deep)" />
+                  <!-- current dot -->
+                  <circle cx="200" cy="60" r="4" fill="var(--accent)" stroke="var(--paper)" stroke-width="2"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scene 2: PRs -->
+          <div class="scene" data-scene="1">
+            <div class="sidebar">
+              <div class="sb-title">Filters</div>
+              <div class="prj on"><span class="sw"></span>All PRs<span class="st">12</span></div>
+              <div class="prj"><span class="sw" style="background: var(--warn)"></span>Stale 24h<span class="st">2</span></div>
+              <div class="prj"><span class="sw" style="background: var(--bad)"></span>Stale 72h<span class="st">1</span></div>
+              <div class="prj"><span class="sw" style="background: var(--good)"></span>Merged<span class="st">9</span></div>
+            </div>
+            <div class="scene-main">
+              <div class="pr-list">
+                <div class="pr-card">
+                  <div class="pr-ico">✓</div>
+                  <div class="pr-title">feat(auth): OAuth token refresh</div>
+                  <div class="pr-meta">LF · #PRJ-204</div>
+                  <div class="pr-age">4h</div>
+                </div>
+                <div class="pr-card">
+                  <div class="pr-ico">✓</div>
+                  <div class="pr-title">fix(billing): currency rounding edge case</div>
+                  <div class="pr-meta">MS · #PRJ-198</div>
+                  <div class="pr-age">8h</div>
+                </div>
+                <div class="pr-card stale">
+                  <div class="pr-ico">!</div>
+                  <div class="pr-title">refactor(api): extract payment service</div>
+                  <div class="pr-meta">PA · #PRJ-187</div>
+                  <div class="pr-age">28h</div>
+                </div>
+                <div class="pr-card critical">
+                  <div class="pr-ico">!</div>
+                  <div class="pr-title">feat(reports): quarterly export PDF</div>
+                  <div class="pr-meta">AC · #PRJ-172</div>
+                  <div class="pr-age">76h</div>
+                </div>
+                <div class="pr-card">
+                  <div class="pr-ico">✓</div>
+                  <div class="pr-title">chore(deps): bump next to 14.2</div>
+                  <div class="pr-meta">LF · #PRJ-165</div>
+                  <div class="pr-age">11h</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scene 3: Scorecards -->
+          <div class="scene" data-scene="2">
+            <div class="sidebar">
+              <div class="sb-title">Team</div>
+              <div class="prj on"><span class="sw"></span>Backend<span class="st">2</span></div>
+              <div class="prj"><span class="sw"></span>Frontend<span class="st">2</span></div>
+              <div class="prj"><span class="sw"></span>QA<span class="st">1</span></div>
+              <div class="prj"><span class="sw"></span>DevOps<span class="st">1</span></div>
+            </div>
+            <div class="scene-main">
+              <div class="sc-grid">
+                <div class="sc"><div class="av">LF</div><div><div class="nm">Lucas F.</div><div class="rl">Backend</div></div><div class="score">4.9<small>/5</small></div><div class="bar"><i style="width: 98%"></i></div></div>
+                <div class="sc"><div class="av">MS</div><div><div class="nm">Mariana S.</div><div class="rl">Frontend</div></div><div class="score">5.0<small>/5</small></div><div class="bar"><i style="width: 100%"></i></div></div>
+                <div class="sc"><div class="av">PA</div><div><div class="nm">Pedro A.</div><div class="rl">Backend</div></div><div class="score">3.7<small>/5</small></div><div class="bar"><i style="width: 74%"></i></div></div>
+                <div class="sc"><div class="av">AC</div><div><div class="nm">Ana C.</div><div class="rl">Frontend</div></div><div class="score">4.6<small>/5</small></div><div class="bar"><i style="width: 92%"></i></div></div>
+              </div>
+              <div class="chart-card" style="padding: 10px 14px;">
+                <div class="chart-head" style="margin: 0;">
+                  <div class="title" style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--ink-3);">Team avg cycle time</div>
+                  <div class="tag">↓ 18%</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="scene-nav" id="sceneNav">
+            <button class="on" data-goto="0"></button>
+            <button data-goto="1"></button>
+            <button data-goto="2"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- integrations -->
+    <div class="integrations">
+      <div class="integrations-inner">
+        <span class="lbl" data-i18n="hero.integ">Integrates with</span>
+        <div class="integ-logos">
+          <span>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M11.571 11.513H0a5.218 5.218 0 0 0 5.232 5.215h2.13v2.057A5.215 5.215 0 0 0 12.575 24V12.518a1.005 1.005 0 0 0-1.005-1.005zm5.723-5.756H5.736a5.215 5.215 0 0 0 5.215 5.214h2.129v2.058a5.218 5.218 0 0 0 5.215 5.214V6.758a1.001 1.001 0 0 0-1.001-1.001zM23.013 0H11.455a5.215 5.215 0 0 0 5.215 5.215h2.129v2.057A5.215 5.215 0 0 0 24 12.483V1.005A1.001 1.001 0 0 0 23.013 0z"/></svg>
+            Jira
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>
+            GitHub
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M0 8.877L2.247 5.91l8.405-3.416V.022l7.37 5.393L2.966 8.338v8.225L0 15.707zm24-4.45v14.651l-5.753 4.9-9.303-3.057v3.056l-5.978-7.416 16.812 1.305V5.415z"/></svg>
+            Azure DevOps
+          </span>
+          <span>
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M5.042 15.165a2.528 2.528 0 0 1-2.52 2.523A2.528 2.528 0 0 1 0 15.165a2.527 2.527 0 0 1 2.522-2.52h2.52v2.52zM6.313 15.165a2.527 2.527 0 0 1 2.521-2.52 2.527 2.527 0 0 1 2.521 2.52v6.313A2.528 2.528 0 0 1 8.834 24a2.528 2.528 0 0 1-2.521-2.522v-6.313zM8.834 5.042a2.528 2.528 0 0 1-2.521-2.52A2.528 2.528 0 0 1 8.834 0a2.528 2.528 0 0 1 2.521 2.522v2.52H8.834zM8.834 6.313a2.528 2.528 0 0 1 2.521 2.521 2.528 2.528 0 0 1-2.521 2.521H2.522A2.528 2.528 0 0 1 0 8.834a2.528 2.528 0 0 1 2.522-2.521h6.312zM18.956 8.834a2.528 2.528 0 0 1 2.522-2.521A2.528 2.528 0 0 1 24 8.834a2.528 2.528 0 0 1-2.522 2.521h-2.522V8.834zM17.688 8.834a2.528 2.528 0 0 1-2.523 2.521 2.527 2.527 0 0 1-2.52-2.521V2.522A2.527 2.527 0 0 1 15.165 0a2.528 2.528 0 0 1 2.523 2.522v6.312zM15.165 18.956a2.528 2.528 0 0 1 2.523 2.522A2.528 2.528 0 0 1 15.165 24a2.527 2.527 0 0 1-2.52-2.522v-2.522h2.52zM15.165 17.688a2.527 2.527 0 0 1-2.52-2.523 2.526 2.526 0 0 1 2.52-2.52h6.313A2.527 2.527 0 0 1 24 15.165a2.528 2.528 0 0 1-2.522 2.523h-6.313z"/></svg>
+            Slack
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ FEATURES ============ -->
+<section class="block" id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="features.eyebrow">Features</span>
+      <h2 class="display" data-i18n-html="features.h2">Everything your agency needs. <em>Nothing you don't.</em></h2>
+      <p class="sub" data-i18n="features.sub">Purpose-built for agencies juggling multiple clients, multiple project managers, and deadlines that don't wait.</p>
+    </div>
+
+    <div class="features-grid">
+      <div class="feature big">
+        <span class="f-num">01</span>
+        <h3 class="f-title" data-i18n="f1.t">Sprint Burndown, live.</h3>
+        <p class="f-desc" data-i18n="f1.d">Real-time baseline vs. actual. Know days before the deadline whether a sprint is on track or heading off the rails.</p>
+        <div class="f-visual">
+          <svg viewBox="0 0 400 80" style="width:100%; height:80px;">
+            <line x1="0" y1="6" x2="400" y2="74" stroke="var(--ink-3)" stroke-dasharray="3 4" stroke-opacity="0.35"/>
+            <path d="M 0 6 L 60 18 L 120 28 L 180 42 L 240 50 L 300 62 L 400 72" fill="none" stroke="var(--accent-deep)" stroke-width="2"/>
+            <circle cx="240" cy="50" r="4" fill="var(--accent)" stroke="var(--paper)" stroke-width="2"/>
+          </svg>
+        </div>
+        <span class="f-tag">Jira + Azure</span>
+      </div>
+
+      <div class="feature med">
+        <span class="f-num">02</span>
+        <h3 class="f-title" data-i18n="f2.t">Developer scorecards.</h3>
+        <p class="f-desc" data-i18n="f2.d">Delivery rate, rework rate, PRs merged, cycle time, review count — all rolled into one honest number per dev.</p>
+        <div class="f-visual fv-rings">
+          <div class="fv-ring">
+            <svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--cream-3)" stroke-width="4"/><circle cx="27" cy="27" r="22" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="138" stroke-dashoffset="7" stroke-linecap="round"/></svg>
+            <div class="c">4.9</div>
+          </div>
+          <div class="fv-ring">
+            <svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--cream-3)" stroke-width="4"/><circle cx="27" cy="27" r="22" fill="none" stroke="var(--accent)" stroke-width="4" stroke-dasharray="138" stroke-dashoffset="0" stroke-linecap="round"/></svg>
+            <div class="c">5.0</div>
+          </div>
+          <div class="fv-ring">
+            <svg width="54" height="54"><circle cx="27" cy="27" r="22" fill="none" stroke="var(--cream-3)" stroke-width="4"/><circle cx="27" cy="27" r="22" fill="none" stroke="var(--accent-deep)" stroke-width="4" stroke-dasharray="138" stroke-dashoffset="36" stroke-linecap="round"/></svg>
+            <div class="c">3.7</div>
+          </div>
+        </div>
+        <span class="f-tag">Jira + GitHub</span>
+      </div>
+
+      <div class="feature small">
+        <span class="f-num">03</span>
+        <h3 class="f-title" data-i18n="f3.t">PR intelligence.</h3>
+        <p class="f-desc" data-i18n="f3.d">Every PR linked to its card. Cycle time color-coded. Stale flagged at 24h and 72h, automatically.</p>
+        <div class="f-visual fv-prs">
+          <div><span class="dot" style="background: var(--good)"></span>#PRJ-204 · 4h</div>
+          <div><span class="dot" style="background: var(--warn)"></span>#PRJ-187 · 28h</div>
+          <div><span class="dot" style="background: var(--bad)"></span>#PRJ-172 · 76h</div>
+        </div>
+        <span class="f-tag">GitHub</span>
+      </div>
+
+      <div class="feature small">
+        <span class="f-num">04</span>
+        <h3 class="f-title" data-i18n="f4.t">Done without code.</h3>
+        <p class="f-desc" data-i18n="f4.d">Cards marked Done with zero linked commits get flagged. Know what shipped vs. what was just moved.</p>
+        <span class="f-tag">Jira + GitHub</span>
+      </div>
+
+      <div class="feature small">
+        <span class="f-num">05</span>
+        <h3 class="f-title" data-i18n="f5.t">GP portfolios.</h3>
+        <p class="f-desc" data-i18n="f5.d">Assign project managers. Owners see the portfolio filtered by GP; GPs see only their own projects. Dynamic per sprint.</p>
+        <span class="f-tag" data-i18n="f5.tag">Unique to Spravio</span>
+      </div>
+
+      <div class="feature med">
+        <span class="f-num">06</span>
+        <h3 class="f-title" data-i18n="f6.t">Budget & margin tracking.</h3>
+        <p class="f-desc" data-i18n="f6.d">Set project budgets, define dev rates, track cost per sprint in real time. Know your margin before the project ends — not after.</p>
+        <div class="f-visual fv-bar"><i></i></div>
+        <span class="f-tag">Built-in</span>
+      </div>
+
+      <div class="feature small">
+        <span class="f-num">07</span>
+        <h3 class="f-title" data-i18n="f7.t">Slack alerts.</h3>
+        <p class="f-desc" data-i18n="f7.d">Automatic notifications for stale PRs, budget overruns, sprint risk, and done-without-code.</p>
+        <span class="f-tag">Slack</span>
+      </div>
+
+      <div class="feature med">
+        <span class="f-num">08</span>
+        <h3 class="f-title" data-i18n="f8.t">Read-only client portal.</h3>
+        <p class="f-desc" data-i18n="f8.d">Share sprint progress, burndown, and delivery status with clients — without exposing internal metrics or team data.</p>
+        <span class="f-tag">Built-in</span>
+      </div>
+
+      <div class="feature small">
+        <span class="f-num">09</span>
+        <h3 class="f-title" data-i18n="f9.t">Multi-project overview.</h3>
+        <p class="f-desc" data-i18n="f9.d">Every client in one sidebar. Health at a glance — On Track, At Risk, Late. Switch in one click.</p>
+        <span class="f-tag">Jira + GitHub</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HOW IT WORKS ============ -->
+<section class="block" id="how" style="background: var(--cream-2); padding-top: calc(120px * var(--density));">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="how.eyebrow">How it works</span>
+      <h2 class="display" data-i18n-html="how.h2">Up and running in <em>five minutes.</em></h2>
+      <p class="sub" data-i18n="how.sub">No implementation consultants. No data migration. No YAML files. Connect your tools, pick your projects, done.</p>
+    </div>
+
+    <div class="steps">
+      <div class="step">
+        <div class="n">01</div>
+        <h3 data-i18n="s1.t">Connect your tools</h3>
+        <p data-i18n="s1.d">Authorize Spravio with Jira or Azure DevOps, plus your GitHub org. We handle auth, scopes and rate limits.</p>
+        <div class="code"><span class="ok">✓</span> <span class="kw">oauth</span> github.com/acme · <span class="kw">scope</span>: repo,pr</div>
+      </div>
+      <div class="step">
+        <div class="n">02</div>
+        <h3 data-i18n="s2.t">Add your projects</h3>
+        <p data-i18n="s2.d">Select which projects and repos to sync. Assign a Project Manager to each. Under two minutes.</p>
+        <div class="code"><span class="kw">sync</span> Banco Meridian <span class="ok">→</span> GP: Rafael M.</div>
+      </div>
+      <div class="step">
+        <div class="n">03</div>
+        <h3 data-i18n="s3.t">Get real-time visibility</h3>
+        <p data-i18n="s3.d">Spravio syncs every 15 minutes. Your dashboard reflects what's actually happening — not last sprint's plan.</p>
+        <div class="code"><span class="kw">last_sync</span> 14:32:08 · <span class="ok">live</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARE ============ -->
+<section class="block" id="compare">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="cmp.eyebrow">Comparison</span>
+      <h2 class="display" data-i18n-html="cmp.h2">Built for agencies, <em>not product teams.</em></h2>
+      <p class="sub" data-i18n="cmp.sub">The engineering analytics category was designed for in-house teams shipping one product. Agencies live in a different reality — many clients, many PMs, many stacks. Spravio was built for that.</p>
+    </div>
+
+    <div class="compare">
+      <div class="compare-head">
+        <div class="cell" data-i18n="cmp.feat">Feature</div>
+        <div class="cell">Jellyfish</div>
+        <div class="cell">Swarmia</div>
+        <div class="cell">LinearB</div>
+        <div class="cell us">Spravio</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r1">Jira + GitHub integration</div>
+        <div class="cell ok">✓</div><div class="cell ok">✓</div><div class="cell ok">✓</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r2">Azure DevOps support</div>
+        <div class="cell no">—</div><div class="cell no">—</div><div class="cell ok">✓</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r3">Multi-project management</div>
+        <div class="cell no">—</div><div class="cell no">—</div><div class="cell no">—</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r4">Project Manager (GP) roles</div>
+        <div class="cell no">—</div><div class="cell no">—</div><div class="cell no">—</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r5">Stale PR alerts</div>
+        <div class="cell no">—</div><div class="cell ok">✓</div><div class="cell ok">✓</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r6">"Done without code" detection</div>
+        <div class="cell no">—</div><div class="cell no">—</div><div class="cell no">—</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r7">Budget & margin tracking</div>
+        <div class="cell no">—</div><div class="cell no">—</div><div class="cell no">—</div><div class="cell ok-us">✓</div>
+      </div>
+      <div class="compare-row">
+        <div class="label" data-i18n="cmp.r8">Pricing model</div>
+        <div class="cell">Per seat</div>
+        <div class="cell">Per seat</div>
+        <div class="cell">Per seat</div>
+        <div class="cell us" data-i18n="cmp.r8v">Per project</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRICING ============ -->
+<section class="block" id="pricing" style="background: var(--cream-2);">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="pr.eyebrow">Pricing</span>
+      <h2 class="display" data-i18n-html="pr.h2">Pay per project, <em>not per seat.</em></h2>
+      <p class="sub" data-i18n="pr.sub">Aligned with the way agencies actually work. You add developers as projects come and go — why pay per seat for that?</p>
+    </div>
+
+    <div class="plans">
+      <div class="plan">
+        <h3 data-i18n="pr.p1n">Starter</h3>
+        <div class="plan-price">$49<small>/mo</small></div>
+        <p class="plan-desc" data-i18n="pr.p1d">For small agencies getting their first taste of real project visibility.</p>
+        <ul class="plan-feats">
+          <li data-i18n="pr.p1f1">Up to 3 active projects</li>
+          <li data-i18n="pr.p1f2">Up to 10 developers</li>
+          <li data-i18n="pr.p1f3">1 Project Manager</li>
+          <li data-i18n="pr.p1f4">Jira + GitHub integration</li>
+          <li data-i18n="pr.p1f5">15-min auto sync</li>
+          <li data-i18n="pr.p1f6">Email support</li>
+        </ul>
+        <a href="#" class="btn outline" data-i18n="pr.cta">Start free trial</a>
+      </div>
+
+      <div class="plan featured">
+        <span class="tag" data-i18n="pr.tag">Most popular</span>
+        <h3 data-i18n="pr.p2n">Growth</h3>
+        <div class="plan-price">$149<small>/mo</small></div>
+        <p class="plan-desc" data-i18n="pr.p2d">For agencies managing multiple clients with multiple project managers.</p>
+        <ul class="plan-feats">
+          <li data-i18n="pr.p2f1">Up to 10 active projects</li>
+          <li data-i18n="pr.p2f2">Up to 30 developers</li>
+          <li data-i18n="pr.p2f3">Up to 5 Project Managers</li>
+          <li data-i18n="pr.p2f4">GP portfolio view</li>
+          <li data-i18n="pr.p2f5">Stale PR alerts & Slack</li>
+          <li data-i18n="pr.p2f6">Priority support</li>
+        </ul>
+        <a href="#" class="btn primary" data-i18n="pr.cta">Start free trial</a>
+      </div>
+
+      <div class="plan">
+        <h3 data-i18n="pr.p3n">Scale</h3>
+        <div class="plan-price">$399<small>/mo</small></div>
+        <p class="plan-desc" data-i18n="pr.p3d">For large agencies that need unlimited scale and premium features.</p>
+        <ul class="plan-feats">
+          <li data-i18n="pr.p3f1">Unlimited projects</li>
+          <li data-i18n="pr.p3f2">Unlimited developers</li>
+          <li data-i18n="pr.p3f3">Unlimited Project Managers</li>
+          <li data-i18n="pr.p3f4">Stakeholder report export</li>
+          <li data-i18n="pr.p3f5">Client-facing portal</li>
+          <li data-i18n="pr.p3f6">Dedicated support</li>
+        </ul>
+        <a href="#" class="btn outline" data-i18n="pr.cta">Start free trial</a>
+      </div>
+    </div>
+
+    <div class="billing-note">
+      <span data-i18n="pr.note1">Save</span> <strong>20%</strong> <span data-i18n="pr.note2">with annual billing · All plans include a 14-day free trial</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TESTIMONIALS ============ -->
+<section class="block" id="love">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow" data-i18n="t.eyebrow">From the trenches</span>
+      <h2 class="display" data-i18n-html="t.h2">Trusted by agency managers <em>who stopped guessing.</em></h2>
+    </div>
+
+    <div class="quotes">
+      <div class="quote">
+        <div class="mark">"</div>
+        <p data-i18n="q1.p">Friday status reports used to eat two hours of my week. Now I open Spravio, screenshot three sections, paste into the client deck. Done.</p>
+        <div class="who">
+          <div class="av">RM</div>
+          <div class="meta"><span class="nm">Rafael Mendes</span><span class="rl" data-i18n="q1.r">CTO · Codecraft Agency</span></div>
+        </div>
+      </div>
+      <div class="quote">
+        <div class="mark">"</div>
+        <p data-i18n="q2.p">The GP portfolio view is the feature I didn't know I needed. I can see every project manager's throughput in one screen. No other tool does this.</p>
+        <div class="who">
+          <div class="av">PS</div>
+          <div class="meta"><span class="nm">Patricia Souza</span><span class="rl" data-i18n="q2.r">CEO · DevLab Studio</span></div>
+        </div>
+      </div>
+      <div class="quote">
+        <div class="mark">"</div>
+        <p data-i18n="q3.p">Stale PR detection caught a three-day block we would have missed. A developer was stuck, nobody noticed. Spravio flagged it automatically.</p>
+        <div class="who">
+          <div class="av">JO</div>
+          <div class="meta"><span class="nm">João Oliveira</span><span class="rl" data-i18n="q3.r">Tech Lead · Nexus Digital</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FAQ ============ -->
+<section class="block" id="faq">
+  <div class="wrap">
+    <div class="section-head" style="text-align: center; margin-left: auto; margin-right: auto;">
+      <span class="eyebrow" data-i18n="faq.eyebrow" style="justify-content: center;">FAQ</span>
+      <h2 class="display" data-i18n-html="faq.h2" style="margin-top: 16px;">Questions? <em>We've got answers.</em></h2>
+    </div>
+    <div class="faq">
+      <details>
+        <summary data-i18n="faq.q1">Does Spravio work with any Jira plan?</summary>
+        <p data-i18n="faq.a1">Yes — Free, Standard, Premium and Enterprise. We use Jira's public REST API so nothing changes on your end.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q2">Does Spravio support Azure DevOps?</summary>
+        <p data-i18n="faq.a2">Fully. Work items, boards, repositories and pull requests — same feature parity as our Jira + GitHub pipeline.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q3">How does the GitHub integration work?</summary>
+        <p data-i18n="faq.a3">Install the Spravio GitHub App on the orgs and repos you want to sync. We read PRs, commits, and review activity — no write access.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q4">What is a Project Manager (GP) role?</summary>
+        <p data-i18n="faq.a4">In agencies, a GP (Gerente de Projeto) owns one or more client engagements. Spravio scopes dashboards per GP, so they only see what they're responsible for — while owners see everything.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q5">Is my data secure?</summary>
+        <p data-i18n="faq.a5">Data is encrypted in transit and at rest. We store the minimum needed for our metrics. SSO and SCIM available on Scale.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q6">Can I cancel anytime?</summary>
+        <p data-i18n="faq.a6">Yes. Monthly plans cancel instantly. Annual plans renew yearly — cancel before renewal and you won't be charged.</p>
+      </details>
+      <details>
+        <summary data-i18n="faq.q7">Do you offer a free trial?</summary>
+        <p data-i18n="faq.a7">14 days on every plan. No credit card required to start.</p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FINAL CTA ============ -->
+<section class="block">
+  <div class="wrap">
+    <div class="final">
+      <h2 class="display" data-i18n-html="cta.h2">Stop guessing. <em>Start knowing.</em></h2>
+      <p class="sub" data-i18n="cta.sub">Trade spreadsheet reports for real-time project intelligence. Fourteen days on us — no card, no friction.</p>
+      <div class="cta-row">
+        <a href="#" class="btn primary" data-i18n="cta.b1">Start free trial <span class="arr">→</span></a>
+        <a href="#how" class="btn outline" data-i18n="cta.b2">Book a 15-min demo</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer class="site">
+  <div class="wrap">
+    <div class="grid">
+      <div class="col brand">
+        <a class="logo" href="#top">
+          <span class="logo-mark"></span>
+          <span class="logo-word">Spravio</span>
+        </a>
+        <p data-i18n="foot.tag">Delivery intelligence for dev agencies. Built in 2026 for the way you actually work.</p>
+      </div>
+      <div class="col">
+        <h4 data-i18n="foot.prod">Product</h4>
+        <a href="#features" data-i18n="nav.features">Features</a>
+        <a href="#pricing" data-i18n="nav.pricing">Pricing</a>
+        <a href="#how" data-i18n="nav.how">How it works</a>
+        <a href="#compare" data-i18n="foot.cmp">Compare</a>
+      </div>
+      <div class="col">
+        <h4 data-i18n="foot.co">Company</h4>
+        <a href="#" data-i18n="foot.about">About</a>
+        <a href="#" data-i18n="foot.blog">Blog</a>
+        <a href="#" data-i18n="foot.contact">Contact</a>
+        <a href="#" data-i18n="foot.careers">Careers</a>
+      </div>
+      <div class="col">
+        <h4 data-i18n="foot.leg">Legal</h4>
+        <a href="#" data-i18n="foot.priv">Privacy</a>
+        <a href="#" data-i18n="foot.terms">Terms</a>
+        <a href="#" data-i18n="foot.sec">Security</a>
+        <a href="#" data-i18n="foot.status">Status</a>
+      </div>
+    </div>
+    <div class="bottom">
+      <span>© 2026 SPRAVIO · ALL RIGHTS RESERVED</span>
+      <span data-i18n="foot.loc">✦ MADE FOR AGENCIES, WORLDWIDE</span>
+    </div>
+  </div>
+</footer>
+
+<!-- ============ TWEAKS ============ -->
+<button id="tweaksToggle" style="
+  position: fixed; bottom: 20px; right: 20px; z-index: 101;
+  background: var(--ink); color: var(--cream); border: 0; border-radius: 999px;
+  width: 44px; height: 44px; cursor: pointer; font-size: 18px;
+  box-shadow: 0 10px 25px -10px oklch(0 0 0 / .4);
+">✦</button>
+<div id="tweaks">
+  <div class="t-head">
+    <span class="t-title">Tweaks</span>
+    <button class="t-close" id="tweaksClose">✕</button>
+  </div>
+
+  <label>Accent
+    <div class="swatches" id="accentSw">
+      <button data-h="35" style="background: oklch(0.62 0.14 35)" class="on" title="Terracotta"></button>
+      <button data-h="70" style="background: oklch(0.62 0.14 70)" title="Amber"></button>
+      <button data-h="15" style="background: oklch(0.62 0.14 15)" title="Brick"></button>
+      <button data-h="145" style="background: oklch(0.55 0.12 145)" title="Forest"></button>
+      <button data-h="240" style="background: oklch(0.55 0.14 240)" title="Indigo"></button>
+      <button data-h="300" style="background: oklch(0.55 0.14 300)" title="Plum"></button>
+    </div>
+  </label>
+
+  <label>Theme
+    <div class="theme-row">
+      <button data-theme="light" class="on">Light</button>
+      <button data-theme="dark">Dark</button>
+    </div>
+  </label>
+
+  <div class="row-2">
+    <label>Display
+      <select id="fontDisplay">
+        <option value="'Fraunces', serif">Fraunces</option>
+        <option value="'Inter', sans-serif">Inter</option>
+        <option value="Georgia, serif">Georgia</option>
+        <option value="'JetBrains Mono', monospace">Mono</option>
+      </select>
+    </label>
+    <label>Body
+      <select id="fontBody">
+        <option value="'Inter', sans-serif">Inter</option>
+        <option value="'Fraunces', serif">Fraunces</option>
+        <option value="system-ui, sans-serif">System</option>
+        <option value="'JetBrains Mono', monospace">Mono</option>
+      </select>
+    </label>
+  </div>
+
+  <label>Density: <span id="densVal">Normal</span>
+    <input type="range" min="0.85" max="1.15" step="0.05" value="1" id="densSlider" />
+  </label>
+
+  <label>Animation: <span id="animVal">Normal</span>
+    <input type="range" min="0" max="1.5" step="0.25" value="1" id="animSlider" />
+  </label>
+
+  <label>Hero variant
+    <div class="theme-row" id="heroVariant">
+      <button data-variant="loop" class="on">Loop</button>
+      <button data-variant="static">Static</button>
+    </div>
+  </label>
+</div>
+
+<script>
+/* ============ I18N ============ */
+const i18n = {
+  en: {
+    "nav.features": "Features", "nav.how": "How it works", "nav.pricing": "Pricing", "nav.faq": "FAQ",
+    "nav.signin": "Sign in", "nav.cta": "Start free trial",
+    "hero.pill": "Built for dev agencies",
+    "hero.h1": "See what your team <em>actually</em> shipped.",
+    "hero.sub": "Spravio turns Jira, Azure DevOps and GitHub into one living dashboard — so agency managers stop writing Friday status reports and start spotting delivery risk before it costs a client.",
+    "hero.cta1": "Start free trial", "hero.cta2": "See how it works",
+    "hero.meta1": "14-day trial", "hero.meta2": "No credit card", "hero.meta3": "5-minute setup",
+    "hero.sidebar": "Projects", "hero.burndown": "Sprint Burndown", "hero.integ": "Integrates with",
+    "features.eyebrow": "Features",
+    "features.h2": "Everything your agency needs. <em>Nothing you don't.</em>",
+    "features.sub": "Purpose-built for agencies juggling multiple clients, multiple project managers, and deadlines that don't wait.",
+    "f1.t": "Sprint Burndown, live.", "f1.d": "Real-time baseline vs. actual. Know days before the deadline whether a sprint is on track or heading off the rails.",
+    "f2.t": "Developer scorecards.", "f2.d": "Delivery rate, rework rate, PRs merged, cycle time, review count — all rolled into one honest number per dev.",
+    "f3.t": "PR intelligence.", "f3.d": "Every PR linked to its card. Cycle time color-coded. Stale flagged at 24h and 72h, automatically.",
+    "f4.t": "Done without code.", "f4.d": "Cards marked Done with zero linked commits get flagged. Know what shipped vs. what was just moved.",
+    "f5.t": "GP portfolios.", "f5.d": "Assign project managers. Owners see the portfolio filtered by GP; GPs see only their own projects. Dynamic per sprint.",
+    "f5.tag": "Unique to Spravio",
+    "f6.t": "Budget & margin tracking.", "f6.d": "Set project budgets, define dev rates, track cost per sprint in real time. Know your margin before the project ends — not after.",
+    "f7.t": "Slack alerts.", "f7.d": "Automatic notifications for stale PRs, budget overruns, sprint risk, and done-without-code.",
+    "f8.t": "Read-only client portal.", "f8.d": "Share sprint progress, burndown, and delivery status with clients — without exposing internal metrics or team data.",
+    "f9.t": "Multi-project overview.", "f9.d": "Every client in one sidebar. Health at a glance — On Track, At Risk, Late. Switch in one click.",
+    "how.eyebrow": "How it works", "how.h2": "Up and running in <em>five minutes.</em>",
+    "how.sub": "No implementation consultants. No data migration. No YAML files. Connect your tools, pick your projects, done.",
+    "s1.t": "Connect your tools", "s1.d": "Authorize Spravio with Jira or Azure DevOps, plus your GitHub org. We handle auth, scopes and rate limits.",
+    "s2.t": "Add your projects", "s2.d": "Select which projects and repos to sync. Assign a Project Manager to each. Under two minutes.",
+    "s3.t": "Get real-time visibility", "s3.d": "Spravio syncs every 15 minutes. Your dashboard reflects what's actually happening — not last sprint's plan.",
+    "cmp.eyebrow": "Comparison", "cmp.h2": "Built for agencies, <em>not product teams.</em>",
+    "cmp.sub": "The engineering analytics category was designed for in-house teams shipping one product. Agencies live in a different reality — many clients, many PMs, many stacks. Spravio was built for that.",
+    "cmp.feat": "Feature",
+    "cmp.r1": "Jira + GitHub integration", "cmp.r2": "Azure DevOps support", "cmp.r3": "Multi-project management",
+    "cmp.r4": "Project Manager (GP) roles", "cmp.r5": "Stale PR alerts", "cmp.r6": "\"Done without code\" detection",
+    "cmp.r7": "Budget & margin tracking", "cmp.r8": "Pricing model", "cmp.r8v": "Per project",
+    "pr.eyebrow": "Pricing", "pr.h2": "Pay per project, <em>not per seat.</em>",
+    "pr.sub": "Aligned with the way agencies actually work. You add developers as projects come and go — why pay per seat for that?",
+    "pr.p1n": "Starter", "pr.p1d": "For small agencies getting their first taste of real project visibility.",
+    "pr.p1f1": "Up to 3 active projects", "pr.p1f2": "Up to 10 developers", "pr.p1f3": "1 Project Manager",
+    "pr.p1f4": "Jira + GitHub integration", "pr.p1f5": "15-min auto sync", "pr.p1f6": "Email support",
+    "pr.p2n": "Growth", "pr.p2d": "For agencies managing multiple clients with multiple project managers.",
+    "pr.p2f1": "Up to 10 active projects", "pr.p2f2": "Up to 30 developers", "pr.p2f3": "Up to 5 Project Managers",
+    "pr.p2f4": "GP portfolio view", "pr.p2f5": "Stale PR alerts & Slack", "pr.p2f6": "Priority support",
+    "pr.p3n": "Scale", "pr.p3d": "For large agencies that need unlimited scale and premium features.",
+    "pr.p3f1": "Unlimited projects", "pr.p3f2": "Unlimited developers", "pr.p3f3": "Unlimited Project Managers",
+    "pr.p3f4": "Stakeholder report export", "pr.p3f5": "Client-facing portal", "pr.p3f6": "Dedicated support",
+    "pr.tag": "Most popular", "pr.cta": "Start free trial",
+    "pr.note1": "Save", "pr.note2": "with annual billing · All plans include a 14-day free trial",
+    "t.eyebrow": "From the trenches", "t.h2": "Trusted by agency managers <em>who stopped guessing.</em>",
+    "q1.p": "Friday status reports used to eat two hours of my week. Now I open Spravio, screenshot three sections, paste into the client deck. Done.",
+    "q1.r": "CTO · Codecraft Agency",
+    "q2.p": "The GP portfolio view is the feature I didn't know I needed. I can see every project manager's throughput in one screen. No other tool does this.",
+    "q2.r": "CEO · DevLab Studio",
+    "q3.p": "Stale PR detection caught a three-day block we would have missed. A developer was stuck, nobody noticed. Spravio flagged it automatically.",
+    "q3.r": "Tech Lead · Nexus Digital",
+    "faq.eyebrow": "FAQ", "faq.h2": "Questions? <em>We've got answers.</em>",
+    "faq.q1": "Does Spravio work with any Jira plan?",
+    "faq.a1": "Yes — Free, Standard, Premium and Enterprise. We use Jira's public REST API so nothing changes on your end.",
+    "faq.q2": "Does Spravio support Azure DevOps?",
+    "faq.a2": "Fully. Work items, boards, repositories and pull requests — same feature parity as our Jira + GitHub pipeline.",
+    "faq.q3": "How does the GitHub integration work?",
+    "faq.a3": "Install the Spravio GitHub App on the orgs and repos you want to sync. We read PRs, commits, and review activity — no write access.",
+    "faq.q4": "What is a Project Manager (GP) role?",
+    "faq.a4": "In agencies, a GP (Gerente de Projeto) owns one or more client engagements. Spravio scopes dashboards per GP, so they only see what they're responsible for — while owners see everything.",
+    "faq.q5": "Is my data secure?",
+    "faq.a5": "Data is encrypted in transit and at rest. We store the minimum needed for our metrics. SSO and SCIM available on Scale.",
+    "faq.q6": "Can I cancel anytime?",
+    "faq.a6": "Yes. Monthly plans cancel instantly. Annual plans renew yearly — cancel before renewal and you won't be charged.",
+    "faq.q7": "Do you offer a free trial?",
+    "faq.a7": "14 days on every plan. No credit card required to start.",
+    "cta.h2": "Stop guessing. <em>Start knowing.</em>",
+    "cta.sub": "Trade spreadsheet reports for real-time project intelligence. Fourteen days on us — no card, no friction.",
+    "cta.b1": "Start free trial", "cta.b2": "Book a 15-min demo",
+    "foot.tag": "Delivery intelligence for dev agencies. Built in 2026 for the way you actually work.",
+    "foot.prod": "Product", "foot.co": "Company", "foot.leg": "Legal",
+    "foot.cmp": "Compare", "foot.about": "About", "foot.blog": "Blog", "foot.contact": "Contact", "foot.careers": "Careers",
+    "foot.priv": "Privacy", "foot.terms": "Terms", "foot.sec": "Security", "foot.status": "Status",
+    "foot.loc": "✦ MADE FOR AGENCIES, WORLDWIDE",
+  },
+  pt: {
+    "nav.features": "Recursos", "nav.how": "Como funciona", "nav.pricing": "Planos", "nav.faq": "FAQ",
+    "nav.signin": "Entrar", "nav.cta": "Testar grátis",
+    "hero.pill": "Feito para agências de desenvolvimento",
+    "hero.h1": "Veja o que seu time <em>realmente</em> entregou.",
+    "hero.sub": "O Spravio transforma Jira, Azure DevOps e GitHub em um único painel ao vivo — pra você parar de montar relatório na sexta e começar a detectar risco de entrega antes que custe um cliente.",
+    "hero.cta1": "Testar grátis", "hero.cta2": "Ver como funciona",
+    "hero.meta1": "14 dias grátis", "hero.meta2": "Sem cartão", "hero.meta3": "Setup em 5 min",
+    "hero.sidebar": "Projetos", "hero.burndown": "Burndown do Sprint", "hero.integ": "Integra com",
+    "features.eyebrow": "Recursos",
+    "features.h2": "Tudo que sua agência precisa. <em>Nada que ela não.</em>",
+    "features.sub": "Pensado pra agências que tocam múltiplos clientes, múltiplos GPs e prazos que não esperam.",
+    "f1.t": "Burndown ao vivo.", "f1.d": "Baseline vs. real em tempo real. Saiba dias antes do prazo se um sprint está no rumo — ou saindo dos trilhos.",
+    "f2.t": "Scorecard por dev.", "f2.d": "Taxa de entrega, retrabalho, PRs, cycle time e reviews — tudo condensado num número honesto por dev.",
+    "f3.t": "PR inteligência.", "f3.d": "Cada PR vinculado ao card. Cycle time com cor. Stale sinalizado em 24h e 72h, automático.",
+    "f4.t": "Done sem código.", "f4.d": "Card marcado como Done sem commit vinculado? Sinalizado. Entregue vs. 'só arrastado'.",
+    "f5.t": "Portfólios por GP.", "f5.d": "Atribua GPs. Owners veem o portfólio filtrado por GP; cada GP vê só o que é dele. Muda entre sprints.",
+    "f5.tag": "Exclusivo do Spravio",
+    "f6.t": "Orçamento & margem.", "f6.d": "Defina orçamento por projeto, taxa por dev, e acompanhe custo por sprint. Saiba sua margem antes do projeto acabar — não depois.",
+    "f7.t": "Alertas no Slack.", "f7.d": "Notificações automáticas de PRs parados, estouro de orçamento, risco de sprint e done sem código.",
+    "f8.t": "Portal do cliente.", "f8.d": "Compartilhe progresso, burndown e status de entrega com clientes — sem expor métricas internas ou dados do time.",
+    "f9.t": "Visão multi-projeto.", "f9.d": "Cada cliente na sidebar. Saúde num golpe de vista — No Prazo, Em Risco, Atrasado. Troca em um clique.",
+    "how.eyebrow": "Como funciona", "how.h2": "No ar em <em>cinco minutos.</em>",
+    "how.sub": "Sem consultor de implementação. Sem migração de dados. Sem YAML. Conecta as ferramentas, escolhe os projetos, pronto.",
+    "s1.t": "Conecte suas ferramentas", "s1.d": "Autorize o Spravio com Jira ou Azure DevOps, mais sua org no GitHub. Auth, escopos e rate limits por nossa conta.",
+    "s2.t": "Adicione seus projetos", "s2.d": "Selecione projetos e repos pra sincronizar. Atribua um GP pra cada. Em menos de dois minutos.",
+    "s3.t": "Tenha visibilidade em tempo real", "s3.d": "O Spravio sincroniza a cada 15 minutos. Seu painel reflete o que está acontecendo — não o plano do sprint passado.",
+    "cmp.eyebrow": "Comparação", "cmp.h2": "Feito pra agências, <em>não pra times de produto.</em>",
+    "cmp.sub": "A categoria de engineering analytics nasceu pensando em times internos de um produto só. Agência é outra realidade — vários clientes, vários GPs, várias stacks. Spravio foi feito pra isso.",
+    "cmp.feat": "Recurso",
+    "cmp.r1": "Integração Jira + GitHub", "cmp.r2": "Suporte a Azure DevOps", "cmp.r3": "Gestão multi-projeto",
+    "cmp.r4": "Papel de GP (Gerente de Projeto)", "cmp.r5": "Alertas de PRs parados", "cmp.r6": "Detecção de \"Done sem código\"",
+    "cmp.r7": "Orçamento & margem", "cmp.r8": "Modelo de preço", "cmp.r8v": "Por projeto",
+    "pr.eyebrow": "Planos", "pr.h2": "Pague por projeto, <em>não por assento.</em>",
+    "pr.sub": "Alinhado com o jeito que agências trabalham de verdade. Devs entram e saem conforme o projeto — por que pagar por assento pra isso?",
+    "pr.p1n": "Starter", "pr.p1d": "Pra agências pequenas começando a ter visibilidade real de projetos.",
+    "pr.p1f1": "Até 3 projetos ativos", "pr.p1f2": "Até 10 desenvolvedores", "pr.p1f3": "1 Gerente de Projeto",
+    "pr.p1f4": "Integração Jira + GitHub", "pr.p1f5": "Sync a cada 15 min", "pr.p1f6": "Suporte por email",
+    "pr.p2n": "Growth", "pr.p2d": "Pra agências que tocam vários clientes com vários GPs.",
+    "pr.p2f1": "Até 10 projetos ativos", "pr.p2f2": "Até 30 desenvolvedores", "pr.p2f3": "Até 5 Gerentes de Projeto",
+    "pr.p2f4": "Visão de portfólio por GP", "pr.p2f5": "Alertas de PRs parados + Slack", "pr.p2f6": "Suporte prioritário",
+    "pr.p3n": "Scale", "pr.p3d": "Pra agências grandes que precisam de escala ilimitada e recursos premium.",
+    "pr.p3f1": "Projetos ilimitados", "pr.p3f2": "Desenvolvedores ilimitados", "pr.p3f3": "Gerentes ilimitados",
+    "pr.p3f4": "Export de relatório executivo", "pr.p3f5": "Portal para cliente", "pr.p3f6": "Suporte dedicado",
+    "pr.tag": "Mais popular", "pr.cta": "Testar grátis",
+    "pr.note1": "Economize", "pr.note2": "na cobrança anual · Todos os planos com 14 dias grátis",
+    "t.eyebrow": "Do campo de batalha", "t.h2": "Usado por gestores de agência <em>que cansaram de chutar.</em>",
+    "q1.p": "Relatório de sexta consumia duas horas da minha semana. Agora abro o Spravio, printo três seções, colo no deck do cliente. Pronto.",
+    "q1.r": "CTO · Codecraft Agency",
+    "q2.p": "A visão de portfólio por GP é aquele recurso que eu não sabia que precisava. Vejo a entrega de cada GP numa tela. Nenhuma outra ferramenta faz isso.",
+    "q2.r": "CEO · DevLab Studio",
+    "q3.p": "A detecção de PR parado pegou um bloqueio de três dias que a gente ia perder. Dev estava travado, ninguém viu. O Spravio flagou sozinho.",
+    "q3.r": "Tech Lead · Nexus Digital",
+    "faq.eyebrow": "FAQ", "faq.h2": "Perguntas? <em>A gente responde.</em>",
+    "faq.q1": "O Spravio funciona com qualquer plano do Jira?",
+    "faq.a1": "Sim — Free, Standard, Premium e Enterprise. Usamos a API REST pública do Jira, então nada muda do seu lado.",
+    "faq.q2": "O Spravio suporta Azure DevOps?",
+    "faq.a2": "Sim, completamente. Work items, boards, repositórios e pull requests — paridade total com Jira + GitHub.",
+    "faq.q3": "Como funciona a integração com GitHub?",
+    "faq.a3": "Instala o Spravio GitHub App nas orgs e repos que quiser sincronizar. A gente lê PRs, commits e reviews — sem acesso de escrita.",
+    "faq.q4": "O que é o papel de GP (Gerente de Projeto)?",
+    "faq.a4": "Em agência, o GP toca um ou mais clientes. O Spravio escopa o painel por GP, então ele só vê o que é dele — enquanto o owner vê tudo.",
+    "faq.q5": "Meus dados são seguros?",
+    "faq.a5": "Criptografados em trânsito e em repouso. Guardamos o mínimo necessário pras métricas. SSO e SCIM no plano Scale.",
+    "faq.q6": "Posso cancelar quando quiser?",
+    "faq.a6": "Sim. Plano mensal cancela na hora. Anual renova anualmente — cancele antes da renovação e não tem cobrança.",
+    "faq.q7": "Tem trial grátis?",
+    "faq.a7": "14 dias em qualquer plano. Sem cartão pra começar.",
+    "cta.h2": "Pare de chutar. <em>Comece a saber.</em>",
+    "cta.sub": "Troque relatório em planilha por inteligência de projeto em tempo real. Quatorze dias por nossa conta — sem cartão, sem atrito.",
+    "cta.b1": "Testar grátis", "cta.b2": "Agendar demo de 15 min",
+    "foot.tag": "Inteligência de entrega pra agências de dev. Feito em 2026 pro jeito que você trabalha de verdade.",
+    "foot.prod": "Produto", "foot.co": "Empresa", "foot.leg": "Legal",
+    "foot.cmp": "Comparar", "foot.about": "Sobre", "foot.blog": "Blog", "foot.contact": "Contato", "foot.careers": "Vagas",
+    "foot.priv": "Privacidade", "foot.terms": "Termos", "foot.sec": "Segurança", "foot.status": "Status",
+    "foot.loc": "✦ FEITO PARA AGÊNCIAS, NO MUNDO TODO",
+  }
+};
+
+function setLang(lang) {
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n');
+    if (i18n[lang][k]) el.textContent = i18n[lang][k];
+  });
+  document.querySelectorAll('[data-i18n-html]').forEach(el => {
+    const k = el.getAttribute('data-i18n-html');
+    if (i18n[lang][k]) el.innerHTML = i18n[lang][k];
+  });
+  document.querySelectorAll('.lang-toggle button').forEach(b => {
+    b.classList.toggle('on', b.dataset.lang === lang);
+  });
+  try { localStorage.setItem('spravio.lang', lang); } catch(e) {}
+}
+document.querySelectorAll('.lang-toggle button').forEach(b => {
+  b.addEventListener('click', () => setLang(b.dataset.lang));
+});
+try {
+  const savedLang = localStorage.getItem('spravio.lang');
+  if (savedLang) setLang(savedLang);
+} catch(e) {}
+
+/* ============ HERO PRODUCT LOOP ============ */
+const scenes = document.querySelectorAll('.scene');
+const sceneNavBtns = document.querySelectorAll('#sceneNav button');
+const sceneLabels = {
+  en: ["Overview", "Pull Requests", "Scorecards"],
+  pt: ["Visão geral", "Pull Requests", "Scorecards"]
+};
+let sceneIdx = 0;
+let sceneTimer;
+
+function showScene(i) {
+  sceneIdx = i;
+  scenes.forEach((s, k) => s.classList.toggle('active', k === i));
+  sceneNavBtns.forEach((b, k) => b.classList.toggle('on', k === i));
+  const lang = document.documentElement.lang.startsWith('pt') ? 'pt' : 'en';
+  const lbl = document.getElementById('sceneLabel');
+  if (lbl) lbl.textContent = sceneLabels[lang][i];
+}
+function nextScene() {
+  showScene((sceneIdx + 1) % scenes.length);
+}
+function startLoop() {
+  clearInterval(sceneTimer);
+  if (document.body.dataset.hero !== 'static') {
+    sceneTimer = setInterval(nextScene, 4800);
+  }
+}
+sceneNavBtns.forEach(b => b.addEventListener('click', () => {
+  showScene(+b.dataset.goto);
+  startLoop();
+}));
+
+/* KPI counter animation */
+function animateCounters() {
+  document.querySelectorAll('[data-count]').forEach(el => {
+    const target = +el.dataset.count;
+    const dur = 900;
+    const t0 = performance.now();
+    function step(t) {
+      const p = Math.min(1, (t - t0) / dur);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(target * e);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+animateCounters();
+startLoop();
+
+/* ============ TWEAKS ============ */
+const TWEAKS = /*EDITMODE-BEGIN*/{
+  "accentHue": 240,
+  "theme": "light",
+  "fontDisplay": "Georgia, serif",
+  "fontBody": "system-ui, sans-serif",
+  "density": 1,
+  "anim": 0.75,
+  "heroVariant": "loop"
+}/*EDITMODE-END*/;
+
+function applyTweaks(t) {
+  const root = document.documentElement;
+  root.style.setProperty('--accent-h', t.accentHue);
+  root.style.setProperty('--density', t.density);
+  root.style.setProperty('--anim', t.anim || 0.0001);
+  root.style.setProperty('--font-display', t.fontDisplay);
+  root.style.setProperty('--font-body', t.fontBody);
+  root.setAttribute('data-theme', t.theme);
+  document.body.dataset.hero = t.heroVariant;
+  // ui sync
+  document.querySelectorAll('#accentSw button').forEach(b => b.classList.toggle('on', +b.dataset.h === +t.accentHue));
+  document.querySelectorAll('#tweaks [data-theme]').forEach(b => b.classList.toggle('on', b.dataset.theme === t.theme));
+  document.querySelectorAll('#heroVariant button').forEach(b => b.classList.toggle('on', b.dataset.variant === t.heroVariant));
+  document.getElementById('fontDisplay').value = t.fontDisplay;
+  document.getElementById('fontBody').value = t.fontBody;
+  document.getElementById('densSlider').value = t.density;
+  document.getElementById('animSlider').value = t.anim;
+  const densNames = { 0.85: 'Compact', 0.9: 'Compact', 0.95: 'Snug', 1: 'Normal', 1.05: 'Airy', 1.1: 'Spacious', 1.15: 'Spacious' };
+  document.getElementById('densVal').textContent = densNames[t.density] || 'Custom';
+  const animNames = { 0: 'Off', 0.25: 'Subtle', 0.5: 'Calm', 0.75: 'Calm', 1: 'Normal', 1.25: 'Lively', 1.5: 'Energetic' };
+  document.getElementById('animVal').textContent = animNames[t.anim] || 'Normal';
+  startLoop();
+}
+function updateTweak(k, v) {
+  TWEAKS[k] = v;
+  applyTweaks(TWEAKS);
+  try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits: { [k]: v } }, '*'); } catch(e) {}
+}
+
+document.querySelectorAll('#accentSw button').forEach(b =>
+  b.addEventListener('click', () => updateTweak('accentHue', +b.dataset.h)));
+document.querySelectorAll('#tweaks [data-theme]').forEach(b =>
+  b.addEventListener('click', () => updateTweak('theme', b.dataset.theme)));
+document.querySelectorAll('#heroVariant button').forEach(b =>
+  b.addEventListener('click', () => updateTweak('heroVariant', b.dataset.variant)));
+document.getElementById('fontDisplay').addEventListener('change', e => updateTweak('fontDisplay', e.target.value));
+document.getElementById('fontBody').addEventListener('change', e => updateTweak('fontBody', e.target.value));
+document.getElementById('densSlider').addEventListener('input', e => updateTweak('density', +e.target.value));
+document.getElementById('animSlider').addEventListener('input', e => updateTweak('anim', +e.target.value));
+
+applyTweaks(TWEAKS);
+
+/* Tweaks panel open/close */
+const tweaksEl = document.getElementById('tweaks');
+const tweaksToggle = document.getElementById('tweaksToggle');
+const tweaksClose = document.getElementById('tweaksClose');
+tweaksToggle.addEventListener('click', () => {
+  tweaksEl.classList.toggle('open');
+  tweaksToggle.style.display = tweaksEl.classList.contains('open') ? 'none' : 'grid';
+});
+tweaksClose.addEventListener('click', () => {
+  tweaksEl.classList.remove('open');
+  tweaksToggle.style.display = 'grid';
+});
+
+/* EDIT MODE protocol */
+window.addEventListener('message', (e) => {
+  if (!e.data || !e.data.type) return;
+  if (e.data.type === '__activate_edit_mode') tweaksEl.classList.add('open');
+  if (e.data.type === '__deactivate_edit_mode') tweaksEl.classList.remove('open');
+});
+try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch(e) {}
+</script>
+</body>
+</html>

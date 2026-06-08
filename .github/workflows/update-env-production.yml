@@ -1,0 +1,89 @@
+name: Update Production Environment
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  update-env:
+    name: Update .env on VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Copy updated .env to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          source: .env.production
+          target: /opt/spravio
+          overwrite: true
+
+      - name: Apply configuration and restart services
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 10m
+          script: |
+            set -e
+            cd /opt/spravio
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🔧 Updating Production Environment"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+            # Backup current .env
+            if [ -f .env ]; then
+              cp .env .env.backup.$(date +%Y%m%d_%H%M%S)
+              echo "✅ Backed up existing .env"
+            fi
+
+            # Replace with new .env
+            mv .env.production .env
+            echo "✅ Updated .env file"
+
+            # Stop all services
+            echo ""
+            echo "⏸️  Stopping services..."
+            docker compose -f docker-compose.prod.yml down
+
+            # Remove old volumes to force fresh start
+            echo "🗑️  Removing old volumes..."
+            docker volume rm spravio_postgres_data spravio_redis_data 2>/dev/null || true
+
+            # Start database services
+            echo ""
+            echo "▶️  Starting postgres and redis..."
+            docker compose -f docker-compose.prod.yml up -d postgres redis
+
+            # Wait for health
+            echo "⏳ Waiting for databases..."
+            sleep 15
+
+            # Apply Prisma schema (using db push for clean setup)
+            echo ""
+            echo "📦 Applying database schema..."
+            docker compose -f docker-compose.prod.yml run --rm api npx prisma db push --accept-data-loss
+
+            # Start all services
+            echo ""
+            echo "🚀 Starting all services..."
+            docker compose -f docker-compose.prod.yml up -d
+
+            # Wait and health check
+            echo ""
+            echo "⏳ Waiting for services to be ready..."
+            sleep 10
+
+            echo ""
+            echo "📊 Container Status:"
+            docker compose -f docker-compose.prod.yml ps
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✅ Environment updated successfully!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"

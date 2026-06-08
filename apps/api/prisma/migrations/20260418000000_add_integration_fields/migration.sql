@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "trelloBoardId" TEXT;
+ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "clickupSpaceId" TEXT;
+ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "linearTeamId" TEXT;
+ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "asanaProjectId" TEXT;
+ALTER TABLE "Project" ADD COLUMN IF NOT EXISTS "mondayBoardId" TEXT;

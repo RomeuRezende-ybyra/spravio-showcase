@@ -1,0 +1,140 @@
+# Spravio - Docker Compose com Traefik
+# Use este arquivo se você já tem Traefik configurado no VPS
+# Comando: docker-compose -f docker-compose.traefik.yml up -d
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: spravio_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: trackingproject
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - spravio-network
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: spravio_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    networks:
+      - spravio-network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: spravio_api
+    restart: unless-stopped
+    expose:
+      - "3010"
+    environment:
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/trackingproject
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: ${JWT_SECRET:-docker-dev-secret-change-in-prod}
+      PORT: '3010'
+      NODE_ENV: production
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-https://spravio.io,https://api.spravio.io}
+      PORTAL_SECRET: ${PORTAL_SECRET}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY}
+    networks:
+      - spravio-network
+      - proxy  # Conecta à rede do Traefik
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    labels:
+      # Habilita Traefik para este container
+      - "traefik.enable=true"
+
+      # Configuração do roteador HTTP
+      - "traefik.http.routers.spravio-api.rule=Host(`api.spravio.io`)"
+      - "traefik.http.routers.spravio-api.entrypoints=websecure"
+      - "traefik.http.routers.spravio-api.tls=true"
+      - "traefik.http.routers.spravio-api.tls.certresolver=letsencrypt"
+
+      # Configuração do serviço
+      - "traefik.http.services.spravio-api.loadbalancer.server.port=3010"
+
+      # Middlewares (CORS, headers, etc.)
+      - "traefik.http.middlewares.spravio-api-headers.headers.accesscontrolalloworiginlist=https://spravio.io"
+      - "traefik.http.middlewares.spravio-api-headers.headers.accesscontrolallowmethods=GET,POST,PUT,DELETE,OPTIONS"
+      - "traefik.http.middlewares.spravio-api-headers.headers.accesscontrolallowheaders=Authorization,Content-Type"
+      - "traefik.http.routers.spravio-api.middlewares=spravio-api-headers"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Build-time: usa rede interna do Docker para SSR
+        NEXT_PUBLIC_API_URL: http://api:3010
+    container_name: spravio_web
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      # Runtime: URL pública para client-side
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.spravio.io}
+      NEXTAUTH_URL: ${NEXTAUTH_URL:-https://spravio.io}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-docker-dev-secret-change-in-prod}
+      NODE_ENV: production
+    networks:
+      - spravio-network
+      - proxy  # Conecta à rede do Traefik
+    depends_on:
+      - api
+    labels:
+      # Habilita Traefik para este container
+      - "traefik.enable=true"
+
+      # Configuração do roteador HTTP
+      - "traefik.http.routers.spravio-web.rule=Host(`spravio.io`) || Host(`www.spravio.io`)"
+      - "traefik.http.routers.spravio-web.entrypoints=websecure"
+      - "traefik.http.routers.spravio-web.tls=true"
+      - "traefik.http.routers.spravio-web.tls.certresolver=letsencrypt"
+
+      # Configuração do serviço
+      - "traefik.http.services.spravio-web.loadbalancer.server.port=3000"
+
+      # Redirect www para não-www (opcional)
+      - "traefik.http.middlewares.spravio-web-redirect.redirectregex.regex=^https://www.spravio.io/(.*)"
+      - "traefik.http.middlewares.spravio-web-redirect.redirectregex.replacement=https://spravio.io/$${1}"
+      - "traefik.http.middlewares.spravio-web-redirect.redirectregex.permanent=true"
+
+      # Security headers
+      - "traefik.http.middlewares.spravio-web-headers.headers.framedeny=true"
+      - "traefik.http.middlewares.spravio-web-headers.headers.sslredirect=true"
+      - "traefik.http.middlewares.spravio-web-headers.headers.stsincludesubdomains=true"
+      - "traefik.http.middlewares.spravio-web-headers.headers.stspreload=true"
+      - "traefik.http.middlewares.spravio-web-headers.headers.stsseconds=31536000"
+
+      # Aplicar middlewares
+      - "traefik.http.routers.spravio-web.middlewares=spravio-web-headers"
+
+networks:
+  spravio-network:
+    driver: bridge
+  proxy:
+    external: true  # Assume que você já tem uma rede chamada "traefik"
+
+volumes:
+  postgres_data:
+  redis_data:

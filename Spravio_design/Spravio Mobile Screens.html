@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Spravio Mobile — Telas iOS + Android</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;1,9..144,300&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Roboto:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:oklch(0.94 0.015 70);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:oklch(0.22 0.02 40)}
+body{padding:0 0 80px}
+.page-hdr{padding:56px 48px 40px;border-bottom:1px solid oklch(0.86 0.015 60);background:oklch(0.975 0.012 75);position:relative}
+.page-hdr .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;letter-spacing:0.14em;text-transform:uppercase;color:oklch(0.56 0.015 45);display:inline-flex;align-items:center;gap:10px}
+.page-hdr .eyebrow::before{content:"";width:22px;height:1px;background:oklch(0.56 0.015 45)}
+.page-hdr h1{font-family:'Fraunces',serif;font-weight:300;font-size:clamp(42px,5vw,64px);letter-spacing:-0.025em;line-height:1.02;margin:16px 0 0}
+.page-hdr h1 em{font-style:italic;color:oklch(0.42 0.12 35)}
+.page-hdr .lede{margin-top:20px;color:oklch(0.36 0.02 40);font-size:17px;line-height:1.55;max-width:640px}
+.stamp{position:absolute;top:56px;right:48px;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.56 0.015 45);letter-spacing:0.06em;text-align:right;line-height:1.8}
+.stamp strong{color:oklch(0.22 0.02 40);font-weight:500}
+
+.screens-grid{padding:56px 48px 0;display:flex;flex-direction:column;gap:72px}
+.row{display:flex;align-items:flex-start;gap:28px;flex-wrap:wrap}
+.row-header{flex:0 0 220px;padding-top:24px;position:sticky;top:20px}
+.row-header .num{font-family:'Fraunces',serif;font-style:italic;font-weight:300;font-size:72px;color:oklch(0.62 0.14 35);line-height:0.8}
+.row-header h2{font-family:'Fraunces',serif;font-weight:400;font-size:32px;letter-spacing:-0.02em;margin:8px 0 0;line-height:1.1}
+.row-header p{font-size:13px;color:oklch(0.36 0.02 40);line-height:1.55;margin:12px 0 0;max-width:220px}
+.row-header .tag{margin-top:14px;display:inline-block;padding:3px 8px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em;text-transform:uppercase;font-weight:500}
+.row-header .tag.mvp{background:color-mix(in oklab,oklch(0.62 0.14 35) 18%,transparent);color:oklch(0.42 0.12 35)}
+.device-pair{display:flex;gap:36px;flex-wrap:wrap;flex:1;align-items:flex-start}
+.device-col{display:flex;flex-direction:column;gap:14px;align-items:center}
+.device-label{font-family:'JetBrains Mono',monospace;font-size:10px;color:oklch(0.56 0.015 45);letter-spacing:0.12em;text-transform:uppercase;font-weight:500}
+.device-label strong{color:oklch(0.22 0.02 40);font-weight:600}
+
+/* tweaks panel */
+.tweaks{position:fixed;bottom:20px;right:20px;width:300px;background:oklch(0.99 0.008 80);border:1px solid oklch(0.82 0.02 55);border-radius:16px;box-shadow:0 20px 40px -10px oklch(0 0 0 / 0.15);z-index:100;display:none}
+.tweaks.on{display:block}
+.tweaks h3{font-family:'Fraunces',serif;font-weight:400;font-size:18px;margin:0;padding:18px 20px 4px;letter-spacing:-0.015em}
+.tweaks .sub{font-family:'JetBrains Mono',monospace;font-size:9px;color:oklch(0.56 0.015 45);letter-spacing:0.12em;text-transform:uppercase;padding:0 20px 14px;border-bottom:1px solid oklch(0.88 0.015 60)}
+.tw-group{padding:14px 20px;border-bottom:1px solid oklch(0.88 0.015 60)}
+.tw-group:last-child{border-bottom:0}
+.tw-group label{display:block;font-size:11px;color:oklch(0.36 0.02 40);font-weight:500;margin-bottom:8px;letter-spacing:0.02em;text-transform:uppercase;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:0.12em}
+.tw-chips{display:flex;gap:6px;flex-wrap:wrap}
+.tw-chip{padding:5px 10px;border-radius:100px;border:1px solid oklch(0.82 0.02 55);background:transparent;color:oklch(0.36 0.02 40);font-size:11px;cursor:pointer;font-family:'Inter',sans-serif}
+.tw-chip.on{background:oklch(0.22 0.02 40);color:oklch(0.97 0.01 70);border-color:oklch(0.22 0.02 40)}
+.tw-swatches{display:flex;gap:6px}
+.tw-sw{width:28px;height:28px;border-radius:8px;cursor:pointer;border:2px solid transparent}
+.tw-sw.on{border-color:oklch(0.22 0.02 40)}
+
+footer{padding:48px;font-family:'JetBrains Mono',monospace;font-size:11px;color:oklch(0.56 0.015 45);letter-spacing:0.06em;text-align:center}
+
+/* density tweaks */
+body.dense .device-pair{gap:20px}
+body.dense .screens-grid{gap:56px}
+
+/* primary color override */
+body[data-accent="warm"]{--acc:oklch(0.62 0.14 35);--acc-deep:oklch(0.42 0.12 35)}
+body[data-accent="indigo"]{--acc:oklch(0.55 0.16 265);--acc-deep:oklch(0.35 0.15 265)}
+body[data-accent="forest"]{--acc:oklch(0.5 0.12 150);--acc-deep:oklch(0.35 0.1 150)}
+</style>
+</head>
+<body>
+
+<header class="page-hdr">
+  <span class="eyebrow">Spravio mobile · hi-fi screens</span>
+  <div class="stamp"><strong>v0.2 · TELAS MVP</strong><br>19 ABR 2026<br>PLATAFORMAS · iOS + ANDROID<br>9 TELAS PRINCIPAIS</div>
+  <h1>Nove telas, <em>duas plataformas.</em></h1>
+  <p class="lede">As telas críticas do Spravio mobile em frames iOS + Android lado a lado. Mesma informação, comportamentos nativos. Ative <strong>Tweaks</strong> na toolbar pra experimentar variações de cor, densidade e fonte.</p>
+</header>
+
+<main class="screens-grid" id="screens">
+  <!-- screens rendered into this -->
+</main>
+
+<div class="tweaks" id="tweaks">
+  <h3>Tweaks</h3>
+  <div class="sub">Experimente variações</div>
+  <div class="tw-group">
+    <label>Accent color</label>
+    <div class="tw-swatches">
+      <div class="tw-sw on" data-accent="warm" style="background:oklch(0.62 0.14 35)"></div>
+      <div class="tw-sw" data-accent="indigo" style="background:oklch(0.55 0.16 265)"></div>
+      <div class="tw-sw" data-accent="forest" style="background:oklch(0.5 0.12 150)"></div>
+    </div>
+  </div>
+  <div class="tw-group">
+    <label>Densidade</label>
+    <div class="tw-chips">
+      <button class="tw-chip on" data-density="default">Confortável</button>
+      <button class="tw-chip" data-density="dense">Denso</button>
+    </div>
+  </div>
+  <div class="tw-group">
+    <label>Display font</label>
+    <div class="tw-chips">
+      <button class="tw-chip on" data-font="fraunces">Fraunces</button>
+      <button class="tw-chip" data-font="inter">Inter</button>
+    </div>
+  </div>
+</div>
+
+<footer>SPRAVIO MOBILE · v0.2 · 9 TELAS MVP · ✦ PRONTO PARA VALIDAÇÃO</footer>
+
+<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" src="mobile/screens-data.jsx"></script>
+<script type="text/babel" src="mobile/screens-ios.jsx"></script>
+<script type="text/babel" src="mobile/screens-android.jsx"></script>
+<script type="text/babel" src="mobile/screens-secondary.jsx"></script>
+
+<script type="text/babel">
+// Device shells — custom com scale consistente
+function IOSShell({ children, w = 390, h = 760 }) {
+  return (
+    <div data-screen-label={arguments[0]?.label || ''} style={{
+      width: w, height: h, borderRadius: 44, overflow: 'hidden',
+      position: 'relative', background: '#000',
+      boxShadow: '0 30px 60px rgba(0,0,0,0.18), 0 0 0 1px rgba(0,0,0,0.12)',
+      padding: 3,
+    }}>
+      <div style={{ width: '100%', height: '100%', borderRadius: 40, overflow: 'hidden', position: 'relative', background: '#fff' }}>
+        {children}
+      </div>
+      {/* home indicator */}
+      <div style={{ position: 'absolute', bottom: 6, left: '50%', transform: 'translateX(-50%)', width: 130, height: 4, borderRadius: 100, background: 'rgba(0,0,0,0.25)', zIndex: 60 }}/>
+    </div>
+  );
+}
+function AndShell({ children, w = 390, h = 760 }) {
+  return (
+    <div style={{
+      width: w, height: h, borderRadius: 24, overflow: 'hidden',
+      background: '#1d1b20', border: '6px solid rgba(116,119,117,0.6)',
+      boxShadow: '0 30px 60px rgba(0,0,0,0.22)',
+    }}>
+      <div style={{ width: '100%', height: '100%', background: AND_C.bg, position: 'relative', display: 'flex', flexDirection: 'column' }}>
+        {/* status bar */}
+        <div style={{ height: 34, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 16px', fontFamily: 'Roboto, system-ui', fontSize: 13, fontWeight: 500, color: AND_C.onSurface }}>
+          <span>9:30</span>
+          <div style={{ display: 'flex', gap: 5 }}>
+            <svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 13.3L.67 5.97a10.37 10.37 0 0114.66 0L8 13.3z" fill={AND_C.onSurface}/></svg>
+            <svg width="14" height="14" viewBox="0 0 16 16"><rect x="3.75" y="2" width="8.5" height="13" rx="1.5" fill={AND_C.onSurface}/></svg>
+          </div>
+        </div>
+        <div style={{ flex: 1, overflow: 'hidden' }}>{children}</div>
+        {/* gesture bar */}
+        <div style={{ height: 18, display: 'grid', placeItems: 'center' }}>
+          <div style={{ width: 110, height: 3, borderRadius: 2, background: AND_C.onSurface, opacity: 0.4 }}/>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const ROWS = [
+  { num: '01', label: 'Portfolio', mvp: true, desc: 'Entry point. Todos os projetos com health chip, forecast IA e alerta de PRs stale.', ios: PortfolioIOS, and: PortfolioAnd, key: '01-portfolio' },
+  { num: '02', label: 'Sprint', mvp: true, desc: 'Sprint atual do projeto. Forecast IA em destaque, burndown, KPIs e board com colunas.', ios: SprintIOS, and: SprintAnd, key: '02-sprint' },
+  { num: '03', label: 'PR detail', mvp: true, desc: 'Aberto via deep-link do push. Ação crítica em 3 taps: abrir no GitHub, ping ou snooze.', ios: PRDetailIOS, and: PRDetailAnd, key: '03-pr-detail' },
+  { num: '04', label: 'Inbox', mvp: true, desc: 'Alertas agrupados por severidade. Unread marcado à esquerda, metadata em mono.', ios: InboxIOS, and: InboxAnd, key: '04-inbox' },
+  { num: '05', label: 'Eu', mvp: true, desc: 'Perfil, organização, toggles de push, conta. Controle fino do que vira notificação.', ios: MeIOS, and: MeAnd, key: '05-me' },
+  { num: '06', label: 'Login', mvp: true, desc: 'Entrada única. Biometria é ativada depois do primeiro login bem-sucedido.', ios: LoginIOS, and: LoginAnd, key: '06-login' },
+  { num: '07', label: 'Onboarding', mvp: true, desc: 'Permissão de push com exemplo real de notificação — por que vale a pena ativar.', ios: OnboardingIOS, and: OnboardingAnd, key: '07-onboarding' },
+  { num: '08', label: 'Orçamento', mvp: true, desc: 'Gauge de consumo, breakdown por dev e CTA para lançar horas. Alerta quando >85%.', ios: BudgetIOS, and: BudgetAnd, key: '08-budget' },
+  { num: '09', label: 'Time', mvp: true, desc: 'Scorecard dos devs do sprint: velocity, cards, PRs e stale — com tendência.', ios: DevelopersIOS, and: DevelopersAnd, key: '09-team' },
+];
+
+function Screens() {
+  return (
+    <>
+      {ROWS.map(r => (
+        <div key={r.key} className="row" data-screen-label={r.key}>
+          <div className="row-header">
+            <div className="num">{r.num}</div>
+            <h2>{r.label}</h2>
+            <p>{r.desc}</p>
+            {r.mvp && <span className="tag mvp">MVP</span>}
+          </div>
+          <div className="device-pair">
+            <div className="device-col">
+              <span className="device-label"><strong>iOS</strong> · 390×760</span>
+              <IOSShell><r.ios/></IOSShell>
+            </div>
+            <div className="device-col">
+              <span className="device-label"><strong>Android</strong> · 390×760 · M3</span>
+              <AndShell><r.and/></AndShell>
+            </div>
+          </div>
+        </div>
+      ))}
+    </>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('screens')).render(<Screens/>);
+
+// ======= Tweaks handshake =======
+const TWEAK_DEFAULTS = /*EDITMODE-BEGIN*/{
+  "accent": "warm",
+  "density": "default",
+  "font": "fraunces"
+}/*EDITMODE-END*/;
+
+let state = { ...TWEAK_DEFAULTS };
+
+function applyState() {
+  document.body.setAttribute('data-accent', state.accent);
+  document.body.classList.toggle('dense', state.density === 'dense');
+  // font swap: só altera display nas section headers; nas telas preserva
+  const headers = document.querySelectorAll('.page-hdr h1, .row-header h2');
+  headers.forEach(h => h.style.fontFamily = state.font === 'inter' ? "'Inter',sans-serif" : "'Fraunces',serif");
+  headers.forEach(h => h.style.fontWeight = state.font === 'inter' ? '600' : '300');
+  // mark active swatches/chips
+  document.querySelectorAll('.tw-sw').forEach(sw => sw.classList.toggle('on', sw.dataset.accent === state.accent));
+  document.querySelectorAll('.tw-chip[data-density]').forEach(c => c.classList.toggle('on', c.dataset.density === state.density));
+  document.querySelectorAll('.tw-chip[data-font]').forEach(c => c.classList.toggle('on', c.dataset.font === state.font));
+}
+
+function setKeys(edits) {
+  state = { ...state, ...edits };
+  applyState();
+  try { window.parent.postMessage({ type: '__edit_mode_set_keys', edits }, '*'); } catch (e) {}
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.matches('.tw-sw')) setKeys({ accent: e.target.dataset.accent });
+  else if (e.target.matches('.tw-chip[data-density]')) setKeys({ density: e.target.dataset.density });
+  else if (e.target.matches('.tw-chip[data-font]')) setKeys({ font: e.target.dataset.font });
+});
+
+// Edit mode listeners — register BEFORE announcing
+window.addEventListener('message', (e) => {
+  if (!e.data) return;
+  if (e.data.type === '__activate_edit_mode') document.getElementById('tweaks').classList.add('on');
+  if (e.data.type === '__deactivate_edit_mode') document.getElementById('tweaks').classList.remove('on');
+});
+try { window.parent.postMessage({ type: '__edit_mode_available' }, '*'); } catch (e) {}
+
+applyState();
+</script>
+
+</body>
+</html>

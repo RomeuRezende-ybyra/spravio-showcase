@@ -1,0 +1,111 @@
+name: Fix Production Issues
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+jobs:
+  fix:
+    name: Fix Production Issues
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fix Production Issues via SSH
+        uses: appleboy/ssh-action@v1
+        env:
+          GHCR_USER: ${{ secrets.GHCR_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          envs: GHCR_USER,GHCR_TOKEN
+          command_timeout: 15m
+          script: |
+            set -e
+            cd /opt/spravio
+
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "🔧 Fixing Production Issues"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+
+            # 1. Fix .env configuration
+            echo "📝 Step 1: Updating .env with correct configuration..."
+
+            # Fix GHCR credentials
+            sed -i '/^GHCR_USER=/d' .env 2>/dev/null || true
+            sed -i '/^GHCR_TOKEN=/d' .env 2>/dev/null || true
+            echo "" >> .env
+            echo "# GitHub Container Registry" >> .env
+            echo "GHCR_USER=${GHCR_USER}" >> .env
+            echo "GHCR_TOKEN=${GHCR_TOKEN}" >> .env
+
+            # Fix Docker image names (must use full GHCR paths)
+            sed -i 's|^API_IMAGE=spravio-api|API_IMAGE=ghcr.io/your-org/spravio-api|' .env
+            sed -i 's|^WEB_IMAGE=spravio-web|WEB_IMAGE=ghcr.io/your-org/spravio-web|' .env
+            sed -i 's|^API_IMAGE=.*spravio-api$|API_IMAGE=ghcr.io/your-org/spravio-api|' .env
+            sed -i 's|^WEB_IMAGE=.*spravio-web$|WEB_IMAGE=ghcr.io/your-org/spravio-web|' .env
+
+            echo "   ✅ .env configuration updated"
+
+            # 2. Login to GHCR
+            echo ""
+            echo "🔑 Step 2: Logging in to GHCR..."
+            echo "${GHCR_TOKEN}" | docker login ghcr.io -u "${GHCR_USER}" --password-stdin
+            echo "   ✅ GHCR login successful"
+
+            # 3. Run database migrations
+            echo ""
+            echo "🗄️  Step 3: Running database migrations..."
+            docker compose exec -T api npx prisma migrate deploy || {
+              echo "   ⚠️  Migration failed, trying to generate Prisma client..."
+              docker compose exec -T api npx prisma generate
+              docker compose exec -T api npx prisma migrate deploy
+            }
+            echo "   ✅ Migrations applied"
+
+            # 4. Restart containers to apply changes
+            echo ""
+            echo "🔄 Step 4: Restarting containers..."
+            docker compose restart api web
+            sleep 5
+            echo "   ✅ Containers restarted"
+
+            # 5. Health check
+            echo ""
+            echo "🏥 Step 5: Health check..."
+            sleep 3
+            if curl -sf http://localhost:3010/health > /dev/null; then
+              echo "   ✅ API is healthy"
+            else
+              echo "   ❌ API health check failed"
+              docker compose logs --tail=20 api
+              exit 1
+            fi
+
+            # 6. Setup backups if not configured
+            echo ""
+            echo "💾 Step 6: Checking backup configuration..."
+            if ! crontab -l 2>/dev/null | grep -q "backup-database.sh"; then
+              echo "   Setting up automated backups..."
+              chmod +x scripts/setup-backup-cron.sh
+              echo "yes" | ./scripts/setup-backup-cron.sh || true
+              echo "   ✅ Backup cron job configured"
+            else
+              echo "   ✅ Backups already configured"
+            fi
+
+            echo ""
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo "✅ All fixes applied successfully!"
+            echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+            echo ""
+
+            # Final status
+            echo "📊 Final Status:"
+            docker compose ps
+            echo ""
+            echo "🏥 Health Check:"
+            curl -sf http://localhost:3010/health/detailed | jq '.' || echo "Health endpoint not responding"
