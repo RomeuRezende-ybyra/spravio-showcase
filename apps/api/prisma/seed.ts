@@ -17,11 +17,11 @@ async function main() {
     return
   }
 
-  // Clear existing data
+  // Clear existing data (child tables first to respect FK constraints)
   console.log('🗑️  Clearing existing data...')
-  await prisma.pullRequest.deleteMany()
   await prisma.sprint.deleteMany()
   await prisma.projectDeveloper.deleteMany()
+  await prisma.developer.deleteMany()
   await prisma.projectAssignment.deleteMany()
   await prisma.projectBudget.deleteMany()
   await prisma.project.deleteMany()
@@ -147,15 +147,17 @@ async function main() {
 
   // Create Project Budgets
   console.log('💰 Creating project budgets...')
+  const now = new Date()
+  const sixMonthsLater = new Date(now.getFullYear(), now.getMonth() + 6, now.getDate())
   await Promise.all(
     projects.map((project, index) =>
       prisma.projectBudget.create({
         data: {
           projectId: project.id,
           totalBudget: 100000 + index * 50000,
-          consumedBudget: 60000 + index * 20000,
-          month: new Date().getMonth() + 1,
-          year: new Date().getFullYear(),
+          currency: 'USD',
+          startDate: now,
+          endDate: sixMonthsLater,
         },
       }),
     ),
@@ -173,50 +175,31 @@ async function main() {
 
   // Create Sprints
   console.log('🏃 Creating sprints...')
-  const _sprint = await prisma.sprint.create({
+  await prisma.sprint.create({
     data: {
       projectId: projects[0].id,
       name: 'Sprint 1',
       startDate: new Date(),
       endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
-      goal: 'Implement user authentication',
-      status: 'ACTIVE',
+      state: 'ACTIVE',
       totalPoints: 50,
       completedPoints: 30,
     },
   })
 
-  // Create Developers
+  // Create Developers and link to projects
   console.log('💻 Creating developers...')
+  const devs = await Promise.all([
+    prisma.developer.create({ data: { name: 'Ana Silva', email: 'ana@demo.com', githubLogin: 'anasilva' } }),
+    prisma.developer.create({ data: { name: 'Carlos Souza', email: 'carlos@demo.com', githubLogin: 'carlossouza' } }),
+    prisma.developer.create({ data: { name: 'Marina Costa', email: 'marina@demo.com', githubLogin: 'marinacosta' } }),
+  ])
+
   await prisma.projectDeveloper.createMany({
     data: [
-      { projectId: projects[0].id, name: 'Dev 1', externalId: 'dev-1' },
-      { projectId: projects[0].id, name: 'Dev 2', externalId: 'dev-2' },
-      { projectId: projects[1].id, name: 'Dev 3', externalId: 'dev-3' },
-    ],
-  })
-
-  // Create Pull Requests
-  console.log('🔀 Creating pull requests...')
-  await prisma.pullRequest.createMany({
-    data: [
-      {
-        projectId: projects[0].id,
-        externalId: 'pr-1',
-        title: 'Add login page',
-        state: 'open',
-        createdAt: new Date(),
-        author: 'Dev 1',
-      },
-      {
-        projectId: projects[0].id,
-        externalId: 'pr-2',
-        title: 'Fix authentication bug',
-        state: 'merged',
-        createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-        mergedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        author: 'Dev 2',
-      },
+      { projectId: projects[0].id, developerId: devs[0].id, rating: 4.5, deliveryRate: 92 },
+      { projectId: projects[0].id, developerId: devs[1].id, rating: 4.2, deliveryRate: 88 },
+      { projectId: projects[1].id, developerId: devs[2].id, rating: 4.8, deliveryRate: 95 },
     ],
   })
 
